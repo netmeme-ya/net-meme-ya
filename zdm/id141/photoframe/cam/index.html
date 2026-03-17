@@ -1,0 +1,79 @@
+<!--©ねとみむや 閲覧状況監視中。ソースコードは日本国の著作権法で守られています。-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="date" content="2024-01-01T00:00:00+09:00">
+<title>カメラDEフォトフレーム</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--favicon-->
+<link rel="icon" href="../../icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="../../icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="../../icon/i180.png">
+<!--CSS-->
+<link rel="stylesheet" href="cam.css">
+<link rel="stylesheet" href="../pic/no_yoko.css">
+<link rel="stylesheet" href="../pic/sns.css">
+<!--JSはBODYの最後・ua.jsはSP判定-->
+<script src="../pic/ua.js"></script>
+</head>
+<body>
+<a id="a_top"></a>
+<div id="errormoji" style="display: none;">
+    <h2 style="color: red;">カメラ エラー(Camera Error)<h2>
+    <p style="margin: 0.5em auto;"><b>カメラが使用できません。</b></p>       
+    <a href="../index.html"><p><u style="color: blue;">【BACK】</u></p></a>
+</div>
+<div id="wrap">
+    <div id="video-container">
+        <video id="webcam-video" autoplay playsinline width="1080" height="1080"></video>
+        <img id="photoframe" src="../frame/kihon.webp"  width="1080" height="1080" alt="フォトフレーム">
+    </div>
+    <div class="cap_btn_div">
+        <audio id="btn_audio" preload="auto"><source src="../pic/photo.mp3" type="audio/mp3"></audio>
+        <div id="capture-button"><div class="btn_cap"><img src="../pic/i_cam.svg" class="capicon" width="30" height="30" alt="撮影"></div></div>
+        <div id="kaiten-button"><div class="btn_kaiten"><img src="../pic/i_kaiten.svg" class="capicon"  width="30" height="30" alt="カメラ切替"></div></div>
+        <p id="kaiaten-load" style="display: none;">Loading...</p>
+        <a href="#pageend" id="dlmark_a" style="display: none;">
+            <img src="../pic/dlmark.svg" id="dlmark" width="30" height="30" style="display: none;" alt="↓">
+        </a>
+    </div>
+
+    <div id="captured-image-container">
+        <img id="captured-image" src="" alt="キャプチャ画像">
+        <img id="dammy-image" src="../pic/dammy-image.webp" width="30" height="30" alt="キャプチャ表示の下地用">
+
+        <a id="download-button" class="download-button" download="photo_frame.jpg" style="display: none;">保存(DOWNLOAD)</a>
+        <div class="dl_keikoku">
+            <p id="dl_iphone" style="display: none;">フォトフレームはアルバムではなく<br><b>「ファイル」</b>に保存されています。</p>
+            <p id="dl_android" style="display: none;">フォトフレームはアルバムではなく<br><b>「ダウンロード」</b>に保存されています。</p>
+        </div>
+    </div>
+    <div class="ma"></div>
+
+    <div id="sns_oya" style="display: none;">
+        <a href="https://twitter.com/" target="_blank"><div class="sns_ko"><img src="../pic/i_x.svg" width="30" height="30" alt="X(Twitter)"></div></a>
+        <a href="https://www.instagram.com/" target="_blank"><div class="sns_ko"><img src="../pic/i_insta.svg" width="30" height="30" alt="Instagram"></div></a>
+    </div>
+
+    <div class="ma"></div>
+    <a id="back_a" href="#pageend"><div class="download-button">BACK</div></a>
+    <div id="back_keikoku" style="display: none;">
+        <p>撮影しましたが、まだ「保存」していません。それでも良ければもう一度「BACK」ボタンを押して下さい。</p>
+        <p>You have not yet saved this image.</p>
+    </div>
+    <div class="ma"></div>
+<footer>
+    <p>©ねとみむや</p>
+</footer>
+</div>
+<div id="no_yoko">
+	<p>このWEBアプリは「縦向き」でのみ動作します。</p>
+	<p>This web-appli works only in portrait orientation.</p>
+	<img src="../pic/noyoko_icon.svg" class="noyokoimg" width="100" height="100" alt="縦向きのみ">
+</div>
+<script src="cam.js"></script>
+<a id="pageend"></a>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="../pic/favicon.ico">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <!--favicon-->
+    <link rel="icon" href="../../icon/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="../../icon/i180.png" sizes="180x180" type="image/png">
+    <link rel="apple-touch-icon" href="../../icon/i180.png">
+    <!--fonts-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+    <title>入れ替えパズル｜ずんだもんがいっぱい！入れ替えパズル</title>
+    <!--個別css-->
+    <link href="game.css?260309-4" type="text/css" rel="stylesheet">
+</head>
+
+<body oncontextmenu="return false;">
+
+    <!--<span id="test_id_p" onclick="fc_testqlBTN();">■</span>-->
+    <p class="clear_count_p" id="clear_count_p">STAGE：<span id="clear_count_span">0 / 0</span></p>
+    <p class="area_count_p" id="area_count_p">AREA：65</p>
+
+    <div class="wrap_side">
+        <div class="main">
+            <div class="game-container" id="game"></div>
+        </div>
+
+        <img src="gazo/start_anime.webp" class="start_anime" id="start_anime" onclick="fc_start()" alt="スタートボタン" loading="eager" style="filter: brightness(0.5);">
+
+        <img src="gazo/tomei.webp" class="start_anime clear1mai" id="mihon1" alt="1枚絵">
+
+        <div class="footer_flex_div" style="/*フッター*/">
+            <img src="gazo/otoari.png" class="bt_oto" id="bt_oto" onclick="fc_oto()" alt="音声ONOFFボタン" loading="eager">
+
+            <p class="timer_p" id="timer_p">00:00:00</p>
+
+            <div class="giveUpButton" onclick="fc_giveup_window()" id="giveUpButton">ギブアップ</div>
+        </div>
+
+        <div class="next_div" id="next_div" style="/*クリア・モーダルウインドウ*/">
+            <p class="next_clear">GOOD!</p>
+            <p class="next_bt" onclick="fc_next()">NEXT <img src="gazo/sankaku.png" class="sankaku"></p>
+        </div>
+
+        <div class="next_div" id="allnext_div" style="/*1STAGEクリア・モーダルウインドウ*/">
+            <p class="next_clear" style="color: pink;">ALL CLEAR!</p>
+            <p class="next_bt allnext_bt" onclick="fc_areaClear();">NEXT AREA <img src="gazo/sankaku.png" class="sankaku"></p>
+        </div>
+
+        <div class="giveup_div" id="giveup_div" style="/*ギブアップ選択・モーダルウインドウ*/">
+            <p><b>ギブアップしますか？</b></p>
+            <div class="giveup_yesno_div">
+                <p class="giveup_no_p" onclick="fc_giveup_no()">NO</p>
+                <p onclick="fc_giveUp()">YES</p>
+            </div>
+        </div>
+
+        <div class="gameover_div" id="gameover_div" style="/*ゲームオーバー・モーダルウインドウ*/">
+            <div class="gameover_in_div">
+                <p class="gameover_p">GAMEOVER</p>
+                <a href="../index.html">
+                    <p class="gameover_bt_p">スタートへ戻る</p>
+                </a>
+            </div>
+        </div>
+    </div>
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img0" alt="2枚目のバッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img1" alt="1枚目のバッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img2" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img3" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img4" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img5" alt="次画面のバッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img6" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img7" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img8" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img9" alt="次画面のバッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img10" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img11" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img12" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img13" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img14" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img15" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/tomei.webp" class="baffer_img" id="baffer_img16" alt="次画面バッファー" width="1" height="0" loading="eager">
+    <img src="gazo/otonasi.png" class="baffer_img" alt="音声OFFボタン" width="1" height="0" loading="eager">
+    <script type="text/javascript" src="../js/all.js" defer></script>
+    <script type="text/javascript" src="game.js?260309-4" defer></script>
+</body>
+
+</html>

@@ -1,0 +1,430 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #000;
+    color: #FFF;
+    position: relative;
+    display: block;
+    margin: 0;
+    overflow: hidden;
+    text-align: center;
+    font-family: "Noto Sans JP", sans-serif;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+img,div{-webkit-tap-highlight-color: transparent;}
+p {
+    font-family: "Noto Sans JP", sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.wrap_side {
+    width: 100%;
+    background: #000;
+}
+
+.main {
+    position: relative;
+    max-width: 1024px;
+    margin: 0 auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/*ゲームに関するcss*/
+.start_anime {
+    width: 100%;
+    max-width: 1024px;
+    height: auto;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 169px;
+    margin: 0 auto;
+    display: block;
+    z-index: 99;
+    cursor: pointer;
+}
+
+.game-container {    
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 169px;
+    margin: 0 auto;
+    display: grid;
+    width: 100%;
+    max-width: 1024px;
+    aspect-ratio: 1/1;
+    border: 2px solid black;
+    border-left: none;
+    border-right: none;
+    margin: auto;
+    box-sizing: border-box;
+}
+.game_grid2 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+}
+
+.tile2 {
+    border: 1px solid black;
+    cursor: pointer;
+    background-size: 200% 200%;
+}
+.game_grid3 {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+.game_grid4 {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+}
+
+.game_grid5 {
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+}
+
+.game_grid6 {
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+}
+
+.tile3 {
+    border: 1px solid black;
+    cursor: pointer;
+    background-size: 300% 300%;
+}
+
+.tile4 {
+    border: 1px solid black;
+    cursor: pointer;
+    background-size: 400% 400%;
+}
+
+.tile5 {
+    border: 1px solid black;
+    cursor: pointer;
+    background-size: 500% 500%;
+}
+
+.tile6 {
+    border: 1px solid black;
+    cursor: pointer;
+    background-size: 600% 600%;
+}
+
+.selected {
+    border: 3px solid #00ffff;
+}
+
+.replaced {
+    animation: ani_feedout 0.5s linear;
+}
+
+@keyframes ani_feedout {
+    0% {        
+        filter: brightness(1.5);
+    }
+
+    100% {        
+        filter: brightness(1);
+    }
+}
+
+.baffer_img {
+    overflow: hidden;
+    width: 1px;
+    height: 0px;
+    position: fixed;
+    z-index: -1;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+}
+
+/*補助表示に関するcss*/
+/*ステージクリアまでの表示*/
+.clear_count_p,
+.area_count_p {
+    position: fixed;
+    left: 10px;
+    right: auto;
+    margin: 0 auto;
+    bottom: calc(100vw + 10px + 169px);
+    /*.start_anine+100vw＋10px*/
+    text-align: center;
+    padding: 8px 0;
+    font-size: 24px;
+    letter-spacing: 1px;
+}
+
+/*現在のエリア*/
+.area_count_p {
+    left: auto;
+    right: 10px;
+}
+
+/*テスト化ボタン*/
+#test_id_p {
+    z-index: 999;
+    font-size: 16px;
+    position: fixed;
+    left: 0;
+    margin: 0;
+    top: 0;
+    opacity: 0.2;
+}
+
+.footer_flex_div {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-top: 1px solid #FFF;
+    z-index: 3;
+}
+
+.bt_oto {
+    position: fixed;
+    bottom: 4px;
+    left: 0px;
+    margin: 0;
+    max-width: 34px;
+    padding: 0;
+    padding-left: 8px;
+    opacity: 0.6;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.timer_p {
+    width: fit-content;
+    position: fixed;
+    bottom: 13px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    display: block;
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 1px;
+    display: none;
+}
+
+.giveUpButton {
+    display: none;
+    position: fixed;
+    right: 2px;
+    bottom: 10px;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 500;
+    line-height: 16px;
+    font-size: 14px;
+    opacity: 0.6;
+    margin: 0 auto;
+    cursor: pointer;
+    text-align: center;
+    color: #FFF;
+    width: fit-content;
+    padding-right: 10px;
+    padding-bottom: 4px;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+
+.giveup_div {
+    position: fixed;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    bottom: 60px;
+    width: 90%;
+    max-width: 290px;
+    min-height: 72px;
+    background-color: rgba(155, 155, 155);
+    padding: 12px 0;
+    padding-top: 10px;
+    display: none;
+    z-index: 2;
+}
+
+.giveup_div p {
+    font-size: 16px;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.giveup_yesno_div {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-shadow: none;
+}
+
+.giveup_yesno_div p {
+    font-weight: bold;
+    border: 1px solid #FFF;
+    padding: 4px 16px;
+    margin: 0 20px;
+}
+
+.giveup_no_p {
+    cursor: pointer;
+    color: #000;
+    background: rgba(200, 200, 200);
+}
+
+.gameover_div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 998;
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+
+.gameover_in_div {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.gameover_p {
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: 40px;
+    color: red;
+    font-weight: 900;
+    list-style: 2em;
+}
+
+.gameover_bt_p {
+    max-width: 200px;
+    font-weight: bold;
+    border: 1px solid #FFF;
+    padding: 4px 16px;
+    margin: 20px auto;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/*クリア画面*/
+.next_div {
+    position: fixed;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    text-align: center;
+    display: none;
+}
+
+.next_clear {
+    color: #ff4ef5;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 2px;
+    padding-left: 4px;
+    padding-bottom: 14px;
+}
+
+.next_bt {
+    margin: 0 auto;
+    padding: 5px 1em;
+    text-align: center;
+    border: 1px solid #FFF;
+    background: rgba(255, 255, 255, 0.5);
+    color: #FFF;
+    font-weight: 700;
+    font-size: 20px;
+    max-width: 160px;
+    cursor: pointer;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    border-radius: 10px;
+}
+
+.allnext_bt {
+    border: 2px solid yellow;
+    background: #00cc36;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    border-radius: 10px;
+}
+
+.sankaku {
+    display: inline;
+    width: auto;
+    height: 17px;
+    margin-left: 10px;
+    vertical-align: -1px;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.4));
+}
+
+.clear1mai {
+    z-index: 98;
+    display: none;
+}
+
+@media screen and (max-width: 430px) {
+
+    /*補助表示に関するcss*/
+    .clear_count_p,
+    .area_count_p {
+        padding: 4px 0;
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+}
+
+@media screen and (max-width: 358px) {
+    .next_clear {
+        font-size: 12vw;
+        letter-spacing: 0;
+    }
+}
+
+/*横向き表示の際のcss*/
+@media (orientation: landscape) and (max-height: 1000px) {
+
+    .start_anime,
+    .main,
+    .game-container {
+        max-width: 740px;
+    }
+}
+
+@media (orientation: portrait) {}

@@ -1,0 +1,203 @@
+*{margin: 0;padding:0;}
+html{scroll-behavior: smooth;}
+html,body{
+margin: 0;padding:0;
+font-family: sans-serif;
+background-color: #000;
+overflow-x: hidden;
+line-height: 1.4em;
+}
+#wrap{width: 100%;
+max-width: 1080px;
+margin: 0 auto;
+background-color: #FFF;
+}
+#errormoji{
+    background-color: #FFF;
+    margin: 0 auto;
+    padding: 10px 0;
+    text-align: center;
+}
+#video-container {
+	width: 100%;
+	height: 1080px;/*広げておかないとつぶれるため*/
+    max-width: 1080px;
+    max-height: 1080px;
+    margin: 0 auto;
+    position: relative;
+    display: block;
+    overflow: hidden;
+}
+video {
+    position: absolute;
+    top:0;left: 0;right: 0;bottom: 0;
+	width: 100%;
+	height: auto;
+    max-width: 1080px;
+    max-height: 1080px;
+    object-fit: cover;
+    background-image: url(../pic/loading.webp);
+    background-size: 100% auto;
+    user-select: none;
+    pointer-events: none;
+}
+
+#photoframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+	height: auto;
+    max-width: 1080px;
+    user-select: none;
+    pointer-events: none;
+}
+#capture-button,#kaiten-button {
+    width: 100%;
+    height: auto;
+    cursor: pointer; 
+}
+#capture-button{opacity: 0.1;}
+.btn_cap,.btn_kaiten{
+    text-align: center;
+    border-radius: 10px;
+    display: block;
+    width: 120px;
+    max-width: 50%;
+    font-size: 18px;
+    font-weight: bold;
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;      
+}
+.btn_kaiten{
+    margin-top: 40px;
+    padding: 4px 20px;
+    padding-top:8px;
+    opacity:0.9;
+}
+.cap_btn_div{
+    display: block;
+    position: relative;
+}
+#dlmark{
+    position: absolute;
+    top:0;right: 8px;
+    width: 30px;height: auto;
+}
+.capicon{
+    margin: 0 auto;
+    margin-top:4px;
+    filter: brightness(400%);
+    width: 30px;
+    height: 30px;
+}
+#kaiaten-load{
+    font-size: 10px;
+    text-align: center;
+}
+#captured-image-container {
+    text-align: center;
+}
+#dammy-image{
+    display: block;
+    width: 100%;
+	height: auto;
+    max-width: 1080px;
+    margin: 20px auto;
+    user-select: none;
+    pointer-events: none;
+}
+#captured-image {
+    display: none;
+    width: 100%;
+	height: auto;
+    max-width: 1080px;
+    margin: 20px auto;
+}
+.download-button {
+    text-align: center;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    width: 400px;
+    max-width: 80%;
+    margin: 4px auto;
+    padding: 16px 0px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+}
+.dl_keikoku{
+    margin: 0 auto;
+    width: fit-content;
+    max-width: 90%;
+    user-select: none;
+}
+.dl_keikoku p{
+    text-align: left;
+    font-weight: 400;
+    font-size: 14px;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    color: #000;
+    word-break: break-all;
+    user-select: none;
+}
+/*戻るボタン*/
+#back_a{
+    text-decoration: none;
+    margin: 0 auto;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+#back_keikoku{
+    margin: 0 auto;
+    width: 80%;
+    max-width: 400px;
+}
+#back_keikoku p{
+    text-align: left;
+    font-weight: 400;
+    font-size: 14px;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    color: #000;
+    word-break: break-all;
+    user-select: none;
+}
+footer{
+    width: 100%;
+    margin-top: 1em;
+    border-top: 1px solid #ccc;
+}
+footer p{
+    text-align: center;
+    font-size: 14px;
+    padding: 8px 0;
+}
+.ma{width:10px;height: 30px;margin: 0 auto;}
+@media screen and (max-width: 767px){
+.ma{height: 16px;margin: 0 auto;}
+}
+
+@media screen and (max-width: 430px){
+    #back_keikoku p{font-size: 13px;}
+    footer p{font-size: 10px;}
+}
+@media screen and (max-width: 414px){
+	
+}
+@media screen and (max-width: 375px){
+	#back_keikoku p{font-size: 12px;}
+}
+@media screen and (max-width: 360px){
+    #back_keikoku p{font-size: 11px;}
+}

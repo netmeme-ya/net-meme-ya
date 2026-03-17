@@ -1,0 +1,45 @@
+/*横向き禁止*/
+body{
+    font-family: sans-serif;
+    width: 100%;height: 100%;
+    background-color: #fff;
+    margin: 0;padding: 0;
+    line-height: 1.4em;
+}
+#no_yoko{
+display: none;
+position: fixed;
+top: 0;left: 0;
+padding-top: 30px;
+width: 100%;height: 100vh;
+z-index: 999;
+background:#FFF;
+background-color: rgba(255,255,255,1);
+align-items: center;
+text-align: center;
+user-select: none;
+pointer-events: none;
+}
+#no_yoko p{
+    line-height: 1.5em;
+    font-weight: 700;
+    text-align: center;
+    color: #000;
+    user-select: none;
+    pointer-events: none;
+}
+.noyokoimg{
+    margin: 8px auto;
+    width: 100px;
+    height: 100px;
+    user-select: none;
+    pointer-events: none;
+}
+/*横向きデバイスで最大値1366(iPadPro以下の場合)*/
+@media (orientation: landscape) and (max-width: 1366px){
+    html,body{scroll-padding-top: 0;height: 100%;transition: none;}
+    .ec-layoutRole__footer,#wrap{display: none;}
+    #no_yoko{
+        display: block;
+    }
+}

@@ -1,0 +1,54 @@
+<!--不正アクセス監視中・ソースコードを閲覧しないでください。-->
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>t</title>
+<meta name="robots" content="noindex">
+<!--favicon-->
+<link rel="icon" href="../icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="../icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="../icon/i180.png">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#000">
+<!--favicon-->
+<link rel="icon" href="../icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="../icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="../icon/i180.png">
+<link rel="preload" href="pic/top_img.webp" as="image" fetchpriority="high">
+<style>
+	body{margin: 0;background-color: #000;min-height:100vh;font-family: sans-serif;color: #FFF;}
+	a{color: red;}
+</style>
+</head>
+
+<body>
+  <div class="container" style="text-align: center;">
+  	<p>cleararea</p>
+	<input type="text" inputmode="numeric" pattern="[0-9]*" id="pw" placeholder="0">
+<p>　</p>
+    <div class="buttons">
+      <button onclick="check()">送信</button>
+    </div>
+    <p>　</p>
+    <a href="index.html" class="btn_a"><p>TOPに戻る</p></a>
+    <p>　</p>
+    <p>　</p>
+  </div>
+  <script>
+    async function check() {
+      let val = Number(document.getElementById('pw').value);
+        if(val>=66){
+          localStorage.setItem('allclear', "1");
+          val="66";
+        }
+        localStorage.setItem('cleararea', String(val));
+        let check = localStorage.getItem('cleararea');
+
+        alert("入力"+val);
+        console.log('cleararea='+val);
+        /*location.href="index.html";*/
+      }    
+  </script>
+</body>
+</html>

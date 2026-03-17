@@ -1,0 +1,198 @@
+@charset "utf-8";
+/*GAMEメニュー*/
+html{
+	scroll-behavior: smooth;
+	scroll-padding-top: 200px;
+}
+body{
+	background: #000;
+	color: #FFF;
+	font-family: "Noto Sans JP", sans-serif;
+	margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow: visible;
+    user-select: none;
+  	scrollbar-color: #999 #000;
+    scrollbar-width: thin;
+    touch-action: auto;
+}
+.area_main{
+	min-height: 100%;
+	text-align: center;
+	padding-bottom: 28px;
+	max-width: 600px;
+	margin: 0 auto;
+	border: 1px solid rgba(255,255,255,0.1);	
+	border-bottom: 0;
+	border-top: 0;
+}
+.area_main a{text-decoration: none;}
+p{
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+header{
+	position: fixed;
+	top:0;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	width: 100%;
+	max-width: 600px;
+	/*border: 1px solid #FFF;*/
+	border: 1px solid rgba(255,255,255,0.1);	
+	border-bottom: none;
+	height: 76px;
+	background-color: #000;
+	z-index: 2;
+}
+.area_btn_wrap_div{
+	width: 100%;
+	margin: 0 auto;
+	padding-top: 78px;
+}
+.title_p{
+	text-align: center;
+	font-size: 16px;
+	font-weight: 800;
+	margin-bottom: 8px;
+}
+.area_btn{
+	width: 100%;
+	max-width: 500px;
+	margin: 0 auto;
+}
+.area_btn div{
+	width: 100%;
+	display: none;
+}
+.area_btn div:before{
+	content:"■";
+	font-family: "Noto Sans JP",sans-serif;
+	color: #FFF;
+	background-color: #FFF;
+	width: 30px;
+	height: 40px;
+	position: relative;
+	bottom:0;
+	left: 0;
+	right: 0;
+	margin:0 auto;
+}
+#a0:before{content:"";}
+.area_btn p{	
+	display: block;
+	cursor: pointer;
+	width: 80%;
+	height: 100%;
+	background-color: #00bb3e;
+	border-radius: 40px;
+	padding-left: 24px;
+	margin: 0 auto;
+	letter-spacing: 0.5px;
+	font-size: 20px;
+	padding: 10px 0;
+	padding-left: 1em;
+	text-align: left;
+	color: #FFF;
+	font-weight: 800;	
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.6);
+}
+#a0,#a1{
+	display: block;
+}
+.start_btn{
+	display: block;
+	width: 100%;
+	margin:0px auto;
+	padding: 8px;
+	text-align: left; 
+}
+.start_btn p{
+	width: fit-content;
+	font-size: 14px;
+	padding: 4px 1.5em;
+	background-color: green;
+	border-radius: 100px;
+	color: #FFF;
+	font-weight: 700;
+	user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+.start_btn a{
+	color: #FFF;
+}
+#next{
+	margin: 0;
+	padding: 0;
+	display: block;
+	width: 1px;
+	height: 100px;
+	background-color: transparent;
+}
+/*footer*/
+.footer_div{
+	border:1px solid rgba(255,255,255,0.1);
+	border-top: 1px solid #ccc;
+	border-bottom: none;
+	display: flex;
+	z-index: 2;
+	background: #000;
+	width: 100%;
+	max-width: 600px;
+	position: fixed;
+	bottom: 0;left: 0;right: 0;
+	margin: 0 auto;
+	padding-top: 6px;
+	padding-bottom: 16px;
+}
+.footer_btn{
+	cursor: pointer;
+	margin: 0 auto;
+	width: 80%;
+	max-width: 500px;
+	color: #FFF;
+	background-color: #00e64c;	
+	border-radius: 100px;
+	
+}
+.footer_btn p{
+	width: 100%;
+	height: 100%;
+	filter: drop-shadow(0 0 4px rgba(0,0,0,0.3));
+	font-size: 20px;
+	padding: 10px 0;
+	text-align: center;
+	color: #FFF;
+	font-weight: 800;
+}
+.footer_next_img{
+	width: 18px;
+	height: 18px;
+	vertical-align: -1px;
+	margin-left: 4px;
+}
+.footer_blink{
+	animation: ani_footerBlink 5s infinite;
+}
+/* アニメーション定義 */
+@keyframes ani_footerBlink {
+	/* ---- 最初の2秒 緑固定 ---- */
+	0%   { background-color: #00e64c; }
+	36%  { background-color: #00e64c; }
+	/* ---- 0.5秒ごとに3回点滅（1.5秒間）---- */
+	45%  { background-color: yellow; }
+	54%  { background-color: #00e64c; }
+
+	63%  { background-color: yellow; }
+	72%  { background-color: #00e64c; }
+	81%  { background-color: yellow; }
+	90%  { background-color: #00e64c; }
+	/* ---- 最後の2秒 緑固定 ---- */
+	100% { background-color: #00e64c; }
+}

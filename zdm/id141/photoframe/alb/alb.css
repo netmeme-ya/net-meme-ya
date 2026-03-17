@@ -1,0 +1,155 @@
+*{margin: 0;padding: 0;
+box-sizing: border-box;}
+body,html{margin: 0;padding: 0;}
+body{
+	margin: 0;padding:0;
+	font-family: sans-serif;
+	background-color: #000;
+	overflow-x: hidden;
+	min-height: 100vh;
+    line-height: 1.4em;
+}
+canvas{
+	width: 100%;
+	max-width: 1080px;
+	height: auto;
+	max-height: 1080px;
+}
+#wrap{
+	width: 100%;
+	height: 100%;
+	margin: 0 auto;
+	background-color: #FFF;
+	min-height: 100vh;
+}
+#pic_con_div{
+	width: 100%;
+	height: 100%;
+	max-width: 1080px;
+	max-height: 1080px;
+    position: relative;
+    display: block;
+}
+#photoframe{	
+	position: absolute;
+	top:0;left: 0;
+	width: 100%;
+	height: 100%;
+	max-width: 1080px;
+	max-height: 1080px;
+    z-index: 10;
+    user-select: none;
+    pointer-events: none;
+}
+#sentakuPic{
+    position: absolute;
+    top:0;left: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 1080px;
+    max-height: 1080px;
+    z-index: 9;
+    user-select: none;
+    pointer-events: none; 
+}
+#uploadButton,#downloadBtn{display: block;}
+.btn_up,.btn_dl{
+   text-align: center;
+    border-radius: 10px;
+    display: block;
+    width: 400px;
+    max-width: 80%;
+    font-size: 18px;
+    font-weight: 700;
+    display: block;
+    margin: 16px auto;
+    padding: 16px 0px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+.btn_up p,.btn_dl p{
+	font-family: "Noto Sans JP",sans-serif;
+	font-weight: 700;
+	font-size: 18px;
+	display: inline;
+}
+.btn_up img{
+	width: 20px;height: 20px;
+	display: inline;
+	margin-right: 6px;
+ 	vertical-align:-2px;
+}
+/*UPしたけど保存してないよ警告*/
+.dl_keikoku{
+    margin: 0 auto;
+    width: fit-content;
+    max-width: 90%;
+    user-select: none;
+}
+.dl_keikoku p{
+    text-align: left;
+    font-weight: 400;
+    font-size: 14px;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    color: #000;
+    word-break: break-all;
+    user-select: none;
+}
+
+#back_a{
+    text-decoration: none;
+    margin: 0 auto;
+    text-align: center;
+}
+#back_keikoku{
+    margin: 0 auto;
+    width: 80%;
+    max-width: 400px;
+}
+#back_keikoku p{
+    text-align: left;
+    font-weight: 400;
+    font-size: 14px;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    color: #000;
+    word-break: break-all;
+    user-select: none;
+}
+.footer_div{
+	width: 100%;
+	display: block;
+	position: relative;
+}
+footer{
+	/*position: fixed;
+	bottom: 0;left: 0;right: 0;*/
+	margin: 0 auto;
+    width: 100%;
+    border-top: 1px solid #ccc;
+}
+footer p{
+    text-align: center;
+    font-size: 14px;
+    padding: 8px 0;
+}
+
+.btn_ma{margin-top:50px;}
+#kahen_ma{margin-top:220px;}
+@media screen and (max-width: 767px){
+.btn_ma{margin-top:30px;}
+#kahen_ma{margin-top:100px;}
+}
+@media screen and (max-width: 430px){
+    #back_keikoku p{font-size: 15px;}
+    footer p{font-size: 10px;}
+}
+@media screen and (max-width: 414px){
+	#back_keikoku p{font-size: 14px;}
+}
+@media screen and (max-width: 375px){
+	#back_keikoku p{font-size: 12px;letter-spacing: 0;}
+}

@@ -1,0 +1,66 @@
+<!--©ねとみむや 閲覧状況監視中。ソースコードは日本国の著作権法で守られています。-->
+<!doctype html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<meta name="date" content="2024-01-01T00:00:00+09:00">
+<title>エラー(error)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="./pic/no_yoko.css">
+<!--favicon-->
+<link rel="icon" href="../icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="../icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="../icon/i180.png">
+<!--JSはBODYの最後・ua.jsはSP判定-->
+<script src="./pic/ua.js"></script>
+<script>
+setTimeout(function(){
+    window.location.href = 'index.html';
+},10*1000);
+</script>
+<style>
+*{margin: 0;padding: 0;}
+body{margin: 0;padding: 0;
+	position: relative;
+	width: 100%;height: 100%;
+	background-color: #FFF;
+	overflow: hidden;
+}
+.yes_tate{
+width: 100%;height: 100vh;
+display: flex;
+align-items: center;
+flex-direction: column;
+justify-content: center;
+text-align: center;
+}
+.yes_tate p{
+    font-size: 15px;
+    letter-spacing: 0;
+    font-weight: 400;
+    text-align: center;
+    color: #000;
+}
+</style>
+
+</head>
+<body>
+<!--<a id="a_top"></a>-->
+<div class="yes_tate">
+<p style="margin: 16px auto;">このWEBアプリは横向きでは動作しません。</p>
+<p>今回「縦向き」にしていただき、ありがとうございます。<br>
+再度トップページからアクセスしてください。</p>
+<p>Please access from the top page again.</p>
+<p>■</p>
+<a href="index.html"><p style="color: blue"><u><b>[ TOP ]</b></u></p></a>
+</div>
+
+<div id="no_yoko">
+    <p>このWEBアプリは「縦向き」でのみ動作します。</p>
+    <p>This web-appli works only in portrait orientation.</p>
+    <img src="./pic/noyoko_icon.svg" class="noyokoimg" width="100" height="100" alt="縦向きのみ">
+</div>
+
+</body>
+</html>

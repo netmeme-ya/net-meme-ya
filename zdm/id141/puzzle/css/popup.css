@@ -1,0 +1,57 @@
+#popup_div{
+position: fixed;
+top:0;
+left:0;
+right: 0;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+width:100%;
+max-width: 768px;
+margin: 0 auto;
+min-height: 100vh;
+background-color: rgba(0,0,0,0.9);
+z-index: 998;
+}
+#popup_x{
+	display: block;
+	width: 100%;
+	margin: 8px auto;
+	text-align: right;	
+}
+#popup_x img{
+	width: 27px;
+	height: auto;
+	padding-right: 4px;
+}
+.popup_bar{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	margin: 16px auto;
+}
+.popup_bar p{
+	font-family: "Noto Sans JP",sans-serif;
+	font-weight: 900;
+	color: #FFF;
+	margin: 0 10px; 
+}
+#popup_prev,#popup_next{
+	width: 48%;
+	height: 25vh;
+	text-align: right;
+	/*border: 1px solid #ccc;*/
+}
+#popup_next{
+	text-align: left;
+}
+#popup_ten{
+	width: 4%;
+}
+#popup_prev span,#popup_next span{
+	padding:2px 8px;
+	border: 1px solid #ccc;
+}
+#popup_ten{
+	opacity: 0.5;
+}

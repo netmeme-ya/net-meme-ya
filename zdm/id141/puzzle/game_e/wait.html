@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>休憩中|ずんだもんがいっぱい！入れ替えパズル</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../pic/favicon.ico">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#000000">
+<!--favicon-->
+<link rel="icon" href="../../icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="../../icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="../../icon/i180.png">
+<!--fonts-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<!--共通css-->
+<link href="../css/all.css" type="text/css" rel="stylesheet">
+<!--個別css-->
+<link href="../css/index.css" type="text/css" rel="stylesheet">
+<style type="text/css">
+	.mains{
+		display: flex;
+		justify-content: center;
+		flex-direction: column;
+		min-height: 100vh;
+	}
+	.wait_b{
+		text-align: center;
+		font-size: 20px;
+		font-family: "Noto Sans JP",sans-serif;
+		font-weight: 900;
+		margin:1em auto;
+		padding-top: 1em;
+	}
+	.wait_p{
+		text-align: left;
+		font-size:14px;
+		font-weight: 400;
+		width: fit-content;
+		margin: 0 auto;
+		line-height: 1.5em;
+	}
+	.giv_p{
+		text-align: center;
+		margin: 0 auto;
+		margin-top: 3em;
+		font-size: 16px;
+		border: 1px solid #ccc;
+		padding: 4px 1.5em;
+		width: fit-content;
+	}
+	.giv_p a{
+		color: #ccc;
+	}
+	#no_game{
+		color: red;
+		font-size: 12px;
+		user-select: none;
+	}
+</style>
+<!--js-->
+<script type="text/javascript" src="../js/swf2js.js" defer></script>
+<script type="text/javascript" src="../js/all.js" defer></script>
+</head>
+
+<body>
+<div class="index_main">
+<div class="mains">
+	<a href="index.html" class="btn_a" id="btn_back"><p>前の画面に戻る</p></a>
+	<p id="no_game" style="opacity: 0;">error:ゲーム記録がありません</p>	
+	<p class="wait_b">BREAK TIME</p>
+	<p class="wait_p">このページはゲームを中断したり、<br>ブラウザを閉じたりすると出る画面です。<br>
+		<br>
+	ステージ最初からプレイとなります。
+	</p>
+
+	<p class="giv_p"><a href="../index.html">GIVE UP</a></p>
+</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!--不正アクセス監視中・ソースコードを閲覧しないでください。-->
+<!--localstrageの内容＝cleararea:'0～65',cleararea:'0～65',replay:'0',mmNum:'0',allclear='0',test:'1',
+mmNumは音楽番号
+-->
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ずんだもんがいっぱい！入れ替えパズル</title>
+<!--共通css-->
+<style>
+	body{margin: 0;background-color: #000;min-height:100vh;font-family: sans-serif;}
+	a,p{opacity: 0;}
+</style>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../favicon.ico">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#000">
+<link rel="preload" href="pic/top_img.webp" as="image" fetchpriority="high">
+<!--favicon-->
+<link rel="icon" href="../icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="../icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="../icon/i180.png">
+<!--fonts-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+<link rel="preload" href="css/all.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<!--共通js-->
+
+<!--個別css-->
+<link rel="preload" href="css/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+</head>
+
+<body oncontextmenu="return false;">
+<a href="t.html" class="dammy_btn" style="opacity: 0">　</a>
+<div class="index_main">
+	<div class="btn_div">
+		<img src="pic/top_img.webp" class="top_img" width="440" height="440" loading="eager" alt="TOP" style="width: 100%;max-width:1024px;height: auto;">
+		<a href="story/area.html#next" class="btn_a" id="s2nd_id" style="display: none;"><p>つづきから</p></a>
+		<a href="gallery.html" class="btn_a" id="gallery_id" style="display: none;"><p>ギャラリー</p></a>
+		<a href="story/0/index.html" class="btn_a" id="f1st_id"><p>はじめから</p></a>
+		<a href="tyui.html" class="btn_a"><p>注意事項</p></a>
+		<a href="password.html" class="btn_a"><p>復活の呪文</p></a>
+		<a href="story/0/index.html" class="btn_a" id="f1st_id_B" style="display: none;" onclick="return confirmReset();"><p>はじめから</p></a>
+		<a href="../index.html" class="btn_a"><p>TOPに戻る</p></a>
+		<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>		
+	</div>
+</div>
+
+<div class="footer_div">
+	<p class="footer_copy_p">©ねとみむや</p>
+</div>
+<!--プリロード対応-->
+<script type="text/javascript" src="js/swf2js.js"></script>
+<script type="text/javascript" src="js/all.js"></script>
+<audio preload="auto" src="game_e/bgm/mm0.mp3" type="audio/mp3"></audio>
+<audio preload="auto" src="game_e/bgm/mm1.mp3" type="audio/mp3"></audio>
+<audio preload="auto" src="game_e/bgm/mm2.mp3" type="audio/mp3"></audio>
+<audio preload="auto" src="game_e/bgm/clear.mp3" type="audio/mp3"></audio>
+<audio preload="auto" src="game_e/bgm/allclear1.mp3" type="audio/mp3"></audio>
+<audio preload="auto" src="game_e/bgm/zdm_start.mp3" type="audio/mp3"></audio>
+<script>
+    swf2js.load("story/0/0.swf", {"tagId": "container_g0"});
+</script>
+<div id="container_g0" style="position: fixed;bottom: 0;height: 0;width: 0;overflow: hidden;opacity: 0.1;z-index: -1;"></div>
+
+<script>
+//ボタン押下後、画面を50%暗転
+const links = document.querySelectorAll('.btn_div a');
+links.forEach(a => {
+    a.addEventListener('click', function(e) {
+        document.body.style.opacity = "0.5";
+		setTimeout(function(){
+		  document.body.style.opacity = "1";
+		}, 2.5*1000);
+    });    
+});
+//初めてのアクセスならつづきからが存在しない
+let s2nd_id = document.getElementById("s2nd_id");
+let f1st_id = document.getElementById("f1st_id"); 
+let f1st_id_B = document.getElementById("f1st_id_B"); 
+let gallery_id = document.getElementById("gallery_id"); 
+let clearareaKey  = localStorage.getItem("cleararea");
+let allclearNum  = localStorage.getItem("allclear");
+
+localStorage.removeItem("nowarea");
+if(clearareaKey>=1){
+	s2nd_id.style.display = "block";
+	f1st_id.style.display = "none";
+	f1st_id_B.style.display = "block";
+}else {
+	s2nd_id.style.display = "none";
+	f1st_id.style.display = "block";
+	f1st_id_B.style.display = "none";
+}
+
+if(allclearNum == "1"){
+	gallery_id.style.display = "block";
+}
+
+f1st_id.addEventListener('click', function(e) {
+    fc_clearLocalStrage();
+});
+//
+if (ua.includes("twitter") || ua.includes("line")){
+	location.href = "er_browser.html";
+}
+//
+function confirmReset(){
+  const result = confirm("セーブデータを全削除します。\nそれでも「はじめから」を選びますか？");
+  if (result) {
+  	fc_clearLocalStrage();
+    return true;  // 遷移する
+  } else {  	
+  	window.location.reload();
+    return false; // 遷移しない    
+  }	
+}
+function fc_clearLocalStrage(){
+	localStorage.removeItem("nowarea");
+    localStorage.removeItem("cleararea");
+    localStorage.removeItem("replay");
+    localStorage.removeItem("mmNum");
+    localStorage.removeItem("allclear");
+}
+</script>
+</body>
+</html>
