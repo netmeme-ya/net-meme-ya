@@ -8,6 +8,11 @@
     align-items: center;
     /*border: 1px solid #000;*/
 }
+a{
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+user-select: none;
+}
 #sns_oya a{
     width: 49%;
     text-decoration: none;

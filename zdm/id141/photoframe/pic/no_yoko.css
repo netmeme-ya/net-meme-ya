@@ -6,6 +6,11 @@ body{
     margin: 0;padding: 0;
     line-height: 1.4em;
 }
+a{
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+user-select: none;
+}
 #no_yoko{
 display: none;
 position: fixed;

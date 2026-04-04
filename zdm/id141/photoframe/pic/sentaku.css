@@ -19,6 +19,11 @@ body {
 	overflow-x: hidden;
 	line-height: 1.4em;
 }
+a{
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+user-select: none;
+}
 a,a:visited,a:hover,a:active{color: #0b61d7;}
 .wrapside{
 	width: 100%;
