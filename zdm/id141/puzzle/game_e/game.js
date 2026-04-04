@@ -131,17 +131,8 @@ function fc_start() {
         document.getElementById('start_anime').style.display = "none";
         giveUpButton.style.display = "block";
         //★●スタート音声を鳴らす
-        if (isHttp) {
-            if (!audioContext) {
-                loadAudio().then(() => {
-                    playAudio();
-                    playBGM();
-                });
-            } else {
-                playAudio();
-                playBGM();
-            }
-        }
+        playAudio();
+        playBGM();
         //タイマーありのとき
         if (isTimer) {
             // 高精度の時間計測を開始
@@ -365,10 +356,7 @@ function checkWin() {
             //クリアー！          
             //SEを流す
             //BGMを止める
-            if (isHttp) {
-                bgmSource.stop();
-                bgmSource = null;
-            }
+            stopBGM();
             //タイマーストップ
             fc_tStop();
             //次のエリアやステージへの処理          
@@ -381,8 +369,7 @@ function checkWin() {
                 localStorage.setItem('replay', "0");
                 replayNum = 0;                                               
             }
-            bgm_allclear.currentTime = 0;            
-            bgm_allclear.play();
+            playAllclearSound();
             allclearflg = true;
             setTimeout(function(){
     			allnext_div.style.display = "block";
@@ -394,7 +381,7 @@ function checkWin() {
     			document.getElementById('baffer_img' + i).src = picName + picMode + picArea + i + picWebp;
 			}
             //SEを流す          
-            new Audio("bgm/clear.mp3").play().catch(() => {});
+            playClearSound();
             //NEXTゲーム・クリア画面とNEXTボタン
             setTimeout(function(){
     			next_div.style.display = "block";
@@ -495,118 +482,68 @@ function fc_tKeshi() {
 //★★音声周り★★
 //■■■音のON・OFF(fc_start()にもあり)■■■
 let isOto = true;//音は最初からアリ
-let audioList = []; // 全ての効果音を格納するリスト
-// Audioオブジェクトを作成したら自動的にリストに追加
-(function () {
-    const OriginalAudio = window.Audio;
-    window.Audio = function (...args) {
-        const audio = new OriginalAudio(...args);
-        audioList.push(audio);
-        return audio;
-    };
-})();
-//音声のプリロード
-let audioContext;
-let audioBuffer;
-let bgmBuffer;
-let isBufferComp = false;
+
 //ミュージック番号
 let mmNumBefore = Number(localStorage.getItem('mmNum') ?? "0");
 let mmNum = mmNumBefore + 1;
-if(mmNum >= 3){mmNum = 0;}
+if(mmNum >= 3){ mmNum = 0; }
 localStorage.setItem('mmNum', String(mmNum));
 //ラスボスパート以降は独自音声
-if(nowAreaNum >= 63){
-    mmNum = nowAreaNum;
-}
-async function loadAudio() {
-    if (!isHttp) {
-        //ローカル環境のため音はなし。
-        // フィルター解除
-        document.getElementById('start_anime').style.filter = "none";
-        isBufferComp = true;
-        // ここで処理終了（これ以降のコードは実行されない）
-        return;
-    }
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    // SE音声のロード
-    const responseSE = await fetch("bgm/zdm_start.mp3");
-    //ロードした音声がDLされたらバイナリ(01010111...)で保管する
-    const arrayBufferSE = await responseSE.arrayBuffer();
-    //バイナリ化された音声を再構築してwavにする（こうすることでpreloadできる）
-    audioBuffer = await audioContext.decodeAudioData(arrayBufferSE);
-    // BGM音声のロード(SEと同じなんで省略)  
-    const responseBGM = await fetch("bgm/mm" + mmNum + ".mp3");
-    const arrayBufferBGM = await responseBGM.arrayBuffer();
-    bgmBuffer = await audioContext.decodeAudioData(arrayBufferBGM);
-    //バッファー完了
-    isBufferComp = true;
-    //startボタンのグレーアウトを解除
-    document.getElementById('start_anime').style.filter = "none";
-}
-// playAudio()とplayBGM()の音量管理用ゲイン
-let masterGain;
-async function loadAudio() {
-    if (!isHttp) {
-        // ローカル環境の場合は音なし
-        document.getElementById('start_anime').style.filter = "none";
-        isBufferComp = true;
-        return;
-    }
-    // AudioContextの作成
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+if(nowAreaNum >= 63){ mmNum = nowAreaNum; }
 
-    // masterGainを作成してdestinationに接続
-    masterGain = audioContext.createGain();
-    masterGain.connect(audioContext.destination);
+// ■■■音声システム（HTML5 Audio統一）■■■
 
-    // SE音声のロード
-    const responseSE = await fetch("bgm/zdm_start.mp3");
-    const arrayBufferSE = await responseSE.arrayBuffer();
-    audioBuffer = await audioContext.decodeAudioData(arrayBufferSE);
+// スタートSE
+const snd_start = new Audio("bgm/zdm_start.mp3");
+snd_start.preload = "auto";
 
-    // BGM音声のロード
-    const responseBGM = await fetch("bgm/mm" + mmNum + ".mp3");
-    const arrayBufferBGM = await responseBGM.arrayBuffer();
-    bgmBuffer = await audioContext.decodeAudioData(arrayBufferBGM);
+// BGM（ループ）
+const snd_bgm = new Audio("bgm/mm" + mmNum + ".mp3");
+snd_bgm.preload = "auto";
+snd_bgm.loop    = true;
 
-    // バッファ完了
-    isBufferComp = true;
-    document.getElementById('start_anime').style.filter = "none";
-}
+// 面クリア音
+const snd_clear = new Audio("bgm/clear.mp3");
+snd_clear.preload = "auto";
 
-// playAudio()の変更：masterGainに接続
-let source;
+// 全面クリア音
+const snd_allclear = new Audio("bgm/allclear1.mp3");
+snd_allclear.preload = "auto";
+
+// isBufferComp：スタートボタン解放フラグ（HTML5 Audioはロード待ち不要なので即true）
+let isBufferComp = true;
+document.getElementById('start_anime').style.filter = "none";
+
+// SEを再生（スタート音）
 function playAudio() {
-    source = audioContext.createBufferSource();
-    source.buffer = audioBuffer;
-    // destinationではなくmasterGainに接続
-    source.connect(masterGain);
-    source.start(0);
+    snd_start.currentTime = 0;
+    snd_start.play().catch(() => {});
 }
 
-// playBGM()の変更：masterGainに接続
-let bgmSource;
+// BGMを再生
 function playBGM() {
-    bgmSource = audioContext.createBufferSource();
-    bgmSource.buffer = bgmBuffer;
-    bgmSource.loop = true;
-    // masterGainに接続
-    bgmSource.connect(masterGain);
-    bgmSource.start(1); // 少し遅延させてBGM開始
+    snd_bgm.currentTime = 0;
+    snd_bgm.play().catch(() => {});
 }
 
-// 事前ロード
-loadAudio();
+// BGMを停止
+function stopBGM() {
+    snd_bgm.pause();
+    snd_bgm.currentTime = 0;
+}
 
-//クリア！などの音声のプリロード
-let bgm_clear = new Audio("bgm/clear.mp3");
-bgm_clear.preload = "auto";
-bgm_clear.currentTime = 0;
-//クリア時のヤッター！の音声プリロード
-let bgm_allclear = new Audio("bgm/allclear1.mp3");
-bgm_allclear.preload = "auto";
-bgm_allclear.currentTime = 0;
+// 面クリア音を再生
+function playClearSound() {
+    snd_clear.currentTime = 0;
+    snd_clear.play().catch(() => {});
+}
+
+// 全面クリア音を再生
+function playAllclearSound() {
+    snd_allclear.currentTime = 0;
+    snd_allclear.play().catch(() => {});
+}
+
 //画像１枚目のプリロード
 let isImg1Loaded = false;
 const preloadImg1 = new Image();
@@ -615,25 +552,23 @@ preloadImg1.onload = function() { isImg1Loaded = true; };
 
 // ■■■音のONOFFトグルボタン■■■
 function fc_oto() {
-    let bt_oto = document.getElementById("bt_oto");
+    const bt_oto = document.getElementById("bt_oto");
     if (isOto) {
-        // ミュートする場合
+        // ミュートする
         isOto = false;
         bt_oto.src = "gazo/otonasi.png";
-        // HTML5 Audio要素（audioList）の音量を0に
-        audioList.forEach(audio => audio.volume = 0);
-        // Web Audio APIの音量も0に
-        if (masterGain) {
-            masterGain.gain.value = 0;
-        }
+        snd_start.volume   = 0;
+        snd_bgm.volume     = 0;
+        snd_clear.volume   = 0;
+        snd_allclear.volume = 0;
     } else {
-        // 音を戻す場合（音量100％）
+        // 音を戻す
         isOto = true;
         bt_oto.src = "gazo/otoari.png";
-        audioList.forEach(audio => audio.volume = 1);
-        if (masterGain) {
-            masterGain.gain.value = 1;
-        }
+        snd_start.volume   = 1;
+        snd_bgm.volume     = 1;
+        snd_clear.volume   = 1;
+        snd_allclear.volume = 1;
     }
 }
 //■■■途中で画面を切り替えたときの対策■■■
@@ -641,28 +576,22 @@ function fc_oto() {
 function muteAudio() {
     isOto = false;
     const bt_oto = document.getElementById("bt_oto");
-    if (bt_oto) {
-        bt_oto.src = "gazo/otonasi.png";
-    }
-    // HTML5 Audio要素の音量を0に
-    audioList.forEach(audio => audio.volume = 0);
-    // Web Audio APIの音量も0に
-    if (masterGain) {
-        masterGain.gain.value = 0;
-    }
+    if (bt_oto) { bt_oto.src = "gazo/otonasi.png"; }
+    snd_start.volume   = 0;
+    snd_bgm.volume     = 0;
+    snd_clear.volume   = 0;
+    snd_allclear.volume = 0;
 }
 
-// アンミュート専用の関数（以前オンだった場合のみ）
+// アンミュート専用の関数
 function unmuteAudio() {
     isOto = true;
     const bt_oto = document.getElementById("bt_oto");
-    if (bt_oto) {
-        bt_oto.src = "gazo/otoari.png";
-    }
-    audioList.forEach(audio => audio.volume = 1);
-    if (masterGain) {
-        masterGain.gain.value = 1;
-    }
+    if (bt_oto) { bt_oto.src = "gazo/otoari.png"; }
+    snd_start.volume   = 1;
+    snd_bgm.volume     = 1;
+    snd_clear.volume   = 1;
+    snd_allclear.volume = 1;
 }
 
 // ページが隠れる前にオーディオがオンだったかどうかを記憶するフラグ
