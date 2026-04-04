@@ -18,6 +18,11 @@ body {
 	height:100vh;
 	display:block;
 }
+a{
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+user-select: none;
+}
 img{width: 100%;height: auto;vertical-align: bottom;}
 /*BR*/
 /*PC・スマホそれぞれの改行*/

@@ -1,7 +1,11 @@
 @charset "utf-8";
 /*GAME*/
 body{overflow: hidden;}
-
+a{
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
 .skip_div{
 	width: 100%;
 	margin: 0 auto;
