@@ -124,7 +124,7 @@ let isHttp = window.location.href.startsWith("http");
 //このステージをクリアしたかどうかフラグ
 let allclearflg = false;
 //一番最初のスタートボタン●
-function fc_start() {
+function fc_start() { 
     //オーディオファイル・画像1枚目がDLされないとスタートボタンが聞かない
     if (isBufferComp && isImg1Loaded) {
         //GameStartのパネル除去
@@ -546,7 +546,9 @@ function stopBGM() {
 // 面クリア音を再生
 function playClearSound() {
     snd_clear.currentTime = 0;
-    snd_clear.cloneNode().play().catch(() => {});
+    if(isOto){
+    	snd_clear.cloneNode().play().catch(() => {});
+	}
 }
 
 // 面クリア音を停止
@@ -557,7 +559,9 @@ function playClearSoundEnd() {
 // 全面クリア音を再生
 function playAllclearSound() {
     snd_allclear.currentTime = 0;
-    snd_allclear.play().catch(() => {});
+    if(isOto){
+    	snd_allclear.play().catch(() => {});
+	}
 }
 
 //画像１枚目のプリロード
@@ -574,19 +578,19 @@ function fc_oto() {
         isOto = false;
         localStorage.setItem('otoflg', "0");
         bt_oto.src = "gazo/otonasi.png";
-        snd_start.volume   = 0;
-        snd_bgm.volume     = 0;
-        snd_clear.volume   = 0;
-        snd_allclear.volume = 0;
+        snd_start.muted = true;
+        snd_bgm.muted = true;
+        snd_clear.muted = true;
+        snd_allclear.muted = true;
     } else {
         // 音を戻す
         isOto = true;
         localStorage.setItem('otoflg', "1");
         bt_oto.src = "gazo/otoari.png";
-        snd_start.volume   = 1;
-        snd_bgm.volume     = 1;
-        snd_clear.volume   = 1;
-        snd_allclear.volume = 1;
+        snd_start.muted = false;
+        snd_bgm.muted = false;
+        snd_clear.muted = false;
+        snd_allclear.muted = false;
     }
 }
 //
@@ -596,20 +600,20 @@ function fc_oto() {
 function muteAudio() {
     isOto = false;    
     if (bt_oto) { bt_oto.src = "gazo/otonasi.png"; }
-    snd_start.volume   = 0;
-    snd_bgm.volume     = 0;
-    snd_clear.volume   = 0;
-    snd_allclear.volume = 0;
+    snd_start.muted = true;
+    snd_bgm.muted = true;
+    snd_clear.muted = true;
+    snd_allclear.muted = true;
 }
 
 // アンミュート専用の関数
 function unmuteAudio() {
     isOto = true;    
     if (bt_oto) { bt_oto.src = "gazo/otoari.png"; }
-    snd_start.volume   = 1;
-    snd_bgm.volume     = 1;
-    snd_clear.volume   = 1;
-    snd_allclear.volume = 1;
+    snd_start.muted = false;
+    snd_bgm.muted = false;
+    snd_clear.muted = false;
+    snd_allclear.muted = false;
 }
 
 // ページが隠れる前にオーディオがオンだったかどうかを記憶するフラグ
