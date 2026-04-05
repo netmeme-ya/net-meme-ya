@@ -1,5 +1,5 @@
 <!--不正アクセス監視中・ソースコードを閲覧しないでください。-->
-<!--localstrageの内容＝cleararea:'0～65',cleararea:'0～65',replay:'0',mmNum:'0',allclear='0',test:'1',
+<!--localstrageの内容＝cleararea:'0～65',cleararea:'0～65',replay:'0',mmNum:'0',allclear='0',otoflg = '1',test:'1',
 mmNumは音楽番号
 -->
 <!doctype html>
@@ -25,7 +25,6 @@ mmNumは音楽番号
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-
 <link rel="preload" href="css/all.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <!--共通js-->
 
@@ -127,6 +126,7 @@ function fc_clearLocalStrage(){
     localStorage.removeItem("replay");
     localStorage.removeItem("mmNum");
     localStorage.removeItem("allclear");
+    localStorage.removeItem("otoflg");
 }
 </script>
 </body>

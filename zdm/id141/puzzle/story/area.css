@@ -16,6 +16,7 @@ body{
   	scrollbar-color: #999 #000;
     scrollbar-width: thin;
     touch-action: auto;
+    text-align: center;
 }
 .area_main{
 	min-height: 100%;
