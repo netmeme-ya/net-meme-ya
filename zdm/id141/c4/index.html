@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>4目並べ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<link rel="preload" href="pic/se1.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/se2.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/start_easy.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/start_medium.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/start_pro.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/c4p.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/c4e.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/win_easy.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/win_medium.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/win_pro.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/lose_easy.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/lose_medium.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/lose_pro.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/draw.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/chara_easy.png" as="image" type="image/png">
+<link rel="preload" href="pic/chara_medium.png" as="image" type="image/png">
+<link rel="preload" href="pic/chara_pro.png" as="image" type="image/png">
+<link rel="preload" href="pic/ed.jpg" as="image" type="image/jpeg">
+<meta name="theme-color" content="#000">
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    overscroll-behavior: none;
+    touch-action: none;
+    font-family: "Noto Sans JP", sans-serif;
+    background: #000;
+  }
+
+  #app {
+    width: 100%;
+    height: 100%;
+    max-width: 1024px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ========== スタート画面 ========== */
+  #start-screen {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;   
+  }
+
+  #start-screen.hidden {
+    display: none;
+  }
+
+  #start-panel {
+    width: 96%;
+    max-width: 900px;
+    height: 98%;
+    background-color: #1ED75C;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 6%;
+    text-align: center;
+    position: relative;
+  }
+
+  .start_footer_p{
+    text-align: center;
+    font-size: 10px;
+    color: #000;
+    position: absolute;
+    bottom: 6px;
+    font-family: sans-serif;
+    font-weight: 400;
+  }
+
+  #title {
+    color: #fff;
+    font-size: clamp(44px, 13vw, 95px);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    margin-bottom: clamp(18px, 4vh, 48px);
+    text-align: center;
+    line-height: 1;
+  }
+
+  .btn-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(8px, 1.4vh, 14px);
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .difficulty-btn {
+    padding: clamp(10px, 2vh, 18px) 20px;
+    background: #EC3F80;
+    border: none;
+    border-radius: 100px;
+    color: #fff;
+    font-size: clamp(18px, 4.5vw, 30px);
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.15s ease;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+    gap: 10px;
+  }
+
+  .difficulty-btn:active {
+    transform: scale(0.96);
+    background: #d63570;
+  }
+
+  #totop{
+    background: #001999;
+    width: 100%;
+    max-width: 220px;
+    margin:0 auto;
+    margin-top: 20px;
+  }
+
+  /* ========== ゲーム画面 ========== */
+  #game-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  #game-screen.hidden {
+    display: none;
+  }
+
+  #game-screen.player-turn {
+    background: #F2A58A;
+  }
+
+  #game-screen.enemy-turn {
+    background: #77CC78;
+  }
+
+  #top-area {
+    flex: 1 1 auto;
+    position: relative;
+    min-height: 80px;
+    background-image:url("pic/chara_no.png");
+    background-position: right bottom;
+    background-repeat: no-repeat;
+    background-size: 20% auto;
+  }
+
+  #top-area[data-level="easy"] {
+    background-image: url("pic/chara_easy.png");
+  }
+  #top-area[data-level="medium"] {
+    background-image: url("pic/chara_medium.png");
+  }
+  #top-area[data-level="pro"] {
+    background-image: url("pic/chara_pro.png");
+  }
+
+  #reset-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: clamp(44px, 8vw, 60px);
+    height: clamp(44px, 8vw, 60px);
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.1s ease;
+  }
+
+  #home-back-btn {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: clamp(44px, 8vw, 60px);
+    height: clamp(44px, 8vw, 60px);
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.1s ease;
+    padding: 0;
+  }
+
+  #home-back-btn:active {
+    transform: scale(0.92);
+  }
+
+  #home-back-btn svg {
+    width: 55%;
+    height: 55%;
+    fill: #333;
+  }
+
+  #level-label {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: clamp(18px, 4.5vw, 30px);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    z-index: 10;
+    text-shadow: 0 1px 2px #000;
+    pointer-events: none;
+  }
+
+  #reset-btn:active {
+    transform: scale(0.92);
+  }
+
+  #reset-btn svg {
+    width: 60%;
+    height: 60%;
+    fill: #333;
+  }
+
+  /* ピースプレビュー */
+  #piece-preview {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    transform: translateX(-50%);
+    width: var(--cell-size, 60px);
+    height: var(--cell-size, 60px);
+    background: #E63030;
+    border: 3px solid #000;
+    border-radius: 50%;
+    box-sizing: border-box;
+    transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease;
+    pointer-events: none;
+  }
+
+  #game-screen.enemy-turn #piece-preview {
+    background: #27C737;
+  }
+
+  /* ボード */
+  #board-wrap {
+    width: 100%;
+    position: relative;
+    flex: 0 0 auto;
+  }
+
+  #board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    width: 100%;
+    aspect-ratio: 7 / 6;
+    background: #111;
+    gap: 0;
+    position: relative;
+  }
+
+  .cell {
+    background: #6B6B6B;
+    border: 2px solid #000;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .cell.col-hover {
+    background: #7d7d7d;
+  }
+
+  .piece {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    background: transparent;
+    border-radius: 50%;
+  }
+
+  .piece.red {
+    background: #E63030;
+  }
+
+  .piece.green {
+    background: #27C737;
+  }
+
+  .piece.drop {
+    animation: drop 0.35s cubic-bezier(0.5, 0, 0.75, 0.2);
+  }
+
+  @keyframes drop {
+    0% {
+      transform: translateY(var(--drop-from, -600px));
+    }
+    90% {
+      transform: translateY(8px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  .piece.win {
+    animation: winGlow 0.45s ease-out forwards;
+    animation-delay: var(--win-delay, 0s);
+  }
+
+  @keyframes winGlow {
+    0% {
+      background: var(--orig-bg);
+      box-shadow: 0 0 0 rgba(255, 235, 0, 0);
+    }
+    40% {
+      background: #FFEB00;
+      box-shadow: 0 0 24px 8px rgba(255, 235, 0, 0.9);
+    }
+    100% {
+      background: #FFEB00;
+      box-shadow: 0 0 16px 4px rgba(255, 235, 0, 0.7);
+    }
+  }
+
+  /* フッター */
+  #bottom-area {
+    /*flex: 1 1 auto;*/
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: clamp(12px, 3vh, 28px);
+    min-height: 80px;
+  }
+
+  #turn-label {
+    color: #fff;
+    font-size: clamp(22px, 5vw, 36px);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+
+  /* リザルト */
+  #result-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 20;
+    padding: 20px;
+  }
+
+  #result-overlay.show {
+    display: flex;
+  }
+
+  #result-box {
+    background: #fff;
+    border-radius: 20px;
+    padding: 36px 28px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    animation: popIn 0.3s ease-out;
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.6); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  #result-text {
+    font-size: clamp(28px, 7vw, 48px);
+    font-weight: 900;
+    margin-bottom: 20px;
+    color: #222;
+  }
+
+  #result-text.win { color: #E63030; }
+  #result-text.lose { color: #27a037; }
+  #result-text.draw { color: #555; }
+
+  .result-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    margin: 10px 0 0;
+    border: none;
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: clamp(16px, 4vw, 22px);
+    font-weight: 700;
+    color: #fff;
+    background: #EC3F80;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+
+  .result-btn:active {
+    transform: scale(0.96);
+  }
+
+  .result-btn.secondary {
+    background: #888;
+  }
+
+  /* ピース落下中は操作禁止 */
+  #game-screen.locked .cell {
+    pointer-events: none;
+  }
+
+  /* ギブアップ確認 */
+  #giveup-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    padding: 20px;
+  }
+
+  #giveup-overlay.show {
+    display: flex;
+  }
+
+  #giveup-box {
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    animation: popIn 0.25s ease-out;
+  }
+
+  #giveup-text {
+    font-size: clamp(20px, 5vw, 32px);
+    font-weight: 800;
+    color: #222;
+    margin-bottom: 22px;
+  }
+
+  .giveup-btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .giveup-btn-row .result-btn {
+    margin: 0;
+  }
+
+  /* ED画面 */
+  #ed-screen {
+    position: absolute;
+    inset: 0;
+    background: #1ED75C;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: max(env(safe-area-inset-top), 20px) 16px max(env(safe-area-inset-bottom), 20px);
+    z-index: 50;
+    animation: edFadeIn 0.6s ease-out;
+  }
+
+  #ed-screen.hidden {
+    display: none;
+  }
+
+  @keyframes edFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  #ed-message {
+    color: #E63030;
+    font-size: clamp(20px, 5.5vw, 36px);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-align: center;
+    margin-bottom: clamp(14px, 2.5vh, 24px);
+    -webkit-text-stroke: 1.5px #fff;
+    text-stroke: 1.5px #fff;
+    paint-order: stroke fill;
+  }
+
+  #ed-image {
+    display: block;
+    width: 100%;
+    max-width: 520px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    margin-bottom: clamp(18px, 3vh, 32px);
+    animation: edImagePop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes edImagePop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  #ed-home-btn {
+    width: 100%;
+    max-width: 360px;
+    margin: 0;
+  }
+
+  /* ベンチマーク画面 */
+  #bench-screen {
+    position: absolute;
+    inset: 0;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(env(safe-area-inset-top), 20px) 16px max(env(safe-area-inset-bottom), 20px);
+    z-index: 50;
+  }
+
+  #bench-screen.hidden {
+    display: none;
+  }
+
+  #bench-inner {
+    width: 100%;
+    max-width: 480px;
+    color: #fff;
+    text-align: center;
+  }
+
+  #bench-title {
+    font-size: clamp(20px, 5vw, 32px);
+    font-weight: 800;
+    margin-bottom: 24px;
+    line-height: 1.3;
+  }
+
+  #bench-progress {
+    font-size: clamp(16px, 4vw, 22px);
+    margin-bottom: 24px;
+    color: #aaa;
+    min-height: 1.4em;
+  }
+
+  #bench-results {
+    text-align: left;
+    background: #2a2a2a;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+    font-size: clamp(14px, 3.6vw, 18px);
+    line-height: 1.8;
+    min-height: 80px;
+  }
+
+  #bench-results .res-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #3a3a3a;
+    padding: 4px 0;
+  }
+  #bench-results .res-row:last-child { border-bottom: none; }
+  #bench-results .res-label { color: #ccc; }
+  #bench-results .res-value { color: #fff; font-weight: 700; }
+  #bench-results .res-section {
+    color: #FFEB00;
+    font-weight: 800;
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+  #bench-results .res-section:first-child { margin-top: 0; }
+
+  #bench-home-btn {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    display: block;
+  }
+  @media (max-width:440px){
+    #top-area {
+      background-size: 50% auto;
+    }
+  }
+</style>
+</head>
+<body oncontextmenu="return false;">
+<audio id="se-land" src="pic/se1.mp3" preload="auto"></audio>
+<audio id="se-land-enemy" src="pic/se2.mp3" preload="auto"></audio>
+<audio id="se-start-easy" src="pic/start_easy.mp3" preload="auto"></audio>
+<audio id="se-start-medium" src="pic/start_medium.mp3" preload="auto"></audio>
+<audio id="se-start-pro" src="pic/start_pro.mp3" preload="auto"></audio>
+<audio id="se-win" src="pic/c4p.mp3" preload="auto"></audio>
+<audio id="se-lose" src="pic/c4e.mp3" preload="auto"></audio>
+<audio id="se-win-easy" src="pic/win_easy.mp3" preload="auto"></audio>
+<audio id="se-win-medium" src="pic/win_medium.mp3" preload="auto"></audio>
+<audio id="se-win-pro" src="pic/win_pro.mp3" preload="auto"></audio>
+<audio id="se-lose-easy" src="pic/lose_easy.mp3" preload="auto"></audio>
+<audio id="se-lose-medium" src="pic/lose_medium.mp3" preload="auto"></audio>
+<audio id="se-lose-pro" src="pic/lose_pro.mp3" preload="auto"></audio>
+<audio id="se-draw" src="pic/draw.mp3" preload="auto"></audio>
+<div id="app">
+
+  <!-- スタート画面 -->
+  <div id="start-screen">
+    <div id="start-panel">
+      <h1 id="title">４目並べ</h1>
+      <div class="btn-grid">
+        <button class="difficulty-btn" data-level="easy" data-first="player">Easy 先攻</button>
+        <button class="difficulty-btn" data-level="easy" data-first="ai">Easy 後攻</button>
+        <button class="difficulty-btn" data-level="medium" data-first="player">Medium 先攻</button>
+        <button class="difficulty-btn" data-level="medium" data-first="ai">Medium 後攻</button>
+        <button class="difficulty-btn" data-level="pro" data-first="player">Pro 先攻</button>
+        <button class="difficulty-btn" data-level="pro" data-first="ai">Pro 後攻</button>
+        <button class="difficulty-btn" onclick="location.href='../index.html'" id="totop">TOPに戻る</button>
+        <!-- <button class="difficulty-btn" id="benchmark-btn" data-level="pro">Pro CPU同士</button> -->
+        <button class="difficulty-btn" id="watch-btn" data-level="pro" style="opacity:0;position:fixed;right:0;bottom:0;width:20px;height:20px;overflow:hidden;padding:0;">Pro後攻観戦</button>
+      </div>
+      <p class="start_footer_p">©ねとみむや</p>
+    </div>
+  </div>
+
+  <!-- ゲーム画面 -->
+  <div id="game-screen" class="hidden player-turn">
+    <div id="top-area">
+      <button id="home-back-btn" aria-label="スタート画面に戻る">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
+      <div id="level-label"></div>
+      <button id="reset-btn" aria-label="リセット">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5V2L7 6l5 4V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+        </svg>
+      </button>
+      <div id="piece-preview"></div>
+    </div>
+
+    <div id="board-wrap">
+      <div id="board"></div>
+    </div>
+
+    <div id="bottom-area">
+      <div id="turn-label">Player</div>
+    </div>
+
+    <div id="result-overlay">
+      <div id="result-box">
+        <div id="result-text"></div>
+        <button class="result-btn" id="again-btn">もう一度</button>
+        <button class="result-btn secondary" id="home-btn">タイトルへ</button>
+      </div>
+    </div>
+
+    <div id="giveup-overlay">
+      <div id="giveup-box">
+        <div id="giveup-text">ギブアップしますか？</div>
+        <div class="giveup-btn-row">
+          <button class="result-btn secondary" id="giveup-no">いいえ</button>
+          <button class="result-btn" id="giveup-yes">はい</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ED画面（Pro後攻クリア時のみ） -->
+  <div id="ed-screen" class="hidden">
+    <div id="ed-message">最強クリアおめでとうなのだ！</div>
+    <img id="ed-image" src="pic/ed.jpg" alt="Ending">
+    <button class="result-btn secondary" id="ed-home-btn">タイトルへ</button>
+  </div>
+
+  <!-- ベンチマーク画面 -->
+  <div id="bench-screen" class="hidden">
+    <div id="bench-inner">
+      <h2 id="bench-title">Pro CPU vs Pro CPU<br>ベンチマーク</h2>
+      <div id="bench-progress">準備中...</div>
+      <div id="bench-results"></div>
+      <button class="result-btn secondary" id="bench-home-btn">タイトルへ</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ピンチズーム・ダブルタップズーム防止
+  document.addEventListener('gesturestart', e => e.preventDefault());
+  document.addEventListener('gesturechange', e => e.preventDefault());
+  document.addEventListener('gestureend', e => e.preventDefault());
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', function(e){
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) e.preventDefault();
+    lastTouchEnd = now;
+  }, {passive: false});
+
+  const ROWS = 6, COLS = 7;
+  const EMPTY = 0, PLAYER = 1, AI = 2;
+
+  // --- 効果音 ---
+  const sePlayer = document.getElementById('se-land');
+  const seEnemy = document.getElementById('se-land-enemy');
+  const seStartEasy = document.getElementById('se-start-easy');
+  const seStartMedium = document.getElementById('se-start-medium');
+  const seStartPro = document.getElementById('se-start-pro');
+  const seWin = document.getElementById('se-win');
+  const seLose = document.getElementById('se-lose');
+  const seWinEasy = document.getElementById('se-win-easy');
+  const seWinMedium = document.getElementById('se-win-medium');
+  const seWinPro = document.getElementById('se-win-pro');
+  const seLoseEasy = document.getElementById('se-lose-easy');
+  const seLoseMedium = document.getElementById('se-lose-medium');
+  const seLosePro = document.getElementById('se-lose-pro');
+  const seDraw = document.getElementById('se-draw');
+  if (sePlayer) sePlayer.volume = 0.8;
+  if (seEnemy) seEnemy.volume = 0.8;
+  if (seStartEasy) seStartEasy.volume = 0.8;
+  if (seStartMedium) seStartMedium.volume = 0.8;
+  if (seStartPro) seStartPro.volume = 0.8;
+  if (seWin) seWin.volume = 0.9;
+  if (seLose) seLose.volume = 0.9;
+  const resultBgms = [seWinEasy, seWinMedium, seWinPro, seLoseEasy, seLoseMedium, seLosePro, seDraw];
+  resultBgms.forEach(a => { if (a) a.volume = 0.8; });
+
+  function playLandSE(player){
+    const se = (player === AI) ? seEnemy : sePlayer;
+    if (!se) return;
+    try {
+      se.currentTime = 0;
+      const p = se.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch(e) { /* 自動再生ブロック等は無視 */ }
+  }
+
+  function playStartSE(level){
+    let se = null;
+    if (level === 'easy') se = seStartEasy;
+    else if (level === 'medium') se = seStartMedium;
+    else if (level === 'pro') se = seStartPro;
+    if (!se) return;
+    try {
+      se.currentTime = 0;
+      const p = se.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch(e) { /* 自動再生ブロック等は無視 */ }
+  }
+
+  function playResultSE(player){
+    const se = (player === PLAYER) ? seWin : seLose;
+    if (!se) return;
+    try {
+      se.currentTime = 0;
+      const p = se.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch(e) { /* 自動再生ブロック等は無視 */ }
+  }
+
+  function playResultBGM(player, level){
+    let se = null;
+    if (player === PLAYER){
+      if (level === 'easy') se = seWinEasy;
+      else if (level === 'medium') se = seWinMedium;
+      else if (level === 'pro') se = seWinPro;
+    } else {
+      if (level === 'easy') se = seLoseEasy;
+      else if (level === 'medium') se = seLoseMedium;
+      else if (level === 'pro') se = seLosePro;
+    }
+    if (!se) return;
+    try {
+      se.currentTime = 0;
+      const p = se.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch(e) { /* 自動再生ブロック等は無視 */ }
+  }
+
+  function playDrawBGM(){
+    if (!seDraw) return;
+    try {
+      seDraw.currentTime = 0;
+      const p = seDraw.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch(e) { /* 自動再生ブロック等は無視 */ }
+  }
+
+  function stopAllResultBGM(){
+    resultBgms.forEach(a => {
+      if (!a) return;
+      try { a.pause(); a.currentTime = 0; } catch(e) {}
+    });
+  }
+
+  const state = {
+    board: [],
+    current: PLAYER,
+    difficulty: 'easy',
+    firstMover: 'player',
+    locked: false,
+    gameOver: false,
+    previewCol: 3,
+    watchMode: false, // 観戦モード
+  };
+
+  const startScreen = document.getElementById('start-screen');
+  const gameScreen = document.getElementById('game-screen');
+  const boardEl = document.getElementById('board');
+  const previewEl = document.getElementById('piece-preview');
+  const turnLabel = document.getElementById('turn-label');
+  const resultOverlay = document.getElementById('result-overlay');
+  const resultText = document.getElementById('result-text');
+
+  // --- 初期化 ---
+  function initBoard(){
+    state.board = [];
+    for (let r = 0; r < ROWS; r++){
+      state.board.push(new Array(COLS).fill(EMPTY));
+    }
+  }
+
+  function buildBoardDOM(){
+    boardEl.innerHTML = '';
+    for (let r = 0; r < ROWS; r++){
+      for (let c = 0; c < COLS; c++){
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  function updateCellSize(){
+    // ボード1マスのサイズを取得し、プレビューに反映
+    const firstCell = boardEl.querySelector('.cell');
+    if (!firstCell) return;
+    const size = firstCell.getBoundingClientRect().width;
+    document.documentElement.style.setProperty('--cell-size', size + 'px');
+    movePreviewTo(state.previewCol);
+  }
+
+  function movePreviewTo(col){
+    state.previewCol = col;
+    const firstCell = boardEl.querySelector('.cell[data-col="'+col+'"]');
+    if (!firstCell) return;
+    const boardRect = boardEl.getBoundingClientRect();
+    const cellRect = firstCell.getBoundingClientRect();
+    const size = cellRect.width;
+    const left = cellRect.left - boardRect.left + size/2;
+    // #top-area基準で配置したいので、board の left に合わせる
+    const topArea = document.getElementById('top-area');
+    const topAreaRect = topArea.getBoundingClientRect();
+    const absoluteLeft = boardRect.left - topAreaRect.left + (cellRect.left - boardRect.left) + size/2;
+    previewEl.style.left = absoluteLeft + 'px';
+    previewEl.style.width = size + 'px';
+    previewEl.style.height = size + 'px';
+    previewEl.style.transform = 'translateX(-50%)';
+  }
+
+  function highlightColumn(col){
+    document.querySelectorAll('.cell.col-hover').forEach(el => el.classList.remove('col-hover'));
+    if (col === null || col === undefined) return;
+    document.querySelectorAll('.cell[data-col="'+col+'"]').forEach(el => el.classList.add('col-hover'));
+  }
+
+  // --- ゲームロジック ---
+  function getLandingRow(board, col){
+    for (let r = ROWS - 1; r >= 0; r--){
+      if (board[r][col] === EMPTY) return r;
+    }
+    return -1;
+  }
+
+  function checkWin(board, row, col, player){
+    const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+    for (const [dr, dc] of dirs){
+      let count = 1;
+      const line = [[row, col]];
+      // 正方向
+      for (let k = 1; k < 4; k++){
+        const r = row + dr*k, c = col + dc*k;
+        if (r<0||r>=ROWS||c<0||c>=COLS||board[r][c]!==player) break;
+        count++; line.push([r,c]);
+      }
+      // 逆方向
+      for (let k = 1; k < 4; k++){
+        const r = row - dr*k, c = col - dc*k;
+        if (r<0||r>=ROWS||c<0||c>=COLS||board[r][c]!==player) break;
+        count++; line.push([r,c]);
+      }
+      if (count >= 4) return line;
+    }
+    return null;
+  }
+
+  function isBoardFull(board){
+    for (let c = 0; c < COLS; c++){
+      if (board[0][c] === EMPTY) return false;
+    }
+    return true;
+  }
+
+  function validColumns(board){
+    const cols = [];
+    for (let c = 0; c < COLS; c++){
+      if (board[0][c] === EMPTY) cols.push(c);
+    }
+    return cols;
+  }
+
+  // --- ピース配置（アニメーション付き） ---
+  function placePiece(col, player, callback){
+    const row = getLandingRow(state.board, col);
+    if (row < 0) { if (callback) callback(false); return; }
+
+    state.board[row][col] = player;
+    state.locked = true;
+    gameScreen.classList.add('locked');
+
+    const cell = boardEl.querySelector('.cell[data-row="'+row+'"][data-col="'+col+'"]');
+    const piece = document.createElement('div');
+    piece.className = 'piece ' + (player === PLAYER ? 'red' : 'green');
+
+    // 落下元の距離を計算
+    const boardRect = boardEl.getBoundingClientRect();
+    const cellRect = cell.getBoundingClientRect();
+    const previewRect = previewEl.getBoundingClientRect();
+    const dropFrom = previewRect.top - cellRect.top;
+    piece.style.setProperty('--drop-from', dropFrom + 'px');
+    piece.classList.add('drop');
+
+    cell.appendChild(piece);
+
+    // ピースが手を離れた感を出すためプレビューを非表示に
+    previewEl.style.opacity = '0';
+
+    piece.addEventListener('animationend', function handler(){
+      piece.removeEventListener('animationend', handler);
+      piece.classList.remove('drop');
+
+      // 接地音（プレイヤー/敵で音を分ける）
+      playLandSE(player);
+
+      const winLine = checkWin(state.board, row, col, player);
+      if (winLine){
+        // 勝敗音（光り始めと同時）
+        playResultSE(player);
+        // 4つ揃ってから1秒後に難易度別BGMを再生
+        setTimeout(() => playResultBGM(player, state.difficulty), 1000);
+        // 左側優先、次に下側優先でソート（列の小さい順、行の大きい順）
+        const sorted = winLine.slice().sort((a, b) => {
+          if (a[1] !== b[1]) return a[1] - b[1]; // 列が小さい=左側が先
+          return b[0] - a[0]; // 行が大きい=下側が先
+        });
+        sorted.forEach(([r, c], idx) => {
+          const pieceEl = boardEl.querySelector('.cell[data-row="'+r+'"][data-col="'+c+'"] .piece');
+          if (pieceEl){
+            const origBg = player === PLAYER ? '#E63030' : '#27C737';
+            pieceEl.style.setProperty('--orig-bg', origBg);
+            pieceEl.style.setProperty('--win-delay', (idx * 0.09) + 's');
+            pieceEl.classList.add('win');
+          }
+        });
+        state.gameOver = true;
+        const totalDelay = 500 + sorted.length * 90;
+        setTimeout(() => showResult(player === PLAYER ? 'win' : 'lose'), totalDelay);
+      } else if (isBoardFull(state.board)){
+        state.gameOver = true;
+        setTimeout(() => playDrawBGM(), 1000);
+        setTimeout(() => showResult('draw'), 400);
+      } else {
+        switchTurn();
+      }
+
+      state.locked = false;
+      gameScreen.classList.remove('locked');
+      if (callback) callback(true);
+    });
+  }
+
+  function enemyLabel(){
+    if (state.difficulty === 'easy') return '妖精ずんだもん';
+    if (state.difficulty === 'medium') return 'ミニずんだもん';
+    if (state.difficulty === 'pro') return 'ずんだもん';
+    return 'Enemy';
+  }
+
+  function switchTurn(){
+    state.current = (state.current === PLAYER) ? AI : PLAYER;
+    if (state.current === PLAYER){
+      gameScreen.classList.remove('enemy-turn');
+      gameScreen.classList.add('player-turn');
+      turnLabel.textContent = state.watchMode ? 'Player (CPU)' : 'Player';
+      // プレイヤーの番：中央から再スタート
+      state.previewCol = 3;
+      movePreviewTo(3);
+      previewEl.style.opacity = '1';
+      // 観戦モード中はプレイヤー側もAIが打つ
+      if (state.watchMode){
+        setTimeout(watchMoveAsPlayer, 500);
+      }
+    } else {
+      gameScreen.classList.remove('player-turn');
+      gameScreen.classList.add('enemy-turn');
+      turnLabel.textContent = enemyLabel();
+      // 敵の番：必ず中央からスタート
+      state.previewCol = 3;
+      movePreviewTo(3);
+      previewEl.style.opacity = '1';
+      setTimeout(aiMove, 500);
+    }
+  }
+
+  // 観戦モード：プレイヤー側（先攻AI）の手を打つ
+  function watchMoveAsPlayer(){
+    if (state.gameOver) return;
+    const cols = validColumns(state.board);
+    if (cols.length === 0) return;
+    // プレイヤー側視点でPro思考（同点ランダム）
+    const col = proPickFor(state.board, PLAYER);
+    if (col !== 3){
+      setTimeout(() => movePreviewTo(col), 100);
+      setTimeout(() => placePiece(col, PLAYER), 600);
+    } else {
+      setTimeout(() => placePiece(col, PLAYER), 400);
+    }
+  }
+
+  // --- AI ---
+  function aiMove(){
+    if (state.gameOver) return;
+    const cols = validColumns(state.board);
+    if (cols.length === 0) return;
+
+    let col;
+    // 観戦モード中、ずんだもん(先攻)の初手は必ず中央に固定
+    const isBoardEmpty = state.board.every(row => row.every(v => v === EMPTY));
+    if (state.watchMode && isBoardEmpty){
+      col = 3;
+    } else if (state.watchMode){
+      // 観戦モード中は同点ランダムのProを使用（展開にバリエーションを出すため）
+      col = proPickFor(state.board, AI);
+    } else if (state.difficulty === 'easy'){
+      col = aiEasy(cols);
+    } else if (state.difficulty === 'medium'){
+      col = aiMedium(cols);
+    } else {
+      col = aiPro();
+    }
+
+    // プレビューは既に中央(3)にあるので、目的列へスライドしてから落とす
+    if (col !== 3){
+      setTimeout(() => movePreviewTo(col), 100);
+      setTimeout(() => placePiece(col, AI), 600);
+    } else {
+      setTimeout(() => placePiece(col, AI), 400);
+    }
+  }
+
+  function aiEasy(cols){
+    // 50%ランダム、50%で即勝ち/即ブロックだけ見る
+    // まず即勝ち
+    for (const c of cols){
+      const r = getLandingRow(state.board, c);
+      state.board[r][c] = AI;
+      if (checkWin(state.board, r, c, AI)){
+        state.board[r][c] = EMPTY;
+        return c;
+      }
+      state.board[r][c] = EMPTY;
+    }
+    if (Math.random() < 0.4){
+      // 即ブロック
+      for (const c of cols){
+        const r = getLandingRow(state.board, c);
+        state.board[r][c] = PLAYER;
+        if (checkWin(state.board, r, c, PLAYER)){
+          state.board[r][c] = EMPTY;
+          return c;
+        }
+        state.board[r][c] = EMPTY;
+      }
+    }
+    return cols[Math.floor(Math.random() * cols.length)];
+  }
+
+  function aiMedium(cols){
+    // 即勝ち
+    for (const c of cols){
+      const r = getLandingRow(state.board, c);
+      state.board[r][c] = AI;
+      if (checkWin(state.board, r, c, AI)){
+        state.board[r][c] = EMPTY;
+        return c;
+      }
+      state.board[r][c] = EMPTY;
+    }
+    // 即ブロック
+    for (const c of cols){
+      const r = getLandingRow(state.board, c);
+      state.board[r][c] = PLAYER;
+      if (checkWin(state.board, r, c, PLAYER)){
+        state.board[r][c] = EMPTY;
+        return c;
+      }
+      state.board[r][c] = EMPTY;
+    }
+    // 相手が勝てる手を作らないように、シンプルなスコアリング
+    const scored = cols.map(c => ({c, s: scoreColumn(c, AI)}));
+    // 上位の中からランダム
+    scored.sort((a,b) => b.s - a.s);
+    const top = scored.filter(x => x.s >= scored[0].s - 1);
+    return top[Math.floor(Math.random() * top.length)].c;
+  }
+
+  function scoreColumn(col, player){
+    // 中央優先 + 隣接ボーナス
+    const r = getLandingRow(state.board, col);
+    if (r < 0) return -Infinity;
+    let score = 0;
+    // 中央列ほど高スコア
+    score += 4 - Math.abs(col - 3);
+    // 仮置きして連続数を見る
+    state.board[r][col] = player;
+    score += evalPosition(state.board, player);
+    state.board[r][col] = EMPTY;
+    return score;
+  }
+
+  function evalPosition(board, player){
+    let score = 0;
+    const opp = player === AI ? PLAYER : AI;
+    // 全ての4連ウィンドウを評価
+    const windows = getAllWindows(board);
+    for (const w of windows){
+      const pc = w.filter(v => v === player).length;
+      const oc = w.filter(v => v === opp).length;
+      const ec = w.filter(v => v === EMPTY).length;
+      if (pc === 4) score += 100000;
+      else if (pc === 3 && ec === 1) score += 50;
+      else if (pc === 2 && ec === 2) score += 5;
+      if (oc === 4) score -= 100000;
+      else if (oc === 3 && ec === 1) score -= 80;
+      else if (oc === 2 && ec === 2) score -= 4;
+    }
+    return score;
+  }
+
+  function getAllWindows(board){
+    const windows = [];
+    // 横
+    for (let r = 0; r < ROWS; r++){
+      for (let c = 0; c <= COLS - 4; c++){
+        windows.push([board[r][c], board[r][c+1], board[r][c+2], board[r][c+3]]);
+      }
+    }
+    // 縦
+    for (let c = 0; c < COLS; c++){
+      for (let r = 0; r <= ROWS - 4; r++){
+        windows.push([board[r][c], board[r+1][c], board[r+2][c], board[r+3][c]]);
+      }
+    }
+    // 斜め↘
+    for (let r = 0; r <= ROWS - 4; r++){
+      for (let c = 0; c <= COLS - 4; c++){
+        windows.push([board[r][c], board[r+1][c+1], board[r+2][c+2], board[r+3][c+3]]);
+      }
+    }
+    // 斜め↗
+    for (let r = 3; r < ROWS; r++){
+      for (let c = 0; c <= COLS - 4; c++){
+        windows.push([board[r][c], board[r-1][c+1], board[r-2][c+2], board[r-3][c+3]]);
+      }
+    }
+    return windows;
+  }
+
+  // Pro: ミニマックス+アルファベータ
+  function aiPro(){
+    const depth = 4;
+    const result = minimax(state.board, depth, -Infinity, Infinity, true);
+    return result.col != null ? result.col : validColumns(state.board)[0];
+  }
+
+  // ベンチマーク用: 任意のboardとside(AI/PLAYER)で動き、同点手はランダム選択
+  function proPickFor(board, side){
+    const depth = 4;
+    const valid = [];
+    for (let c = 0; c < COLS; c++){
+      if (board[0][c] === EMPTY) valid.push(c);
+    }
+    if (valid.length === 0) return -1;
+    valid.sort((a,b) => Math.abs(a-3) - Math.abs(b-3));
+
+    let bestScore = -Infinity;
+    const scores = [];
+    const opp = (side === AI) ? PLAYER : AI;
+    for (const c of valid){
+      const r = getLandingRow(board, c);
+      board[r][c] = side;
+      // sideから見た最大化なので、次は相手の最小化（=評価関数視点をsideに合わせて符号反転）
+      const res = minimaxGeneric(board, depth-1, -Infinity, Infinity, false, side, opp);
+      board[r][c] = EMPTY;
+      scores.push({c, s: res.score});
+      if (res.score > bestScore) bestScore = res.score;
+    }
+    // 最高スコアと同点（小さな誤差は無視）の手を集めてランダム選択
+    const top = scores.filter(x => x.s >= bestScore - 0.0001);
+    return top[Math.floor(Math.random() * top.length)].c;
+  }
+
+  // sideを引数化したminimax
+  function minimaxGeneric(board, depth, alpha, beta, maximizing, mySide, oppSide){
+    const valid = [];
+    for (let c = 0; c < COLS; c++){
+      if (board[0][c] === EMPTY) valid.push(c);
+    }
+    const terminal = isTerminalNode(board);
+    if (depth === 0 || terminal.over){
+      if (terminal.over){
+        if (terminal.winner === mySide) return {col: null, score: 10000000};
+        if (terminal.winner === oppSide) return {col: null, score: -10000000};
+        return {col: null, score: 0};
+      }
+      return {col: null, score: evalPosition(board, mySide)};
+    }
+    valid.sort((a,b) => Math.abs(a-3) - Math.abs(b-3));
+
+    if (maximizing){
+      let value = -Infinity;
+      let bestCol = valid[0];
+      for (const c of valid){
+        const r = getLandingRow(board, c);
+        board[r][c] = mySide;
+        const res = minimaxGeneric(board, depth-1, alpha, beta, false, mySide, oppSide);
+        board[r][c] = EMPTY;
+        if (res.score > value){ value = res.score; bestCol = c; }
+        alpha = Math.max(alpha, value);
+        if (alpha >= beta) break;
+      }
+      return {col: bestCol, score: value};
+    } else {
+      let value = Infinity;
+      let bestCol = valid[0];
+      for (const c of valid){
+        const r = getLandingRow(board, c);
+        board[r][c] = oppSide;
+        const res = minimaxGeneric(board, depth-1, alpha, beta, true, mySide, oppSide);
+        board[r][c] = EMPTY;
+        if (res.score < value){ value = res.score; bestCol = c; }
+        beta = Math.min(beta, value);
+        if (alpha >= beta) break;
+      }
+      return {col: bestCol, score: value};
+    }
+  }
+
+  function minimax(board, depth, alpha, beta, maximizing){
+    const valid = [];
+    for (let c = 0; c < COLS; c++){
+      if (board[0][c] === EMPTY) valid.push(c);
+    }
+
+    // 終局判定
+    const terminal = isTerminalNode(board);
+    if (depth === 0 || terminal.over){
+      if (terminal.over){
+        if (terminal.winner === AI) return {col: null, score: 10000000};
+        if (terminal.winner === PLAYER) return {col: null, score: -10000000};
+        return {col: null, score: 0};
+      }
+      return {col: null, score: evalPosition(board, AI)};
+    }
+
+    // 中央から探索すると枝刈り効率が良い
+    valid.sort((a,b) => Math.abs(a-3) - Math.abs(b-3));
+
+    if (maximizing){
+      let value = -Infinity;
+      let bestCol = valid[0];
+      for (const c of valid){
+        const r = getLandingRow(board, c);
+        board[r][c] = AI;
+        const res = minimax(board, depth-1, alpha, beta, false);
+        board[r][c] = EMPTY;
+        if (res.score > value){
+          value = res.score;
+          bestCol = c;
+        }
+        alpha = Math.max(alpha, value);
+        if (alpha >= beta) break;
+      }
+      return {col: bestCol, score: value};
+    } else {
+      let value = Infinity;
+      let bestCol = valid[0];
+      for (const c of valid){
+        const r = getLandingRow(board, c);
+        board[r][c] = PLAYER;
+        const res = minimax(board, depth-1, alpha, beta, true);
+        board[r][c] = EMPTY;
+        if (res.score < value){
+          value = res.score;
+          bestCol = c;
+        }
+        beta = Math.min(beta, value);
+        if (alpha >= beta) break;
+      }
+      return {col: bestCol, score: value};
+    }
+  }
+
+  function isTerminalNode(board){
+    // 勝敗チェック
+    for (let r = 0; r < ROWS; r++){
+      for (let c = 0; c < COLS; c++){
+        if (board[r][c] === EMPTY) continue;
+        const line = checkWin(board, r, c, board[r][c]);
+        if (line) return {over: true, winner: board[r][c]};
+      }
+    }
+    if (isBoardFull(board)) return {over: true, winner: null};
+    return {over: false};
+  }
+
+  // ============== ベンチマーク ==============
+  // Pro vs Pro を1戦戦わせて結果を返す
+  function playOneBenchGame(firstSide){
+    // boardは2次元配列
+    const board = [];
+    for (let r = 0; r < ROWS; r++){ board.push(new Array(COLS).fill(EMPTY)); }
+    let turn = firstSide; // AI or PLAYER
+    let moves = 0;
+    const MAX = ROWS * COLS;
+    while (moves < MAX){
+      const col = proPickFor(board, turn);
+      if (col < 0) break;
+      const row = getLandingRow(board, col);
+      if (row < 0) break;
+      board[row][col] = turn;
+      moves++;
+      const win = checkWin(board, row, col, turn);
+      if (win) return {winner: turn, moves};
+      if (isBoardFull(board)) return {winner: null, moves};
+      turn = (turn === AI) ? PLAYER : AI;
+    }
+    return {winner: null, moves};
+  }
+
+  function runBenchmark(){
+    const benchScreen = document.getElementById('bench-screen');
+    const progressEl = document.getElementById('bench-progress');
+    const resultsEl = document.getElementById('bench-results');
+    benchScreen.classList.remove('hidden');
+    progressEl.textContent = '対戦準備中...';
+    resultsEl.innerHTML = '';
+
+    const TOTAL = 50;
+    const HALF = TOTAL / 2; // 25
+
+    // 集計: A=AI(=赤側), B=PLAYER(=緑側) という識別ではなく、
+    // 「先攻側」「後攻側」で集計する
+    const stats = {
+      firstWin: 0,
+      secondWin: 0,
+      draw: 0,
+      totalMoves: 0,
+      games: 0,
+    };
+
+    let i = 0;
+    function next(){
+      if (i >= TOTAL){
+        showBenchResults(stats);
+        return;
+      }
+      // 先攻を AI側 / PLAYER側 で交互に変えるが、
+      // どちらの内部識別でも同じアルゴリズムなので「どちらが先攻か」だけ意味がある
+      const firstSide = (i < HALF) ? AI : PLAYER;
+      const result = playOneBenchGame(firstSide);
+      if (result.winner === null){
+        stats.draw++;
+      } else if (result.winner === firstSide){
+        stats.firstWin++;
+      } else {
+        stats.secondWin++;
+      }
+      stats.totalMoves += result.moves;
+      stats.games++;
+      i++;
+      progressEl.textContent = i + ' / ' + TOTAL + ' 戦完了';
+      // 描画を挟みながら継続
+      setTimeout(next, 0);
+    }
+    setTimeout(next, 50);
+  }
+
+  function showBenchResults(stats){
+    const progressEl = document.getElementById('bench-progress');
+    const resultsEl = document.getElementById('bench-results');
+    progressEl.textContent = '完了';
+    const total = stats.games;
+    const fwRate = (stats.firstWin / total * 100).toFixed(1);
+    const swRate = (stats.secondWin / total * 100).toFixed(1);
+    const dRate = (stats.draw / total * 100).toFixed(1);
+    const avgMoves = (stats.totalMoves / total).toFixed(1);
+    resultsEl.innerHTML =
+      '<div class="res-section">全' + total + '戦の結果</div>' +
+      '<div class="res-row"><span class="res-label">先攻の勝利</span><span class="res-value">' + stats.firstWin + ' 勝 (' + fwRate + '%)</span></div>' +
+      '<div class="res-row"><span class="res-label">後攻の勝利</span><span class="res-value">' + stats.secondWin + ' 勝 (' + swRate + '%)</span></div>' +
+      '<div class="res-row"><span class="res-label">引き分け</span><span class="res-value">' + stats.draw + ' (' + dRate + '%)</span></div>' +
+      '<div class="res-row"><span class="res-label">平均手数</span><span class="res-value">' + avgMoves + ' 手</span></div>';
+  }
+
+  function startBenchmark(){
+    // 他画面を閉じる
+    stopAllResultBGM();
+    hideEDScreen();
+    startScreen.classList.add('hidden');
+    gameScreen.classList.add('hidden');
+    runBenchmark();
+  }
+
+  function hideBenchScreen(){
+    document.getElementById('bench-screen').classList.add('hidden');
+  }
+
+  // --- 結果表示 ---
+  function showResult(type){
+    // 観戦モード：後攻(=赤/プレイヤー側)勝利のみ表示、それ以外は自動で次の試合へ
+    if (state.watchMode){
+      if (type === 'win'){
+        // 後攻(赤)が勝った = 見たかったパターン
+        resultText.className = '';
+        const againBtn = document.getElementById('again-btn');
+        resultText.textContent = '後攻勝利';
+        resultText.classList.add('win');
+        againBtn.style.display = 'none';
+        resultOverlay.classList.add('show');
+        return;
+      }
+      // 先攻勝ち or 引分 → 次の試合
+      setTimeout(() => {
+        state.watchRetryCount = (state.watchRetryCount || 0) + 1;
+        console.log('[観戦] 後攻負け/引分 — 再試行 #' + state.watchRetryCount);
+        startGame('pro', 'ai'); // 観戦モード維持、緑(AI)先攻のまま再開
+      }, 1500);
+      return;
+    }
+    // Pro後攻クリア時はED画面へ
+    if (type === 'win' && state.difficulty === 'pro' && state.firstMover === 'ai'){
+      showEDScreen();
+      return;
+    }
+    resultText.className = '';
+    const againBtn = document.getElementById('again-btn');
+    if (type === 'win'){
+      resultText.textContent = 'You Win!';
+      resultText.classList.add('win');
+      againBtn.style.display = 'none';
+    } else if (type === 'lose'){
+      resultText.textContent = 'You Lose…';
+      resultText.classList.add('lose');
+      againBtn.style.display = 'block';
+    } else {
+      resultText.textContent = 'Draw';
+      resultText.classList.add('draw');
+      againBtn.style.display = 'block';
+    }
+    resultOverlay.classList.add('show');
+  }
+
+  function showEDScreen(){
+    document.getElementById('ed-screen').classList.remove('hidden');
+  }
+
+  function hideEDScreen(){
+    document.getElementById('ed-screen').classList.add('hidden');
+  }
+
+  // --- 入力ハンドラ ---
+  function getColFromEvent(e){
+    const touch = e.touches ? e.touches[0] : e;
+    const boardRect = boardEl.getBoundingClientRect();
+    const x = touch.clientX - boardRect.left;
+    const col = Math.floor(x / (boardRect.width / COLS));
+    if (col < 0 || col >= COLS) return null;
+    return col;
+  }
+
+  function onMove(e){
+    if (state.locked || state.gameOver || state.current !== PLAYER || state.watchMode) return;
+    const col = getColFromEvent(e);
+    if (col === null) return;
+    movePreviewTo(col);
+    highlightColumn(col);
+  }
+
+  function onDrop(e){
+    if (state.locked || state.gameOver || state.current !== PLAYER || state.watchMode) return;
+    const col = getColFromEvent(e);
+    if (col === null) return;
+    if (getLandingRow(state.board, col) < 0) return;
+    highlightColumn(null);
+    placePiece(col, PLAYER);
+  }
+
+  boardEl.addEventListener('touchmove', (e) => { e.preventDefault(); onMove(e); }, {passive: false});
+  boardEl.addEventListener('touchstart', (e) => { onMove(e); }, {passive: true});
+  boardEl.addEventListener('touchend', (e) => {
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+    const fakeEvt = { clientX: touch.clientX, clientY: touch.clientY };
+    onDrop(fakeEvt);
+  });
+  boardEl.addEventListener('mousemove', onMove);
+  boardEl.addEventListener('mouseleave', () => highlightColumn(null));
+  boardEl.addEventListener('click', onDrop);
+
+  // --- 画面遷移 ---
+  function startGame(level, firstMover){
+    stopAllResultBGM();
+    hideEDScreen();
+    state.difficulty = level;
+    state.firstMover = firstMover || 'player';
+    // firstMover: 'player' または 'ai'
+    state.current = (state.firstMover === 'ai') ? AI : PLAYER;
+    state.gameOver = false;
+    state.locked = false;
+    state.previewCol = 3;
+    initBoard();
+    buildBoardDOM();
+    // 難易度ラベル
+    const labelMap = { easy: 'Easy', medium: 'Medium', pro: 'Pro' };
+    document.getElementById('level-label').textContent = labelMap[level] || '';
+    // キャラクター画像の切り替え
+    document.getElementById('top-area').setAttribute('data-level', level);
+    // 画面の色とラベル
+    if (state.current === PLAYER){
+      gameScreen.classList.remove('enemy-turn');
+      gameScreen.classList.add('player-turn');
+      turnLabel.textContent = state.watchMode ? 'Player (CPU)' : 'Player';
+    } else {
+      gameScreen.classList.remove('player-turn');
+      gameScreen.classList.add('enemy-turn');
+      turnLabel.textContent = enemyLabel();
+    }
+    resultOverlay.classList.remove('show');
+    previewEl.style.opacity = '1';
+    startScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+    // 次フレームで座標取得
+    requestAnimationFrame(() => {
+      updateCellSize();
+      // AIが先攻なら動き出す
+      if (state.current === AI){
+        setTimeout(aiMove, 700);
+      } else if (state.watchMode && state.current === PLAYER){
+        // 観戦モードでプレイヤー側が先攻
+        setTimeout(watchMoveAsPlayer, 700);
+      }
+    });
+  }
+
+  function goHome(){
+    stopAllResultBGM();
+    gameScreen.classList.add('hidden');
+    startScreen.classList.remove('hidden');
+    resultOverlay.classList.remove('show');
+    hideEDScreen();
+    document.getElementById('top-area').removeAttribute('data-level');
+  }
+
+  document.querySelectorAll('.difficulty-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.id === 'benchmark-btn'){
+        startBenchmark();
+        return;
+      }
+      if (btn.id === 'watch-btn'){
+        // 観戦モード開始：緑(AI側)が先攻・赤(プレイヤー側)が後攻で両方Pro同点ランダム
+        state.watchMode = true;
+        state.watchRetryCount = 0;
+        console.log('[観戦] 開始 — 後攻(赤)勝利を探します');
+        startGame('pro', 'ai');
+        return;
+      }
+      // 通常プレイ時は観戦モード解除
+      state.watchMode = false;
+      playStartSE(btn.dataset.level);
+      startGame(btn.dataset.level, btn.dataset.first);
+    });
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    if (state.locked) return;
+    startGame(state.difficulty, state.firstMover);
+  });
+
+  document.getElementById('home-back-btn').addEventListener('click', () => {
+    location.reload();
+  });
+
+  document.getElementById('again-btn').addEventListener('click', () => startGame(state.difficulty, state.firstMover));
+  document.getElementById('home-btn').addEventListener('click', goHome);
+  document.getElementById('ed-home-btn').addEventListener('click', goHome);
+  document.getElementById('bench-home-btn').addEventListener('click', () => {
+    hideBenchScreen();
+    startScreen.classList.remove('hidden');
+  });
+
+  window.addEventListener('resize', updateCellSize);
+  window.addEventListener('orientationchange', () => setTimeout(updateCellSize, 300));
+
+})();
+</script>
+</body>
+</html>
