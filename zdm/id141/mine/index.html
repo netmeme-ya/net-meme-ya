@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<!--favicon-->
+<link rel="icon" href="icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="icon/i180.png">
+<!--OGP-->
+<meta name="twitter:site" content="ねとみむや">
+<meta name="apple-mobile-web-app-title" content="ずんだもん スマホ専用デジタルおまけ">
+<meta name="twitter:image" content="pic/ogp.jpg">
+<meta property="og:image" content="pic/ogp.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="author" content="ねとみむや">
+<meta name="description" content="ずんだもん マインスイーパー">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<title>ずんだスイーパー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 900;
+}
+
+body {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #2b2f38;
+}
+
+.screen {
+  width: 100%;
+  max-width: 1024px;
+  height: 100%;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Start Screen ===== */
+#startScreen {
+  background: #434957;
+  justify-content: center;
+  align-items: center;
+  padding: 4vh 20px;
+  gap: 1.5vh;
+}
+
+#lsclear_id{
+  opacity: 0;
+  position: fixed;
+  top:0;
+  left:0;
+  width: 20px;
+  height: 20px;
+  z-index: 999;
+}
+
+.title {
+  color: white;
+  font-size: clamp(2rem, 8.5vw, 4.5rem);
+  font-weight: 900;
+  margin-bottom: 2.5vh;
+  letter-spacing: -0.03em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.btn-level {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ec3d99;
+  color: white;
+  padding: 0.5em 1em;
+  border-radius: 1.2em;
+  text-decoration: none;
+  font-weight: 900;
+  font-size: clamp(1.3rem, 5.2vw, 2.4rem);
+  width: min(78%, 460px);
+  text-align: center;
+  transition: transform 0.08s, filter 0.08s;
+}
+.btn-level:active {
+  transform: scale(0.97);
+  filter: brightness(0.9);
+}
+
+.btn-top {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0d14e0;
+  color: white;
+  padding: 0.4em 1.6em;
+  border-radius: 0.8em;
+  text-decoration: none;
+  font-weight: 900;
+  font-size: clamp(1rem, 3.6vw, 1.8rem);
+  margin-top: 1.8vh;
+}
+.btn-top:active { filter: brightness(0.85); }
+
+/* ===== Game Screen ===== */
+#gameScreen {
+  background: #434957;
+  color: white;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 14px 8px;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.icon-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.icon-btn:active { filter: brightness(0.9); transform: scale(0.96); }
+.icon-btn svg { width: 26px; height: 26px; }
+
+.grid-wrapper {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  padding: 4px 0;
+}
+
+.grid {
+  background-image: url('pic/0.webp');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #bdbdbd;
+  display: grid;
+  box-sizing: border-box;
+  border: 2px solid #7b7b7b;
+  position: relative;
+}
+
+.cell {
+  background: #bdbdbd;
+  /* 立体的な浮き出たボタン風のベベル（白：top/left, 濃灰：right/bottom） */
+  --bevel: clamp(2px, calc(var(--cell-size, 40px) * 0.09), 4px);
+  border-top: var(--bevel) solid #ffffff;
+  border-left: var(--bevel) solid #ffffff;
+  border-right: var(--bevel) solid #7b7b7b;
+  border-bottom: var(--bevel) solid #7b7b7b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: calc(var(--cell-size, 40px) * 0.55);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.cell.revealed {
+  background: transparent;
+  /* 開いたセル：薄い暗灰のグリッド線 */
+  border-top: 1px solid #7b7b7b;
+  border-left: 1px solid #7b7b7b;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.cell.num-cell {
+  background-color: rgba(255,255,255,0.55);
+}
+
+.cell[data-num="1"] { color: #1565c0; }
+.cell[data-num="2"] { color: #2e7d32; }
+.cell[data-num="3"] { color: #c62828; }
+.cell[data-num="4"] { color: #6a1b9a; }
+.cell[data-num="5"] { color: #e65100; }
+.cell[data-num="6"] { color: #00838f; }
+.cell[data-num="7"] { color: #1a1d24; }
+.cell[data-num="8"] { color: #546e7a; }
+
+.cell .flag-icon {
+  width: 70%;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cell .flag-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.cell .bomb-icon {
+  width: 65%;
+  height: 65%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cell .bomb-icon svg { width: 100%; height: 100%; }
+
+.cell.bomb-revealed {
+  background: #ff6b6b !important;
+}
+.cell.bomb-exploded {
+  background: #ff3030 !important;
+}
+
+.cell.wrong-flag {
+  background: #ffd4d4;
+}
+.cell.wrong-flag::after {
+  content: '×';
+  position: absolute;
+  color: #c00;
+  font-size: calc(var(--cell-size, 40px) * 0.9);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.cell:not(.revealed):active {
+  background: #a9a9a9;
+  border-top-color: #7b7b7b;
+  border-left-color: #7b7b7b;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+
+/* 旗モードでは押下時のヘコみ演出を無効化 */
+.grid.flag-mode .cell:not(.revealed):active {
+  background: #bdbdbd;
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  border-right-color: #7b7b7b;
+  border-bottom-color: #7b7b7b;
+}
+
+.game-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px calc(14px + env(safe-area-inset-bottom, 0));
+  flex-shrink: 0;
+  gap: 14px;
+  min-height: 76px;
+}
+
+.bomb-counter {
+  background: #8d93a0;
+  color: #1a1d24;
+  border-radius: 50px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.bomb-counter svg { width: 22px; height: 22px; }
+
+.hint-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fbb040;
+  color: #1a1d24;
+  border: 2px solid #1a1d24;
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-left: 4px;
+  line-height: 1;
+  transition: filter 0.1s, transform 0.08s;
+}
+.hint-btn:active { filter: brightness(0.85); transform: scale(0.95); }
+.hint-btn:disabled {
+  background: #666;
+  color: #999;
+  border-color: #444;
+  cursor: not-allowed;
+}
+
+/* ヒントで立てた旗（青） */
+.cell.hint-flag {
+  /* セルはまだ未開なのでベベルを維持 */
+}
+.cell .hint-flag-icon {
+  width: 70%;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cell .hint-flag-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.mode-toggle {
+  display: flex;
+  border: 3px solid #1a1d24;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.mode-btn {
+  width: 60px;
+  height: 54px;
+  background: #8d93a0;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.1s;
+  font-size: 28px;
+  line-height: 1;
+}
+.mode-btn + .mode-btn { border-left: 3px solid #1a1d24; }
+.mode-btn img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.mode-btn.dig.active { background: #7ed957; }
+.mode-btn.flag.active { background: #f09fc0; }
+.mode-btn:active { filter: brightness(0.92); }
+
+.next-btn {
+  display: none;
+  background: #ec3d99;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 50px;
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 1.4rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: filter 0.1s, transform 0.08s;
+}
+.next-btn:active { filter: brightness(0.9); transform: scale(0.97); }
+
+.game-footer.game-over {
+  justify-content: center;
+}
+.game-footer.game-over .bomb-counter,
+.game-footer.game-over .mode-toggle {
+  display: none;
+}
+.game-footer.game-over .next-btn {
+  display: inline-flex;
+}
+
+/* クリーンモード：NEXT 押下後に背景画像のみ見せる */
+.grid.clean {
+  border: none !important;
+  background-color: transparent !important;
+}
+.grid.clean .cell {
+  background: transparent !important;
+  border: none !important;
+  color: transparent !important;
+}
+.grid.clean .cell::before,
+.grid.clean .cell::after { display: none !important; }
+.grid.clean .cell * { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ===== Start Screen ===== -->
+<div id="startScreen" class="screen">
+  <div id="lsclear_id">&nbsp;</div>
+  <h1 class="title">ずんだスイーパー</h1>
+  <a href="?level=1" class="btn-level">4 × 4</a>
+  <a href="?level=2" class="btn-level">6 × 6</a>
+  <a href="?level=3" class="btn-level">8 × 8</a>
+  <a href="?level=4" class="btn-level">10 × 10</a>
+  <a href="?level=5" class="btn-level">12 × 12</a>
+  <a href="?level=6" class="btn-level">14 × 14</a>
+  <a href="../index.html" class="btn-top">TOPへ</a>
+</div>
+
+<!-- ===== Game Screen ===== -->
+<div id="gameScreen" class="screen" style="display:none">
+  <div class="game-header">
+    <a href="?" class="icon-btn" id="home-back-btn" aria-label="スタート画面に戻る">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#1a1d24">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+    </a>
+    <button class="icon-btn" id="resetBtn" aria-label="リセット">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#1a1d24">
+        <path d="M12 5V2L7 6l5 4V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="grid-wrapper">
+    <div id="grid" class="grid"></div>
+  </div>
+
+  <div class="game-footer">
+    <div class="bomb-counter">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="15" r="7" fill="#1a1d24"/>
+        <circle cx="12" cy="13" r="1.5" fill="#808593"/>
+        <line x1="15" y1="10" x2="19" y2="6" stroke="#1a1d24" stroke-width="2" stroke-linecap="round"/>
+        <g stroke="#ff8040" stroke-width="1.5" stroke-linecap="round">
+          <line x1="20" y1="5" x2="21.5" y2="3.5"/>
+          <line x1="19" y1="4" x2="19" y2="2"/>
+          <line x1="21" y1="7" x2="22.5" y2="7"/>
+        </g>
+      </svg>
+      <span id="bombCount">10</span>
+      <button class="hint-btn" id="hintBtn" aria-label="ヒント">H</button>
+    </div>
+    <button class="next-btn" id="nextBtn">NEXT</button>
+    <div class="mode-toggle">
+      <button class="mode-btn dig active" id="digBtn" aria-label="掘る"><img src="shovel.webp" alt=""></button>
+      <button class="mode-btn flag" id="flagBtn" aria-label="旗"><img src="hata.webp" alt=""></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ========== URLパラメータでレベル指定 ==========
+  const urlParams = new URLSearchParams(window.location.search);
+  const level = urlParams.get('level');
+
+  let panel1Side, bombNum;
+  if (level === '1')      { panel1Side = 4;  bombNum = 3;  }  //  4 × 4
+  else if (level === '2') { panel1Side = 6;  bombNum = 6;  }  //  6 × 6
+  else if (level === '3') { panel1Side = 8;  bombNum = 10; }  //  8 × 8
+  else if (level === '4') { panel1Side = 10; bombNum = 18; }  // 10 × 10
+  else if (level === '5') { panel1Side = 12; bombNum = 28; }  // 12 × 12
+  else if (level === '6') { panel1Side = 14; bombNum = 40; }  // 14 × 14
+
+  // ========== 画面表示切替 ==========
+  const startScreen = document.getElementById('startScreen');
+  const gameScreen  = document.getElementById('gameScreen');
+
+  // スタート画面の隠しリセットボタン（画像番号を 0 に戻す）
+  const lsclear = document.getElementById('lsclear_id');
+  if (lsclear) {
+    lsclear.addEventListener('click', function () {
+      try { localStorage.setItem('msp_bg', '0'); } catch (e) {}
+      location.reload();
+    });
+  }
+
+  if (level) {
+    startScreen.style.display = 'none';
+    gameScreen.style.display  = 'flex';
+    setupBackgroundImage();
+    initGame();
+  }
+
+  // ========== 背景画像の切替（localStorage で管理） ==========
+  // ゲーム開始時：現在の番号で画像を表示するだけ（加算しない）
+  function setupBackgroundImage() {
+    const KEY = 'msp_bg';
+    let current = parseInt(localStorage.getItem(KEY), 10);
+    if (isNaN(current) || current < 0 || current > 62) current = 0;
+
+    // 画像の存在確認：読み込み失敗なら 0.webp にフォールバック
+    const testImg = new Image();
+    testImg.onload = function () {
+      document.getElementById('grid').style.backgroundImage =
+        'url("pic/' + current + '.webp")';
+    };
+    testImg.onerror = function () {
+      document.getElementById('grid').style.backgroundImage = 'url("pic/0.webp")';
+    };
+    testImg.src = 'pic/' + current + '.webp';
+  }
+
+  // クリア時に次の番号へ加算して保存（63 なら 0 に戻す）
+  function advanceBackgroundImage() {
+    const KEY = 'msp_bg';
+    let current = parseInt(localStorage.getItem(KEY), 10);
+    if (isNaN(current) || current < 0 || current > 62) current = 0;
+    let next = current + 1;
+    if (next > 62) next = 0;
+    try {
+      localStorage.setItem(KEY, String(next));
+    } catch (e) {
+      // localStorage が使えない環境では保存しない
+    }
+  }
+
+  // ========== ゲーム初期化 ==========
+  function initGame() {
+    const grid = document.getElementById('grid');
+    grid.style.gridTemplateColumns = 'repeat(' + panel1Side + ', 1fr)';
+    grid.style.gridTemplateRows    = 'repeat(' + panel1Side + ', 1fr)';
+    grid.innerHTML = '';
+
+    // グリッドのサイズをビューポートに合わせる
+    function resizeGrid() {
+      const wrapper = document.querySelector('.grid-wrapper');
+      const w = wrapper.clientWidth;
+      const h = wrapper.clientHeight;
+      const size = Math.floor(Math.min(w, h));
+      grid.style.width  = size + 'px';
+      grid.style.height = size + 'px';
+      const cellSize = size / panel1Side;
+      document.documentElement.style.setProperty('--cell-size', cellSize + 'px');
+    }
+    window.addEventListener('resize', resizeGrid);
+    window.addEventListener('orientationchange', () => setTimeout(resizeGrid, 100));
+    requestAnimationFrame(resizeGrid);
+
+    // ========== ゲーム状態 ==========
+    const total = panel1Side * panel1Side;
+    const bombs    = new Set();  // 爆弾の位置
+    const revealed = new Set();  // 開いたセル
+    const flagged  = new Set();  // 旗を立てたセル
+    let firstClick = true;
+    let mode = 'dig';            // 'dig' または 'flag'
+    let gameOver = false;
+    let nextState = 'next';      // 'next' → 'start' (クリア時) / 'retry' (ミス時)
+    let hintUsed = false;        // ヒント使用済みフラグ（1ゲーム1回のみ）
+    const hintFlagged = new Set(); // ヒントで立てた旗の位置（ユーザーの旗とは別管理）
+
+    // アイコン用 HTML
+    const FLAG_SVG = '<span class="flag-icon"><img src="hata.webp" alt=""></span>';
+    const HINT_FLAG_HTML = '<span class="hint-flag-icon"><img src="hata_b.webp" alt=""></span>';
+    const BOMB_SVG =
+      '<span class="bomb-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle cx="11" cy="13" r="8" fill="#1a1d24"/>' +
+      '<circle cx="13" cy="11" r="1.8" fill="#808593"/>' +
+      '<line x1="17" y1="8" x2="21" y2="4" stroke="#1a1d24" stroke-width="2.2" stroke-linecap="round"/>' +
+      '<g stroke="#ff8040" stroke-width="1.5" stroke-linecap="round">' +
+      '<line x1="22" y1="3" x2="23.5" y2="1.5"/>' +
+      '<line x1="20.5" y1="2" x2="20.5" y2="0"/>' +
+      '<line x1="23" y1="5" x2="24.5" y2="5"/>' +
+      '</g></svg></span>';
+
+    // ========== セル生成 ==========
+    const cells = [];
+    for (let i = 0; i < total; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.idx = i;
+      cell.addEventListener('click', function (e) {
+        e.preventDefault();
+        onCellClick(i);
+      });
+      // PC用の右クリックで旗立て
+      cell.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        if (!gameOver) toggleFlag(i);
+      });
+      grid.appendChild(cell);
+      cells.push(cell);
+    }
+
+    updateBombCounter();
+
+    // ========== 関数定義 ==========
+    function updateBombCounter() {
+      document.getElementById('bombCount').textContent =
+        Math.max(0, bombNum - flagged.size - hintFlagged.size);
+    }
+
+    // 初回クリック位置と隣接を除いて爆弾を配置
+    function placeBombs(excludeIdx) {
+      const exclude = new Set([excludeIdx]);
+      const r = Math.floor(excludeIdx / panel1Side);
+      const c = excludeIdx % panel1Side;
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          const nr = r + dr, nc = c + dc;
+          if (nr >= 0 && nr < panel1Side && nc >= 0 && nc < panel1Side) {
+            exclude.add(nr * panel1Side + nc);
+          }
+        }
+      }
+      const candidates = [];
+      for (let i = 0; i < total; i++) if (!exclude.has(i)) candidates.push(i);
+      // シャッフル
+      for (let i = candidates.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = candidates[i]; candidates[i] = candidates[j]; candidates[j] = tmp;
+      }
+      const placeCount = Math.min(bombNum, candidates.length);
+      for (let i = 0; i < placeCount; i++) bombs.add(candidates[i]);
+    }
+
+    // 隣接する爆弾の数
+    function countNeighbors(idx) {
+      const r = Math.floor(idx / panel1Side);
+      const c = idx % panel1Side;
+      let count = 0;
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          if (dr === 0 && dc === 0) continue;
+          const nr = r + dr, nc = c + dc;
+          if (nr >= 0 && nr < panel1Side && nc >= 0 && nc < panel1Side) {
+            if (bombs.has(nr * panel1Side + nc)) count++;
+          }
+        }
+      }
+      return count;
+    }
+
+    // セルを1つだけ開く（連鎖は呼び出し側で）
+    function reveal(idx) {
+      if (revealed.has(idx) || flagged.has(idx)) return;
+      revealed.add(idx);
+      const cell = cells[idx];
+      cell.classList.add('revealed');
+
+      if (bombs.has(idx)) {
+        cell.classList.add('bomb-revealed', 'bomb-exploded');
+        cell.innerHTML = BOMB_SVG;
+        return;
+      }
+      const count = countNeighbors(idx);
+      if (count > 0) {
+        cell.textContent = count;
+        cell.dataset.num = count;
+        cell.classList.add('num-cell');
+      }
+    }
+
+    // 空白マスを起点に開けるべきマスを収集（昇順 = 左→右・上→下）
+    function collectFloodFill(startIdx) {
+      const set = new Set();
+      const queue = [startIdx];
+      while (queue.length > 0) {
+        const idx = queue.shift();
+        if (set.has(idx) || revealed.has(idx) || flagged.has(idx) || bombs.has(idx)) continue;
+        set.add(idx);
+        if (countNeighbors(idx) === 0) {
+          const r = Math.floor(idx / panel1Side);
+          const c = idx % panel1Side;
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (dr === 0 && dc === 0) continue;
+              const nr = r + dr, nc = c + dc;
+              if (nr >= 0 && nr < panel1Side && nc >= 0 && nc < panel1Side) {
+                queue.push(nr * panel1Side + nc);
+              }
+            }
+          }
+        }
+      }
+      return Array.from(set).sort(function (a, b) { return a - b; });
+    }
+
+    let isAnimating = false;
+
+    // セルクリック処理
+    function onCellClick(idx) {
+      if (gameOver) return;
+      if (isAnimating) return;
+      if (mode === 'flag') { toggleFlag(idx); return; }
+      if (flagged.has(idx)) return;
+      if (hintFlagged.has(idx)) return;  // ヒントで立てた旗のマスはクリック不可
+      if (revealed.has(idx)) return;
+
+      if (firstClick) {
+        firstClick = false;
+        placeBombs(idx);
+      }
+
+      if (bombs.has(idx)) {
+        // クリックしたセルが爆弾 → ゲームオーバー
+        reveal(idx);
+        endGame(false);
+        return;
+      }
+
+      const count = countNeighbors(idx);
+      if (count > 0) {
+        // 数字マス：1 つだけ開く
+        reveal(idx);
+        checkWin();
+      } else {
+        // 空白マス：まず対象を収集してから、クリックしたマスを即消す
+        const list = collectFloodFill(idx);
+        reveal(idx);
+        // 残りは左→右・上→下に 1 マスずつ連続して開く
+        const remaining = list.filter(function (x) { return x !== idx; });
+        if (remaining.length === 0) {
+          checkWin();
+        } else {
+          isAnimating = true;
+          let i = 0;
+          function step() {
+            if (i >= remaining.length) {
+              isAnimating = false;
+              checkWin();
+              return;
+            }
+            reveal(remaining[i]);
+            i++;
+            setTimeout(step, 25);
+          }
+          step();
+        }
+      }
+    }
+
+    // 旗の切り替え
+    function toggleFlag(idx) {
+      if (gameOver) return;
+      if (revealed.has(idx)) return;
+      if (hintFlagged.has(idx)) return;  // ヒント旗は外せない
+      if (flagged.has(idx)) {
+        flagged.delete(idx);
+        cells[idx].classList.remove('flagged');
+        cells[idx].innerHTML = '';
+      } else {
+        flagged.add(idx);
+        cells[idx].classList.add('flagged');
+        cells[idx].innerHTML = FLAG_SVG;
+      }
+      updateBombCounter();
+    }
+
+    // クリア判定
+    function checkWin() {
+      if (revealed.size >= total - bombs.size && !gameOver) {
+        endGame(true);
+      }
+    }
+
+    // ゲーム終了処理：すべてのマスを開けて爆弾を表示し、NEXT/RETRYボタンを出す
+    function endGame(won) {
+      gameOver = true;
+      isAnimating = false;
+      for (let i = 0; i < total; i++) {
+        if (!revealed.has(i)) {
+          revealed.add(i);
+          const cell = cells[i];
+          // 旗があれば外す
+          if (flagged.has(i)) {
+            flagged.delete(i);
+            cell.classList.remove('flagged');
+            cell.innerHTML = '';
+          }
+          cell.classList.add('revealed');
+          if (bombs.has(i)) {
+            cell.classList.add('bomb-revealed');
+            cell.innerHTML = BOMB_SVG;
+          } else {
+            const count = countNeighbors(i);
+            if (count > 0) {
+              cell.textContent = count;
+              cell.dataset.num = count;
+              cell.classList.add('num-cell');
+            }
+          }
+        }
+      }
+      // ボタンの表示を切替
+      const nextBtn = document.getElementById('nextBtn');
+      if (won) {
+        nextBtn.textContent = 'NEXT';
+        nextState = 'next';
+        // クリア時だけ次回用に画像番号を進める
+        advanceBackgroundImage();
+      } else {
+        nextBtn.textContent = 'RETRY';
+        nextState = 'retry';
+      }
+      document.querySelector('.game-footer').classList.add('game-over');
+    }
+
+    // ========== モード切替ボタン ==========
+    const digBtn  = document.getElementById('digBtn');
+    const flagBtn = document.getElementById('flagBtn');
+    digBtn.addEventListener('click', function () {
+      mode = 'dig';
+      digBtn.classList.add('active');
+      flagBtn.classList.remove('active');
+      grid.classList.remove('flag-mode');
+    });
+    flagBtn.addEventListener('click', function () {
+      mode = 'flag';
+      flagBtn.classList.add('active');
+      digBtn.classList.remove('active');
+      grid.classList.add('flag-mode');
+    });
+
+    // ========== リセットボタン ==========
+    document.getElementById('resetBtn').addEventListener('click', function () {
+      location.reload();
+    });
+    
+    // ========== ヒントボタン ==========
+    const hintBtn = document.getElementById('hintBtn');
+    hintBtn.addEventListener('click', function () {
+      if (gameOver || hintUsed) return;
+      const ok = window.confirm('1度だけ使えるヒント機能！使いますか？');
+      if (!ok) return;
+      hintUsed = true;
+      hintBtn.disabled = true;
+
+      // 初回クリック前なら、ここで中央を安全地点として爆弾を配置
+      if (firstClick) {
+        firstClick = false;
+        const centerIdx =
+          Math.floor(panel1Side / 2) * panel1Side + Math.floor(panel1Side / 2);
+        placeBombs(centerIdx);
+      }
+
+      // 盤面サイズに応じたヒント本数を決定
+      // 4x4,6x6 → 1本 / 8x8,10x10 → 2本 / 12x12,14x14 → 3本
+      let hintCount;
+      if (panel1Side <= 6)       hintCount = 1;
+      else if (panel1Side <= 10) hintCount = 2;
+      else                       hintCount = 3;
+
+      // 爆弾位置からランダムに hintCount 個選んで、まだ開いていないものに青い旗を立てる
+      const bombList = Array.from(bombs).filter(function (bidx) {
+        return !revealed.has(bidx);
+      });
+      // シャッフル
+      for (let i = bombList.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = bombList[i]; bombList[i] = bombList[j]; bombList[j] = tmp;
+      }
+      const picks = bombList.slice(0, Math.min(hintCount, bombList.length));
+      picks.forEach(function (bidx) {
+        // ユーザーが通常の旗を立てていたら、その分だけカウンターから解除
+        if (flagged.has(bidx)) {
+          flagged.delete(bidx);
+          cells[bidx].classList.remove('flagged');
+        }
+        hintFlagged.add(bidx);
+        cells[bidx].classList.add('hint-flag');
+        cells[bidx].innerHTML = HINT_FLAG_HTML;
+      });
+      updateBombCounter();
+    });
+
+    // ========== NEXT / RETRY ボタン（ゲーム終了時に表示） ==========
+    const nextBtn = document.getElementById('nextBtn');
+    // nextState: 'next' (クリア後1回目) → 'start' (クリア後2回目) / 'retry' (ミス時)
+    nextBtn.addEventListener('click', function () {
+      if (nextState === 'retry') {
+        // ミス時：ページをリロード
+        location.reload();
+        return;
+      }
+      if (nextState === 'next') {
+        // クリア時1回目：マス線・爆弾・数字を全て消して bg01.jpg だけ見せる
+        document.getElementById('grid').classList.add('clean');
+        nextBtn.textContent = 'スタートへ';
+        nextState = 'start';
+        return;
+      }
+      if (nextState === 'start') {
+        // クリア時2回目：スタート画面へ
+        window.location.href = '?';
+      }
+    });
+  }
+
+  // ========== ピンチズーム・ダブルタップズーム防止 ==========
+  document.addEventListener('touchmove', function (e) {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', function (e) {
+    const now = Date.now();
+    if (now - lastTouchEnd < 300) e.preventDefault();
+    lastTouchEnd = now;
+  }, false);
+
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+  document.addEventListener('gesturechange', function (e) { e.preventDefault(); });
+  document.addEventListener('gestureend',    function (e) { e.preventDefault(); });
+  document.addEventListener('dblclick',      function (e) { e.preventDefault(); });
+
+  // iOSでのバウンススクロール防止
+  document.addEventListener('touchstart', function (e) {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+})();
+</script>
+
+</body>
+</html>
