@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="icon/i180.png">
 <!--OGP-->
 <meta name="twitter:site" content="ねとみむや">
-<meta name="apple-mobile-web-app-title" content="ずんだもん スマホ専用デジタルおまけ">
+<meta name="apple-mobile-web-app-title" content="ずんだスイーパー｜ずんだもん スマホ専用デジタルおまけ">
 <meta name="twitter:image" content="pic/ogp.jpg">
 <meta property="og:image" content="pic/ogp.jpg">
 <meta property="og:type" content="website">
@@ -514,16 +514,24 @@ body {
   'use strict';
 
   // ========== 音声ON/OFF（localStorageで保持） ==========
-  const SOUND_KEY = 'msp_sound';
+  // キー: msp_oto
+  // 値: 'true'  = 音有（デフォルト）
+  //     'false' = 無音
+  // 未設定(null)の場合は初回に 'true' を書き込む
+  const SOUND_KEY = 'msp_oto';
   function isSoundOn() {
     try {
       const v = localStorage.getItem(SOUND_KEY);
-      // 未設定ならON（デフォルト）
-      return v === null ? true : v === '1';
+      if (v === null) {
+        // 初回アクセス：デフォルト(音有)を書き込んでから true を返す
+        try { localStorage.setItem(SOUND_KEY, 'true'); } catch (e) {}
+        return true;
+      }
+      return v === 'true';
     } catch (e) { return true; }
   }
   function setSoundOn(on) {
-    try { localStorage.setItem(SOUND_KEY, on ? '1' : '0'); } catch (e) {}
+    try { localStorage.setItem(SOUND_KEY, on ? 'true' : 'false'); } catch (e) {}
   }
 
   // 音声ON/OFF状態に応じたアイコンSVG
@@ -585,9 +593,9 @@ body {
   let panel1Side, bombNum;
   if (level === '1')      { panel1Side = 4;  bombNum = 3;  }  //  4 × 4
   else if (level === '2') { panel1Side = 6;  bombNum = 6;  }  //  6 × 6
-  else if (level === '3') { panel1Side = 8;  bombNum = 10; }  //  8 × 8
-  else if (level === '4') { panel1Side = 10; bombNum = 18; }  // 10 × 10
-  else if (level === '5') { panel1Side = 12; bombNum = 28; }  // 12 × 12
+  else if (level === '3') { panel1Side = 8;  bombNum = 9; }  //  8 × 8
+  else if (level === '4') { panel1Side = 10; bombNum = 16; }  // 10 × 10
+  else if (level === '5') { panel1Side = 12; bombNum = 24; }  // 12 × 12
 
   // ========== スタート画面：レベルボタン押下時に効果音を鳴らしてから遷移 ==========
   if (!level) {

@@ -241,37 +241,6 @@
     fill: #333;
   }
 
-  /* 音声ON/OFFボタン */
-  .sound-btn {
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    width: clamp(40px, 7vw, 52px);
-    height: clamp(40px, 7vw, 52px);
-    background: rgba(255,255,255,0.85);
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 15;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    transition: transform 0.1s ease, background 0.15s ease;
-    padding: 0;
-  }
-  .sound-btn:active {
-    transform: scale(0.92);
-  }
-  .sound-btn svg {
-    width: 58%;
-    height: 58%;
-    fill: #333;
-  }
-  .sound-btn .icon-off { display: none; }
-  .sound-btn.muted .icon-on { display: none; }
-  .sound-btn.muted .icon-off { display: block; }
-
   #level-label {
     position: absolute;
     top: 16px;
@@ -665,6 +634,44 @@
       background-size: 50% auto;
     }
   }
+
+  /* ========== サウンドトグルボタン ========== */
+  .sound-toggle-btn {
+    position: absolute;
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.1s ease;
+    padding: 0;
+    z-index: 10;
+  }
+  .sound-toggle-btn:active {
+    transform: scale(0.92);
+  }
+  .sound-toggle-btn svg {
+    width: 55%;
+    height: 55%;
+    fill: #333;
+  }
+  /* スタート画面用 */
+  #start-sound-btn {
+    top: 12px;
+    right: 12px;
+    width: clamp(40px, 7vw, 52px);
+    height: clamp(40px, 7vw, 52px);
+  }
+  /* ゲーム画面用 */
+  #game-sound-btn {
+    top: 12px;
+    right: calc(12px + clamp(44px, 8vw, 60px) + 8px);
+    width: clamp(44px, 8vw, 60px);
+    height: clamp(44px, 8vw, 60px);
+  }
 </style>
 </head>
 <body oncontextmenu="return false;">
@@ -687,6 +694,7 @@
   <!-- スタート画面 -->
   <div id="start-screen">
     <div id="start-panel">
+      <button id="start-sound-btn" class="sound-toggle-btn" aria-label="サウンド切替"></button>
       <h1 id="title">４目並べ</h1>
       <div class="btn-grid">
         <button class="difficulty-btn" data-level="easy" data-first="player">Easy 先攻</button>
@@ -700,10 +708,6 @@
         <button class="difficulty-btn" id="watch-btn" data-level="pro" style="opacity:0;position:fixed;right:0;bottom:0;width:20px;height:20px;overflow:hidden;padding:0;">Pro後攻観戦</button>
       </div>
       <p class="start_footer_p">©ねとみむや</p>
-      <button class="sound-btn" id="sound-btn-start" aria-label="音声ON/OFF">
-        <svg class="icon-on" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-        <svg class="icon-off" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
-      </button>
     </div>
   </div>
 
@@ -716,6 +720,7 @@
         </svg>
       </button>
       <div id="level-label"></div>
+      <button id="game-sound-btn" class="sound-toggle-btn" aria-label="サウンド切替"></button>
       <button id="reset-btn" aria-label="リセット">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M12 5V2L7 6l5 4V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
@@ -731,11 +736,6 @@
     <div id="bottom-area">
       <div id="turn-label">Player</div>
     </div>
-
-    <button class="sound-btn" id="sound-btn-game" aria-label="音声ON/OFF">
-      <svg class="icon-on" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-      <svg class="icon-off" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
-    </button>
 
     <div id="result-overlay">
       <div id="result-box">
@@ -793,6 +793,27 @@
   const ROWS = 6, COLS = 7;
   const EMPTY = 0, PLAYER = 1, AI = 2;
 
+  // --- サウンド設定（localStorage） ---
+  // c4_sound: true=音有, false=無音。nullなら初回はtrue（音有がデフォルト）
+  function getSoundEnabled(){
+    try {
+      const v = localStorage.getItem('c4_sound');
+      if (v === null){
+        localStorage.setItem('c4_sound', 'true');
+        return true;
+      }
+      return v === 'true';
+    } catch(e){
+      return true; // localStorage使用不可時は音有
+    }
+  }
+  function setSoundEnabled(flag){
+    try {
+      localStorage.setItem('c4_sound', flag ? 'true' : 'false');
+    } catch(e){}
+  }
+  let soundEnabled = getSoundEnabled();
+
   // --- 効果音 ---
   const sePlayer = document.getElementById('se-land');
   const seEnemy = document.getElementById('se-land-enemy');
@@ -818,29 +839,8 @@
   const resultBgms = [seWinEasy, seWinMedium, seWinPro, seLoseEasy, seLoseMedium, seLosePro, seDraw];
   resultBgms.forEach(a => { if (a) a.volume = 0.8; });
 
-  // --- 音声ON/OFF ---
-  const allAudios = [sePlayer, seEnemy, seStartEasy, seStartMedium, seStartPro,
-    seWin, seLose, seWinEasy, seWinMedium, seWinPro,
-    seLoseEasy, seLoseMedium, seLosePro, seDraw];
-  let soundMuted = false;
-  function setMuted(muted){
-    soundMuted = muted;
-    // ボタン表示更新
-    document.querySelectorAll('.sound-btn').forEach(b => {
-      b.classList.toggle('muted', muted);
-    });
-    // ミュート時は鳴っているBGMも止める
-    if (muted){
-      allAudios.forEach(a => {
-        if (!a) return;
-        try { a.pause(); a.currentTime = 0; } catch(e) {}
-      });
-    }
-  }
-  function toggleMuted(){ setMuted(!soundMuted); }
-
   function playLandSE(player){
-    if (soundMuted) return;
+    if (!soundEnabled) return;
     const se = (player === AI) ? seEnemy : sePlayer;
     if (!se) return;
     try {
@@ -851,7 +851,7 @@
   }
 
   function playStartSE(level){
-    if (soundMuted) return;
+    if (!soundEnabled) return;
     let se = null;
     if (level === 'easy') se = seStartEasy;
     else if (level === 'medium') se = seStartMedium;
@@ -865,7 +865,7 @@
   }
 
   function playResultSE(player){
-    if (soundMuted) return;
+    if (!soundEnabled) return;
     const se = (player === PLAYER) ? seWin : seLose;
     if (!se) return;
     try {
@@ -876,7 +876,7 @@
   }
 
   function playResultBGM(player, level){
-    if (soundMuted) return;
+    if (!soundEnabled) return;
     let se = null;
     if (player === PLAYER){
       if (level === 'easy') se = seWinEasy;
@@ -896,7 +896,7 @@
   }
 
   function playDrawBGM(){
-    if (soundMuted) return;
+    if (!soundEnabled) return;
     if (!seDraw) return;
     try {
       seDraw.currentTime = 0;
@@ -1056,12 +1056,12 @@
     // ピースが手を離れた感を出すためプレビューを非表示に
     previewEl.style.opacity = '0';
 
-    // 落下開始と同時に接地音を鳴らす（アニメーション完了待ちだと音ズレするため）
-    playLandSE(PLAYER);
-
     piece.addEventListener('animationend', function handler(){
       piece.removeEventListener('animationend', handler);
       piece.classList.remove('drop');
+
+      // 接地音（プレイヤー/敵で音を分ける）
+      playLandSE(player);
 
       const winLine = checkWin(state.board, row, col, player);
       if (winLine){
@@ -1723,11 +1723,6 @@
     location.reload();
   });
 
-  // 音声ON/OFFボタン（スタート画面・ゲーム画面両方）
-  document.querySelectorAll('.sound-btn').forEach(btn => {
-    btn.addEventListener('click', toggleMuted);
-  });
-
   document.getElementById('again-btn').addEventListener('click', () => startGame(state.difficulty, state.firstMover));
   document.getElementById('home-btn').addEventListener('click', goHome);
   document.getElementById('ed-home-btn').addEventListener('click', goHome);
@@ -1735,6 +1730,30 @@
     hideBenchScreen();
     startScreen.classList.remove('hidden');
   });
+
+  // --- サウンドトグルボタン ---
+  const SOUND_ON_SVG  = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0014 8.03v7.94A4.5 4.5 0 0016.5 12zM14 3.23v2.06a7 7 0 010 13.42v2.06a9 9 0 000-17.54z"/></svg>';
+  const SOUND_OFF_SVG = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 12A4.5 4.5 0 0014 8.03v2.21l2.45 2.45a4.52 4.52 0 00.05-0.69zM19 12c0 0.94-0.2 1.82-0.54 2.64l1.51 1.51A8.94 8.94 0 0021 12a9 9 0 00-7-8.77v2.06A7 7 0 0119 12zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-0.67 0.52-1.42 0.93-2.25 1.18v2.06a8.99 8.99 0 003.69-1.81L19.73 21 21 19.73 12 10.73 4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+
+  function updateSoundButtons(){
+    const html = soundEnabled ? SOUND_ON_SVG : SOUND_OFF_SVG;
+    const btns = [document.getElementById('start-sound-btn'), document.getElementById('game-sound-btn')];
+    btns.forEach(b => { if (b) b.innerHTML = html; });
+  }
+  function toggleSound(){
+    soundEnabled = !soundEnabled;
+    setSoundEnabled(soundEnabled);
+    updateSoundButtons();
+    // OFFに切り替えたら現在鳴っている結果BGMを止める
+    if (!soundEnabled){
+      stopAllResultBGM();
+    }
+  }
+  updateSoundButtons();
+  const _startSoundBtn = document.getElementById('start-sound-btn');
+  const _gameSoundBtn  = document.getElementById('game-sound-btn');
+  if (_startSoundBtn) _startSoundBtn.addEventListener('click', toggleSound);
+  if (_gameSoundBtn)  _gameSoundBtn.addEventListener('click', toggleSound);
 
   window.addEventListener('resize', updateCellSize);
   window.addEventListener('orientationchange', () => setTimeout(updateCellSize, 300));
