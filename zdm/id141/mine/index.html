@@ -127,6 +127,14 @@ body {
 }
 .btn-top:active { filter: brightness(0.85); }
 
+/* スタート画面：右上に音声ON/OFFボタンを固定配置 */
+.start-sound-btn {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0));
+  right: 14px;
+  z-index: 10;
+}
+
 /* ===== Game Screen ===== */
 #gameScreen {
   background: #434957;
@@ -398,9 +406,16 @@ body {
   font-size: 1.4rem;
   cursor: pointer;
   letter-spacing: 0.05em;
-  transition: filter 0.1s, transform 0.08s;
+  transition: filter 0.1s, transform 0.08s, background 0.15s;
 }
 .next-btn:active { filter: brightness(0.9); transform: scale(0.97); }
+
+/* クリア時：緑 */
+.next-btn.state-clear { background: #2ecc40; }
+/* ミス時：赤 */
+.next-btn.state-retry { background: #e53935; }
+/* スタート画面へ：青 */
+.next-btn.state-start { background: #1976d2; }
 
 .game-footer.game-over {
   justify-content: center;
@@ -430,31 +445,40 @@ body {
 </head>
 <body>
 
+<!-- ===== Audio ===== -->
+<audio id="seStart" src="dat/se_start.mp3" preload="auto"></audio>
+<audio id="seBomb"  src="dat/se_bomb.mp3"  preload="auto"></audio>
+<audio id="seHata"  src="dat/se_hata.mp3"  preload="auto"></audio>
+<audio id="seClick" src="dat/se_click.mp3" preload="auto"></audio>
+<audio id="seClear" src="dat/se_clear.mp3" preload="auto"></audio>
+<audio id="seMax"   src="dat/se_max.mp3"   preload="auto"></audio>
+<audio id="seIllust" src="dat/se_illust.mp3" preload="auto"></audio>
+
 <!-- ===== Start Screen ===== -->
 <div id="startScreen" class="screen">
   <div id="lsclear_id">&nbsp;</div>
+  <button class="icon-btn start-sound-btn" id="soundBtnStart" aria-label="音声切替">
+    <!-- SVGはJS側で動的に差し替え -->
+  </button>
   <h1 class="title">ずんだスイーパー</h1>
   <a href="?level=1" class="btn-level">4 × 4</a>
   <a href="?level=2" class="btn-level">6 × 6</a>
   <a href="?level=3" class="btn-level">8 × 8</a>
   <a href="?level=4" class="btn-level">10 × 10</a>
   <a href="?level=5" class="btn-level">12 × 12</a>
-  <a href="?level=6" class="btn-level">14 × 14</a>
   <a href="../index.html" class="btn-top">TOPへ</a>
 </div>
 
 <!-- ===== Game Screen ===== -->
 <div id="gameScreen" class="screen" style="display:none">
   <div class="game-header">
-    <a href="?" class="icon-btn" id="home-back-btn" aria-label="スタート画面に戻る">
+    <button class="icon-btn" id="home-back-btn" aria-label="スタート画面に戻る">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#1a1d24">
         <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
       </svg>
-    </a>
-    <button class="icon-btn" id="resetBtn" aria-label="リセット">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#1a1d24">
-        <path d="M12 5V2L7 6l5 4V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
-      </svg>
+    </button>
+    <button class="icon-btn" id="soundBtn" aria-label="音声切替">
+      <!-- SVGはJS側で動的に差し替え -->
     </button>
   </div>
 
@@ -479,8 +503,8 @@ body {
     </div>
     <button class="next-btn" id="nextBtn">NEXT</button>
     <div class="mode-toggle">
-      <button class="mode-btn dig active" id="digBtn" aria-label="掘る"><img src="shovel.webp" alt=""></button>
-      <button class="mode-btn flag" id="flagBtn" aria-label="旗"><img src="hata.webp" alt=""></button>
+      <button class="mode-btn dig active" id="digBtn" aria-label="掘る"><img src="dat/shovel.webp" alt=""></button>
+      <button class="mode-btn flag" id="flagBtn" aria-label="旗"><img src="dat/hata.webp" alt=""></button>
     </div>
   </div>
 </div>
@@ -488,6 +512,71 @@ body {
 <script>
 (function () {
   'use strict';
+
+  // ========== 音声ON/OFF（localStorageで保持） ==========
+  const SOUND_KEY = 'msp_sound';
+  function isSoundOn() {
+    try {
+      const v = localStorage.getItem(SOUND_KEY);
+      // 未設定ならON（デフォルト）
+      return v === null ? true : v === '1';
+    } catch (e) { return true; }
+  }
+  function setSoundOn(on) {
+    try { localStorage.setItem(SOUND_KEY, on ? '1' : '0'); } catch (e) {}
+  }
+
+  // 音声ON/OFF状態に応じたアイコンSVG
+  const ICON_SOUND_ON =
+    '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#1a1d24">' +
+    '<path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>' +
+    '</svg>';
+  const ICON_SOUND_OFF =
+    '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#1a1d24">' +
+    '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.17v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>' +
+    '</svg>';
+
+  // 全ての音声ボタンのアイコンを現在の状態に合わせて更新
+  function refreshSoundButtons() {
+    const on = isSoundOn();
+    const html = on ? ICON_SOUND_ON : ICON_SOUND_OFF;
+    const label = on ? '音声オン（タップでオフ）' : '音声オフ（タップでオン）';
+    document.querySelectorAll('#soundBtn, #soundBtnStart').forEach(function (btn) {
+      btn.innerHTML = html;
+      btn.setAttribute('aria-label', label);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
+  function toggleSound() {
+    const next = !isSoundOn();
+    setSoundOn(next);
+    refreshSoundButtons();
+    // ONにした瞬間は、ユーザーに「今ONになった」と分かるようクリック音を鳴らす
+    if (next) playSE('seClick');
+  }
+
+  // ========== 効果音再生ヘルパー ==========
+  // 同じ音を連続で鳴らせるよう、毎回 currentTime を 0 に戻してから再生
+  function playSE(id) {
+    if (!isSoundOn()) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    try {
+      el.currentTime = 0;
+      const p = el.play();
+      if (p && typeof p.catch === 'function') p.catch(function () {});
+    } catch (e) {}
+  }
+
+  // ページ読み込み時：アイコンを初期化し、両ボタンにクリックハンドラを設定
+  refreshSoundButtons();
+  document.querySelectorAll('#soundBtn, #soundBtnStart').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      toggleSound();
+    });
+  });
 
   // ========== URLパラメータでレベル指定 ==========
   const urlParams = new URLSearchParams(window.location.search);
@@ -499,7 +588,27 @@ body {
   else if (level === '3') { panel1Side = 8;  bombNum = 10; }  //  8 × 8
   else if (level === '4') { panel1Side = 10; bombNum = 18; }  // 10 × 10
   else if (level === '5') { panel1Side = 12; bombNum = 28; }  // 12 × 12
-  else if (level === '6') { panel1Side = 14; bombNum = 40; }  // 14 × 14
+
+  // ========== スタート画面：レベルボタン押下時に効果音を鳴らしてから遷移 ==========
+  if (!level) {
+    const levelLinks = document.querySelectorAll('#startScreen a.btn-level');
+    levelLinks.forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        const href = a.getAttribute('href');
+        if (isSoundOn()) {
+          playSE('seStart');
+          // 音の頭が鳴るのを待ってから遷移（短めでOK）
+          setTimeout(function () {
+            window.location.href = href;
+          }, 180);
+        } else {
+          // 音声OFF時は即座に遷移
+          window.location.href = href;
+        }
+      });
+    });
+  }
 
   // ========== 画面表示切替 ==========
   const startScreen = document.getElementById('startScreen');
@@ -589,8 +698,8 @@ body {
     const hintFlagged = new Set(); // ヒントで立てた旗の位置（ユーザーの旗とは別管理）
 
     // アイコン用 HTML
-    const FLAG_SVG = '<span class="flag-icon"><img src="hata.webp" alt=""></span>';
-    const HINT_FLAG_HTML = '<span class="hint-flag-icon"><img src="hata_b.webp" alt=""></span>';
+    const FLAG_SVG = '<span class="flag-icon"><img src="dat/hata.webp" alt=""></span>';
+    const HINT_FLAG_HTML = '<span class="hint-flag-icon"><img src="dat/hata_b.webp" alt=""></span>';
     const BOMB_SVG =
       '<span class="bomb-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
       '<circle cx="11" cy="13" r="8" fill="#1a1d24"/>' +
@@ -733,10 +842,14 @@ body {
 
       if (bombs.has(idx)) {
         // クリックしたセルが爆弾 → ゲームオーバー
+        playSE('seBomb');
         reveal(idx);
         endGame(false);
         return;
       }
+
+      // 爆弾以外のマスを開く → パネルめくり音
+      playSE('seClick');
 
       const count = countNeighbors(idx);
       if (count > 0) {
@@ -782,6 +895,7 @@ body {
         flagged.add(idx);
         cells[idx].classList.add('flagged');
         cells[idx].innerHTML = FLAG_SVG;
+        playSE('seHata');
       }
       updateBombCounter();
     }
@@ -823,13 +937,18 @@ body {
       }
       // ボタンの表示を切替
       const nextBtn = document.getElementById('nextBtn');
+      nextBtn.classList.remove('state-clear', 'state-retry', 'state-start');
       if (won) {
-        nextBtn.textContent = 'NEXT';
+        nextBtn.textContent = 'CLEAR!!';
+        nextBtn.classList.add('state-clear');
         nextState = 'next';
+        // 最大サイズ（12×12）クリア時は専用の音、それ以外は通常クリア音
+        playSE(panel1Side === 12 ? 'seMax' : 'seClear');
         // クリア時だけ次回用に画像番号を進める
         advanceBackgroundImage();
       } else {
         nextBtn.textContent = 'RETRY';
+        nextBtn.classList.add('state-retry');
         nextState = 'retry';
       }
       document.querySelector('.game-footer').classList.add('game-over');
@@ -851,10 +970,16 @@ body {
       grid.classList.add('flag-mode');
     });
 
-    // ========== リセットボタン ==========
-    document.getElementById('resetBtn').addEventListener('click', function () {
-      location.reload();
-    });
+    // ========== リセットボタンは廃止（音声ON/OFFボタンに置き換え） ==========
+
+    // ========== スタート画面に戻るボタン（URL末尾の「?」を残さずリロード遷移） ==========
+    const homeBackBtn = document.getElementById('home-back-btn');
+    if (homeBackBtn) {
+      homeBackBtn.addEventListener('click', function () {
+        // 現在のパスだけに遷移 = クエリ無しでページ再読み込み → スタート画面が表示される
+        window.location.href = window.location.pathname;
+      });
+    }
     
     // ========== ヒントボタン ==========
     const hintBtn = document.getElementById('hintBtn');
@@ -874,15 +999,25 @@ body {
       }
 
       // 盤面サイズに応じたヒント本数を決定
-      // 4x4,6x6 → 1本 / 8x8,10x10 → 2本 / 12x12,14x14 → 3本
+      // 4x4,6x6 → 1本 / 8x8,10x10 → 2本 / 12x12 → 3本
       let hintCount;
       if (panel1Side <= 6)       hintCount = 1;
       else if (panel1Side <= 10) hintCount = 2;
       else                       hintCount = 3;
 
-      // 爆弾位置からランダムに hintCount 個選んで、まだ開いていないものに青い旗を立てる
+      // 残り旗数（これ以上立てられる枚数）でも上限をかける
+      // 残り = 爆弾総数 − ユーザーの赤旗 − 既存のヒント青旗
+      const remainingFlags = bombNum - flagged.size - hintFlagged.size;
+      if (remainingFlags <= 0) {
+        // これ以上旗を立てる余地がない場合は何もせず終了
+        return;
+      }
+      hintCount = Math.min(hintCount, remainingFlags);
+
+      // 爆弾位置から、まだ開いていない かつ ユーザーが旗を立てていない ものを対象にする
+      // （既に赤旗が立っているマスは置き換えず、除外する）
       const bombList = Array.from(bombs).filter(function (bidx) {
-        return !revealed.has(bidx);
+        return !revealed.has(bidx) && !flagged.has(bidx) && !hintFlagged.has(bidx);
       });
       // シャッフル
       for (let i = bombList.length - 1; i > 0; i--) {
@@ -891,11 +1026,6 @@ body {
       }
       const picks = bombList.slice(0, Math.min(hintCount, bombList.length));
       picks.forEach(function (bidx) {
-        // ユーザーが通常の旗を立てていたら、その分だけカウンターから解除
-        if (flagged.has(bidx)) {
-          flagged.delete(bidx);
-          cells[bidx].classList.remove('flagged');
-        }
         hintFlagged.add(bidx);
         cells[bidx].classList.add('hint-flag');
         cells[bidx].innerHTML = HINT_FLAG_HTML;
@@ -913,15 +1043,18 @@ body {
         return;
       }
       if (nextState === 'next') {
-        // クリア時1回目：マス線・爆弾・数字を全て消して bg01.jpg だけ見せる
+        // クリア時1回目：マス線・爆弾・数字を全て消して背景画像（イラスト）だけ見せる
+        playSE('seIllust');
         document.getElementById('grid').classList.add('clean');
         nextBtn.textContent = 'スタートへ';
+        nextBtn.classList.remove('state-clear', 'state-retry');
+        nextBtn.classList.add('state-start');
         nextState = 'start';
         return;
       }
       if (nextState === 'start') {
-        // クリア時2回目：スタート画面へ
-        window.location.href = '?';
+        // クリア時2回目：スタート画面へ（URL末尾の「?」を残さず遷移）
+        window.location.href = window.location.pathname;
       }
     });
   }
