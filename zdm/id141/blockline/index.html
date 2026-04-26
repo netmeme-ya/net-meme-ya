@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ずんだブロックライン</title>
+
+<!-- Google Fonts: Noto Sans JP -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+
+<!-- 効果音プリロード -->
+<audio id="se_get" src="pic/se_get.mp3" preload="auto"></audio>
+<audio id="se_gameover" src="pic/se_gameover.mp3" preload="auto"></audio>
+<audio id="se_clear" src="pic/se_clear.mp3" preload="auto"></audio>
+<audio id="se_start" src="pic/se_start.mp3" preload="auto"></audio>
+<audio id="se_cutin" src="pic/se_cutin.mp3" preload="auto"></audio>
+<audio id="bgm1" src="pic/bgm1.mp3" preload="auto" loop></audio>
+
+<style>
+/* =========================================
+   基本リセット & 全画面固定
+   ========================================= */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    background: #5f8ce8;
+    color: #fff;
+    position: fixed;
+}
+
+/* 画面コンテナ:最大幅1024px、縦長中央寄せ */
+#app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 1024px;
+    margin: 0 auto;
+    overflow: hidden;
+    background: #5f8ce8;
+}
+
+/* 各画面 */
+.screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+.screen.active { display: flex; }
+
+/* =========================================
+   汎用ボタン (角丸ピル)
+   ========================================= */
+.btn {
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 999px;
+    color: #fff;
+    font-weight: 900;
+    cursor: pointer;
+    border: none;
+    transition: transform .08s ease, filter .15s ease;
+    text-align: center;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+.btn:active { transform: scale(0.97); filter: brightness(0.92); }
+
+/* 戻るボタン・音声ボタン共通 */
+.icon-btn {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: #fff;
+    color: #333;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    border: none;
+    flex-shrink: 0;
+}
+.icon-btn svg { width: 28px; height: 28px; }
+.icon-btn:active { transform: scale(0.92); }
+
+/* =========================================
+   スタート画面
+   ========================================= */
+#screen-start {
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 24px;
+}
+#screen-start .top-bar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+#screen-start h1 {
+    font-size: clamp(28px, 7vw, 48px);
+    font-weight: 900;
+    color: #fff;
+    margin-top: 4vh;
+    margin-bottom: 6vh;
+    letter-spacing: 2px;
+    text-align: center;
+}
+#screen-start .menu {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: min(92%, 420px);
+}
+.menu-btn {
+    height: 64px;
+    font-size: clamp(22px, 5.2vw, 30px);
+    letter-spacing: 2px;
+}
+.menu-btn.orange { background: #f08020; }
+.menu-btn.pink   { background: #e64690; }
+.menu-btn.green  { background: #0a6c2e; }
+.menu-btn.blue   {
+    background: #0e3fc8;
+    height: 50px;
+    font-size: clamp(16px, 4vw, 22px);
+    width: 100%;
+    max-width: 140px;
+    margin: 0;
+}
+/* スタート画面の TOPへ ボタンだけ中央寄せ */
+#screen-start .menu-btn.blue {
+    align-self: center;
+    margin-top: 8px;
+}
+#screen-start .highscore {
+    margin-top: auto;
+    margin-bottom: 8px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+#screen-start .highscore .score-num {
+    font-size: 22px;
+    font-weight: 900;
+    margin-top: 4px;
+}
+#screen-start .copyright {
+    font-size: 10px;
+    color: #ccc;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+/* =========================================
+   ノルマ一覧画面
+   ========================================= */
+#screen-norma {
+    padding: 16px;
+}
+.header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    position: relative;
+    min-height: 56px;
+}
+.header-bar .title-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    width: 100%;
+}
+.header-bar h2 {
+    font-size: clamp(22px, 6vw, 32px);
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 2px;
+}
+.header-bar .all-clear {
+    font-size: clamp(16px, 4vw, 22px);
+    color: #ff2b2b;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 0 1px 2px rgba(0,0,0,.15);
+    margin-top: 4px;
+}
+.norma-subtitle {
+    text-align: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 4px 0 6px;
+    opacity: 0.92;
+    letter-spacing: 0.5px;
+}
+#norma-list {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 4px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.norma-item {
+    display: flex;
+    align-items: center;
+    background: #e6efff;
+    border: 1px solid #c2d0e8;
+    border-radius: 6px;
+    padding: 18px 20px;
+    color: #222;
+    font-size: clamp(18px, 4.5vw, 24px);
+    font-weight: 700;
+    gap: 16px;
+}
+.norma-item.cleared {
+    background: #ffd6e0;
+    border-color: #ffadc0;
+}
+.norma-item .check {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 4px solid #6a6a6a;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: transparent;
+    font-size: 22px;
+    color: transparent;
+}
+.norma-item.cleared .check {
+    border-color: #1ca833;
+    background: #1ca833;
+    color: #fff;
+}
+
+/* ノルマリセット項目 (一番下、他より小さい) */
+.norma-reset {
+    margin-top: 12px;
+    align-self: center;
+    background: #d4dbe8;
+    color: #444;
+    border: 1px solid #a8b3c4;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: transform .08s ease;
+}
+.norma-reset:active { transform: scale(0.96); }
+
+.ios-note-p {
+    font-size: 10px;
+    color: #ccc;
+    text-align: center;
+    width: 90%;
+    margin: 10px auto;
+    line-height: 1.5;
+}
+
+/* リセット確認ダイアログ */
+.modal-dialog {
+    position: absolute;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-dialog .modal-back {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+}
+.modal-dialog .modal-box {
+    position: relative;
+    background: #fff;
+    color: #222;
+    border-radius: 12px;
+    padding: 24px 22px 18px;
+    width: 86%;
+    max-width: 360px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    text-align: center;
+}
+.modal-dialog .modal-text {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+.modal-dialog .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+}
+.modal-dialog .modal-btn {
+    height: 44px;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-size: 17px;
+    font-weight: 900;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    min-width: 90px;
+}
+.modal-dialog .modal-btn.yes { background: #d83333; }
+.modal-dialog .modal-btn.no  { background: #2068d8; }
+.modal-dialog .modal-btn:active { transform: scale(0.96); }
+
+/* =========================================
+   ゲーム画面
+   ========================================= */
+#screen-game {
+    padding: 8px;
+    /* 画面全体を縦に詰める。中身は上下中央寄せ */
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    overflow: hidden;
+}
+#screen-game.active {
+    display: flex;
+}
+.game-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 50;
+}
+.game-info {
+    text-align: center;
+    color: #fff;
+    font-weight: 700;
+    flex: 1;
+    padding: 0 4px;
+}
+.game-info .score-line {
+    font-size: clamp(18px, 4.5vw, 26px);
+    font-weight: 900;
+}
+.score-pt{
+    font-weight: 500;
+    font-size: clamp(14px, 4vw, 20px);
+    margin-left: 4px;
+}
+.game-info .target-line {
+    font-size: clamp(12px, 3vw, 16px);
+    font-weight: 500;
+    margin-top: 2px;
+    opacity: 0.92;
+}
+
+#board-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 16px;
+    flex-shrink: 0;
+}
+#board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 4px;
+    width: min(94vw, 100%, 720px, calc(100vh - 280px));
+    aspect-ratio: 1 / 1;
+    padding: 0;
+}
+.cell {
+    /* 白マスは常時表示 (ブロック画像は上に重ねる) */
+    background: #f3f5fa;
+    border-radius: 8px;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.04);
+    position: relative;
+    overflow: hidden;
+}
+.cell .block-img {
+    position: absolute;
+    inset: 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.cell.flash .block-img {
+    animation: flashYellow .35s ease-in-out;
+}
+.cell.shrinking .block-img {
+    animation: shrinkOut .3s ease forwards;
+}
+@keyframes flashYellow {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(2.5) drop-shadow(0 0 8px #ffe600); }
+}
+@keyframes shrinkOut {
+    0%   { transform: scale(1); opacity: 1; filter: brightness(2) drop-shadow(0 0 12px #ffe600); }
+    100% { transform: scale(0); opacity: 0; }
+}
+
+/* ピース置き場 (配置予定 + NEXT) */
+#tray-wrap {
+    width: 100%;
+    margin-top: 12px;
+    max-height: 240px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 8px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+#current-piece-area {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 100px;
+}
+.tray-slot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+#next-area {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+.next-label {
+    color: #0e3fc8;
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+#next-box {
+    border: 3px solid #0e3fc8;
+    border-radius: 8px;
+    padding: 10px;
+    width: 104px;
+    min-height: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.05);
+    background-color: rgba(255,255,255,0.1);
+}
+.next-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.piece {
+    display: grid;
+    gap: 4px;
+    touch-action: none;
+    cursor: grab;
+    transition: transform .12s ease;
+}
+.piece.dragging { opacity: 0; pointer-events: none; }
+.piece-cell {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%; height: 100%;
+}
+
+/* フローティングドラッグ用 */
+#drag-floater {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    display: none;
+}
+#drag-floater .piece-cell { width: 100%; height: 100%; }
+
+/* NEXT 表示は廃止 */
+
+/* =========================================
+   オーバーレイ (CLEAR / GAMEOVER / コンボ表示)
+   ========================================= */
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 100;
+}
+.overlay.show { pointer-events: auto; }
+
+.big-text {
+    /* 帯状テロップ: 横幅100%、半透明白背景、縁取りなし */
+    width: 100%;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 24px 0;
+    font-size: clamp(40px, 12vw, 96px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    animation: bigPop .5s cubic-bezier(.2,1.5,.6,1) forwards;
+}
+.big-text.clear {
+    color: #FF0000;
+}
+.big-text.gameover {
+    color: #000000;
+}
+@keyframes bigPop {
+    0%   { transform: scaleY(0.2); opacity: 0; }
+    60%  { transform: scaleY(1.1); opacity: 1; }
+    100% { transform: scaleY(1);   opacity: 1; }
+}
+
+/* ノルマ達成カットイン: CLEAR/GAMEOVER と同じ帯状テロップ */
+.cutin-norma {
+    width: 100%;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 18px 16px;
+    animation: bigPop .5s cubic-bezier(.2,1.5,.6,1) forwards;
+    pointer-events: none;
+}
+.cutin-norma .cutin-label {
+    color: #000;
+    font-size: clamp(14px, 4vw, 22px);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.5px;
+    word-break: break-word;
+}
+.cutin-norma .cutin-achieved {
+    color: #FF0000;
+    font-size: clamp(36px, 10vw, 64px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    margin-top: 6px;
+    line-height: 1.1;
+}
+
+/* スコア加算ふきだし */
+.score-pop {
+    position: absolute;
+    color: #fff;
+    font-size: clamp(28px, 7vw, 48px);
+    font-weight: 900;
+    -webkit-text-stroke: 2px #00a040;
+    text-shadow: 0 2px 6px rgba(0,0,0,.4);
+    pointer-events: none;
+    z-index: 150;
+    animation: scorePop .9s ease-out forwards;
+    letter-spacing: 2px;
+}
+@keyframes scorePop {
+    0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    20%  { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    80%  { transform: translate(-50%, -110%) scale(1.0); opacity: 1; }
+    100% { transform: translate(-50%, -160%) scale(0.9); opacity: 0; }
+}
+
+/* ゲームオーバー時の操作ボタン */
+.over-actions {
+    position: absolute;
+    left: 0; right: 0; bottom: 24%;
+    display: flex; justify-content: center; align-items: center; gap: 16px;
+    z-index: 110;
+    padding: 0 16px;
+}
+.over-actions .btn {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    height: 52px;
+    padding: 0 22px;
+    font-size: 20px;
+    width: 100%;
+    max-width: 140px;
+    margin: 0;
+}
+/* ノルマクリア時の「一覧へ」ボタン: 折り返し防止のためwidth自動 */
+.over-actions .btn.norma-back-btn {
+    width: auto;
+    max-width: none;
+    white-space: nowrap;
+    padding: 0 28px;
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+
+    <!-- ============================================
+         スタート画面
+         ============================================ -->
+    <div id="screen-start" class="screen active">
+        <div class="top-bar">
+            <button class="icon-btn" id="btn-sound-start" aria-label="音声切替">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path id="snd-icon-start" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            </button>
+        </div>
+        <h1>ずんだブロックライン</h1>
+        <div class="menu">
+            <button class="btn menu-btn orange" data-action="start-game">ゲームスタート</button>
+            <button class="btn menu-btn pink"   data-action="goto-norma">ノルマ一覧</button>
+            <button class="btn menu-btn green"  data-action="goto-rule">ゲーム説明</button>
+            <button class="btn menu-btn blue"   data-action="goto-top">TOPへ</button>
+        </div>
+        <div class="highscore">現在の最高得点<br><span class="score-num" id="hs-num">0</span></div>
+        <div class="copyright">©ねとみむや</div>
+    </div>
+
+    <!-- ============================================
+         ノルマ一覧画面
+         ============================================ -->
+    <div id="screen-norma" class="screen">
+        <div class="header-bar">
+            <button class="icon-btn" data-action="back-to-start" aria-label="戻る">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="title-center">
+                <h2>ノルマモード</h2>
+                <div id="all-clear-msg" class="all-clear" style="display:none;">ALL CLEAR!!</div>
+            </div>
+            <button class="icon-btn" id="btn-sound-norma" aria-label="音声切替">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path id="snd-icon-norma" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            </button>
+        </div>
+        <div class="norma-subtitle">達成しやすいノルマから挑戦して行くのだ！</div>
+        <div id="norma-list"></div>
+    </div>
+
+    <!-- ============================================
+         ゲーム画面
+         ============================================ -->
+    <div id="screen-game" class="screen">
+        <div class="game-top">
+            <button class="icon-btn" data-action="back-from-game" aria-label="戻る">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="game-info">
+                <div class="score-line"><span id="cur-score">0</span><span class="score-pt">pt</span></div>
+            </div>
+            <button class="icon-btn" id="btn-sound-game" aria-label="音声切替">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path id="snd-icon-game" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            </button>
+        </div>
+
+        <div id="board-wrap">
+            <div id="board"></div>
+        </div>
+
+        <div id="tray-wrap">
+            <div id="current-piece-area">
+                <div class="tray-slot" data-slot="0"></div>
+            </div>
+            <div id="next-area">
+                <div class="next-label">NEXT</div>
+                <div id="next-box">
+                    <div class="next-slot"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="overlay" id="game-overlay"></div>
+    </div>
+
+    <!-- ドラッグ追従要素 -->
+    <div id="drag-floater"></div>
+</div>
+
+<script>
+'use strict';
+
+/* ==========================================================
+   定数 / 設定
+   ========================================================== */
+const BOARD_SIZE = 8;
+const BLOCK_TYPES = 6;            // b0.gif〜b5.gif
+const PIC_PATH = 'pic/';
+
+/* ===== ピース形状定義 (各形状は [行, 列] のセル座標配列) =====
+   原点(0,0)起点。回転(0/90/180/270度)はランダム適用される。
+   形状パターン.jpg に基づき、最大4マスまでの基本形を定義。
+   ★形状を追加・編集する場合はこの配列を編集する。
+   ※ 同じ形が回転で重なるものは基本形1つだけ定義すれば十分。
+*/
+const SHAPES = [
+    /* === パターン1: 1マス === */
+    [[0,0]],
+
+    /* === パターン2: 2マス === */
+    [[0,0],[0,1]],                   // 横2 (縦2は回転で生成)
+
+    /* === パターン3: 3マス === */
+    [[0,0],[0,1],[0,2]],             // I字3 (縦3は回転で)
+    [[0,0],[0,1],[1,0]],             // L字3 (鏡L字は回転で)
+
+    /* === パターン4: 4マス === */
+    [[0,0],[0,1],[0,2],[0,3]],       // I字4 (縦4は回転で)
+    [[0,0],[0,1],[1,0],[1,1]],       // 2×2 正方形
+    [[0,0],[0,1],[0,2],[1,0]],       // L字 (横3+下左)
+    [[0,0],[0,1],[0,2],[1,2]],       // J字 (横3+下右)
+    [[0,0],[0,1],[0,2],[1,1]],       // T字 (横3+下中央)
+    [[0,0],[0,1],[1,1],[1,2]],       // Z字 (段違い)
+    [[0,1],[0,2],[1,0],[1,1]],       // S字 (Z字の鏡)
+];
+
+/* ===== ノルマ定義 =====
+   ★後から柔軟に変更可能。type と value を変えればOK。
+   type:
+     'lines'    … N列以上を「同時に」消去 (1手で result.lines >= value)
+     'cross'    … 縦1列+横1列を同時に消去
+     'combo'    … N連続コンボ達成 (game.combo >= value)
+     'mono'     … 同色ライン消去 (1手で同色1ライン以上)
+     'clearall' … ピースを置いた結果、盤面が完全に空になる
+     'score'    … 累計スコアが value を超える
+   id: localStorage 保存用一意ID。並びを変えても達成状態は保持。
+*/
+const NORMAS = [
+    { id: 'lines1',   label: '1列揃えろ！',                       type: 'lines',    value: 1 },
+    { id: 'lines2',   label: '2列同時に揃えろ！',                 type: 'lines',    value: 2 },
+    { id: 'lines3',   label: '3列同時に揃えろ！',                 type: 'lines',    value: 3 },
+    { id: 'lines4',   label: '4列同時に揃えろ！',                 type: 'lines',    value: 4 },
+    { id: 'cross',    label: '縦1列・横1列同時に揃えろ！',        type: 'cross',    value: 1 },
+    { id: 'combo2',   label: '2連続コンボをキメろ！',             type: 'combo',    value: 2 },
+    { id: 'combo3',   label: '3連続コンボをキメろ！',             type: 'combo',    value: 3 },
+    { id: 'combo4',   label: '4連続コンボをキメろ！',             type: 'combo',    value: 4 },
+    { id: 'mono1',    label: '同じキャラで1列揃えろ！',           type: 'mono',     value: 1 },
+    { id: 'clearall', label: '全部消せ！',                        type: 'clearall', value: 1 },
+    { id: 'score50',  label: '50点を超えろ！',                    type: 'score',    value: 50 },
+    { id: 'score100', label: '100点を超えろ！',                   type: 'score',    value: 100 },
+    { id: 'score200', label: '200点を超えろ！',                   type: 'score',    value: 200 },
+    { id: 'score300', label: '300点を超えろ！',                   type: 'score',    value: 300 },
+    { id: 'score400', label: '400点を超えろ！',                   type: 'score',    value: 400 },
+    { id: 'score500', label: '500点を超えろ！',                   type: 'score',    value: 500 },
+    { id: 'score600', label: '600点を超えろ！',                   type: 'score',    value: 600 },
+    { id: 'score700', label: '700点を超えろ！',                   type: 'score',    value: 700 },
+    { id: 'score800', label: '800点を超えろ！',                   type: 'score',    value: 800 },
+    { id: 'score900', label: '900点を超えろ！',                   type: 'score',    value: 900 },
+    { id: 'score1000',label: '1000点を超えろ！',                  type: 'score',    value: 1000 },
+    /* ★ 新ノルマ追加例:
+       { id: 'score1500', label: '1500点を超えろ！', type: 'score', value: 1500 },
+    */
+];
+
+/* ==========================================================
+   localStorage ヘルパ
+   ========================================================== */
+const LS = {
+    SOUND: 'bl_sound',
+    HISCORE: 'bl_highscore',
+    NORMA: 'bl_norma_clear',
+};
+function getSound() {
+    const v = localStorage.getItem(LS.SOUND);
+    if (v === null) return true;
+    return v === 'true';
+}
+function setSound(b) { localStorage.setItem(LS.SOUND, b ? 'true' : 'false'); }
+function getHiScore() {
+    const v = localStorage.getItem(LS.HISCORE);
+    return v === null ? 0 : (parseInt(v, 10) || 0);
+}
+function setHiScore(n) { localStorage.setItem(LS.HISCORE, String(n)); }
+function getNormaClear() {
+    try {
+        const v = localStorage.getItem(LS.NORMA);
+        if (!v) return [];
+        return JSON.parse(v);
+    } catch (e) { return []; }
+}
+function setNormaClear(arr) { localStorage.setItem(LS.NORMA, JSON.stringify(arr)); }
+function addNormaClear(id) {
+    const arr = getNormaClear();
+    if (!arr.includes(id)) {
+        arr.push(id);
+        setNormaClear(arr);
+    }
+}
+
+/* ==========================================================
+   音声管理
+   ========================================================== */
+const SE = {
+    get:      document.getElementById('se_get'),
+    gameover: document.getElementById('se_gameover'),
+    clear:    document.getElementById('se_clear'),
+    start:    document.getElementById('se_start'),
+    cutin:    document.getElementById('se_cutin'),
+};
+const BGM = {
+    bgm1: document.getElementById('bgm1'),
+};
+let currentBgm = null; // 現在再生中のBGM要素
+function playBGM(name) {
+    stopBGM();
+    if (!getSound()) return;
+    const el = BGM[name];
+    if (!el) return;
+    try {
+        el.currentTime = 0;
+        el.play().catch(()=>{});
+        currentBgm = el;
+    } catch(e) {}
+}
+function stopBGM() {
+    if (currentBgm) {
+        try { currentBgm.pause(); currentBgm.currentTime = 0; } catch(e) {}
+        currentBgm = null;
+    }
+    // 念のため全BGMを停止
+    Object.values(BGM).forEach(el => {
+        try { el.pause(); } catch(e) {}
+    });
+}
+function playSE(name) {
+    if (!getSound()) return;
+    const el = SE[name];
+    if (!el) return;
+    try { el.currentTime = 0; el.play().catch(()=>{}); } catch(e) {}
+}
+function updateSoundIcons() {
+    const on = getSound();
+    ['snd-icon-start','snd-icon-norma','snd-icon-game'].forEach(id => {
+        const path = document.getElementById(id);
+        if (!path) return;
+        path.setAttribute('d', on
+            ? 'M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z'
+            : 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z');
+    });
+}
+function toggleSound() {
+    setSound(!getSound());
+    updateSoundIcons();
+    // 音OFFになったらBGMも停止
+    if (!getSound()) {
+        stopBGM();
+    } else {
+        // 音ONに戻したとき、ゲーム画面が表示中で進行中ならBGM再開
+        const inGame = document.getElementById('screen-game').classList.contains('active');
+        if (inGame && !game.over) {
+            playBGM('bgm1');
+        }
+    }
+}
+
+/* ==========================================================
+   画面遷移
+   ========================================================== */
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+/* ==========================================================
+   形状ユーティリティ
+   ========================================================== */
+function rotateShape(cells, times) {
+    times = ((times % 4) + 4) % 4;
+    let out = cells.map(c => [c[0], c[1]]);
+    for (let t = 0; t < times; t++) {
+        // 90度回転: (r,c) -> (c, -r) を最終正規化
+        out = out.map(([r,c]) => [c, -r]);
+    }
+    // 正規化: 最小 r,c を 0 へ
+    let minR = Infinity, minC = Infinity;
+    out.forEach(([r,c]) => { if (r < minR) minR = r; if (c < minC) minC = c; });
+    return out.map(([r,c]) => [r - minR, c - minC]);
+}
+function shapeBounds(cells) {
+    let maxR = 0, maxC = 0;
+    cells.forEach(([r,c]) => { if (r > maxR) maxR = r; if (c > maxC) maxC = c; });
+    return { rows: maxR + 1, cols: maxC + 1 };
+}
+function randInt(n) { return Math.floor(Math.random() * n); }
+function makeRandomPiece() {
+    const baseShape = SHAPES[randInt(SHAPES.length)];
+    const rot = randInt(4);
+    const cells = rotateShape(baseShape, rot);
+    const colorIdx = randInt(BLOCK_TYPES);
+    return { cells, colorIdx };
+}
+
+/* ==========================================================
+   ゲーム状態
+   ========================================================== */
+const game = {
+    board: [],            // 8x8 配列  null or colorIdx
+    current: null,        // 配置予定ピース
+    next: null,           // 次のピース
+    score: 0,
+    combo: 0,             // 連続消し数
+    over: false,
+    achievedSet: new Set(),  // 今プレイ中に「これから判定すべき」ノルマID集合 (達成済みは除外済)
+};
+
+function emptyBoard() {
+    const b = [];
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        const row = [];
+        for (let c = 0; c < BOARD_SIZE; c++) row.push(null);
+        b.push(row);
+    }
+    return b;
+}
+function isBoardEmpty() {
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            if (game.board[r][c] !== null) return false;
+        }
+    }
+    return true;
+}
+
+/* ==========================================================
+   盤面描画
+   ========================================================== */
+const boardEl = document.getElementById('board');
+const cellEls = []; // [r][c]
+function buildBoardDOM() {
+    boardEl.innerHTML = '';
+    cellEls.length = 0;
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        const row = [];
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            const div = document.createElement('div');
+            div.className = 'cell';
+            div.dataset.r = r;
+            div.dataset.c = c;
+            boardEl.appendChild(div);
+            row.push(div);
+        }
+        cellEls.push(row);
+    }
+}
+function renderBoard() {
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            const v = game.board[r][c];
+            const el = cellEls[r][c];
+            // アニメ系クラスをリセット
+            el.classList.remove('flash','shrinking');
+            el.innerHTML = '';
+            if (v !== null) {
+                const img = document.createElement('div');
+                img.className = 'block-img';
+                img.style.backgroundImage = `url(${PIC_PATH}b${v}.gif)`;
+                el.appendChild(img);
+            }
+        }
+    }
+}
+
+/* ==========================================================
+   トレイ描画 (配置予定ピース + NEXTピース)
+   ========================================================== */
+
+// セルサイズ
+const MIN_CELL_PX_CURRENT = 30;  // 配置予定ピースの1セル最低px
+const NEXT_CELL_PX        = 16;  // NEXTピースの1セル固定px
+
+function renderTray() {
+    // ----- 配置予定ピース -----
+    const currentSlot = document.querySelector('#current-piece-area .tray-slot');
+    currentSlot.innerHTML = '';
+    if (game.current) {
+        // 盤面のセルサイズを基準にし、最低 30px は確保
+        const boardCellPx = getBoardCellPx();
+        // 配置エリアの幅・高さを取得し、最大値も計算
+        const area = document.getElementById('current-piece-area');
+        const aw = area.clientWidth, ah = area.clientHeight;
+        const { rows, cols } = shapeBounds(game.current.cells);
+        const fitByW = (aw * 0.9 - (cols - 1) * 4) / cols;
+        const fitByH = (ah * 0.9 - (rows - 1) * 4) / rows;
+        // 基準は盤面同サイズ。エリアに収まらないなら縮小。ただし最低 30px は守る。
+        let cellPx = Math.min(boardCellPx, fitByW, fitByH);
+        cellPx = Math.max(MIN_CELL_PX_CURRENT, cellPx);
+
+        const pieceEl = buildPieceElement(game.current, cellPx);
+        currentSlot.appendChild(pieceEl);
+        attachPieceDragHandlers(pieceEl);
+    }
+
+    // ----- NEXT ピース -----
+    const nextSlot = document.querySelector('#next-box .next-slot');
+    nextSlot.innerHTML = '';
+    if (game.next) {
+        const { rows, cols } = shapeBounds(game.next.cells);
+        const cellPx = NEXT_CELL_PX; // 16px固定
+
+        const mini = document.createElement('div');
+        mini.className = 'piece';
+        mini.style.gridTemplateColumns = `repeat(${cols}, ${cellPx}px)`;
+        mini.style.gridTemplateRows    = `repeat(${rows}, ${cellPx}px)`;
+        mini.style.gap = '2px';
+        mini.style.cursor = 'default';
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const has = game.next.cells.some(([rr,cc]) => rr === r && cc === c);
+                const cd = document.createElement('div');
+                if (has) {
+                    cd.className = 'piece-cell';
+                    cd.style.backgroundImage = `url(${PIC_PATH}b${game.next.colorIdx}.gif)`;
+                } else {
+                    cd.style.background = 'transparent';
+                }
+                mini.appendChild(cd);
+            }
+        }
+        nextSlot.appendChild(mini);
+    }
+}
+function buildPieceElement(piece, cellPx) {
+    const { rows, cols } = shapeBounds(piece.cells);
+    const root = document.createElement('div');
+    root.className = 'piece';
+    root.style.gridTemplateColumns = `repeat(${cols}, ${cellPx}px)`;
+    root.style.gridTemplateRows    = `repeat(${rows}, ${cellPx}px)`;
+    // 各セル
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const has = piece.cells.some(([rr,cc]) => rr === r && cc === c);
+            const cellDiv = document.createElement('div');
+            if (has) {
+                cellDiv.className = 'piece-cell';
+                cellDiv.style.backgroundImage = `url(${PIC_PATH}b${piece.colorIdx}.gif)`;
+            } else {
+                cellDiv.style.background = 'transparent';
+            }
+            root.appendChild(cellDiv);
+        }
+    }
+    return root;
+}
+
+/* ==========================================================
+   ピース配布 (配置1個 + NEXT1個)
+   ========================================================== */
+function advancePieces() {
+    // current を消費した直後に呼ぶ。next を current に昇格、新しい next を生成
+    game.current = game.next;
+    game.next = makeRandomPiece();
+    renderTray();
+}
+function initPieces() {
+    game.current = makeRandomPiece();
+    game.next    = makeRandomPiece();
+    renderTray();
+}
+
+/* ==========================================================
+   ドラッグ &ドロップ
+   ========================================================== */
+const dragFloater = document.getElementById('drag-floater');
+let drag = null; // {pieceIdx, piece, offsetCells, finger:{x,y}, anchorR, anchorC, cellPx}
+
+function getBoardCellPx() {
+    const rect = boardEl.getBoundingClientRect();
+    const total = rect.width;
+    const gap = 4;
+    const padding = 0; // #board は padding:0
+    // 8マス + 7gap + padding で total
+    return (total - padding - gap * (BOARD_SIZE - 1)) / BOARD_SIZE;
+}
+
+function attachPieceDragHandlers(pieceEl) {
+    const onStart = (ev) => {
+        if (game.over) return;
+        if (!game.current) return;
+        ev.preventDefault();
+        const piece = game.current;
+        const touch = ev.touches ? ev.touches[0] : ev;
+        const cellPx = getBoardCellPx();
+
+        // フローター用要素生成
+        dragFloater.innerHTML = '';
+        const { rows, cols } = shapeBounds(piece.cells);
+        const big = document.createElement('div');
+        big.style.display = 'grid';
+        big.style.gridTemplateColumns = `repeat(${cols}, ${cellPx}px)`;
+        big.style.gridTemplateRows    = `repeat(${rows}, ${cellPx}px)`;
+        big.style.gap = '4px';
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const has = piece.cells.some(([rr,cc]) => rr === r && cc === c);
+                const cd = document.createElement('div');
+                if (has) {
+                    cd.className = 'piece-cell';
+                    cd.style.backgroundImage = `url(${PIC_PATH}b${piece.colorIdx}.gif)`;
+                }
+                big.appendChild(cd);
+            }
+        }
+        dragFloater.appendChild(big);
+        dragFloater.style.display = 'block';
+
+        // 元ピースを非表示
+        pieceEl.classList.add('dragging');
+        activeDragPieceEl = pieceEl;
+
+        drag = {
+            piece,
+            cellPx,
+            rows, cols,
+            // フローター内ピースの中心を指基準で配置
+            // 指の少し上に配置するため offsetY を加える
+            updatePos(x, y) {
+                const w = cols * cellPx + (cols - 1) * 4;
+                const h = rows * cellPx + (rows - 1) * 4;
+                // 指の上に配置 (オフセット下方向)
+                const fingerOffsetY = 60;
+                dragFloater.style.left = (x - w/2) + 'px';
+                dragFloater.style.top  = (y - h/2 - fingerOffsetY) + 'px';
+                drag.lastX = x;
+                drag.lastY = y - fingerOffsetY; // 判定基準も指の上
+            },
+            lastX: 0, lastY: 0,
+        };
+        drag.updatePos(touch.clientX, touch.clientY);
+        updatePreview();
+    };
+    const onMove = (ev) => {
+        if (!drag) return;
+        ev.preventDefault();
+        const touch = ev.touches ? ev.touches[0] : ev;
+        drag.updatePos(touch.clientX, touch.clientY);
+        updatePreview();
+    };
+    const onEnd = (ev) => {
+        if (!drag) return;
+        ev.preventDefault();
+        const ok = tryDrop();
+        clearPreview();
+        dragFloater.style.display = 'none';
+        dragFloater.innerHTML = '';
+        pieceEl.classList.remove('dragging');
+        drag = null;
+        if (ok) {
+            // 置けた → 後処理
+            afterPlacement();
+        }
+    };
+    pieceEl.addEventListener('touchstart', onStart, { passive: false });
+    pieceEl.addEventListener('touchmove',  onMove,  { passive: false });
+    pieceEl.addEventListener('touchend',   onEnd,   { passive: false });
+    pieceEl.addEventListener('touchcancel',onEnd,   { passive: false });
+    pieceEl.addEventListener('mousedown',  onStart);
+    // pieceEl にハンドラを保持しておき、グローバルにも転送
+    pieceEl._dragHandlers = { onMove, onEnd };
+}
+
+// マウス操作のグローバル転送 (ドラッグ中の要素が現在 active なら呼び出す)
+let activeDragPieceEl = null;
+window.addEventListener('mousemove', (ev) => {
+    if (activeDragPieceEl && activeDragPieceEl._dragHandlers) {
+        activeDragPieceEl._dragHandlers.onMove(ev);
+    }
+});
+window.addEventListener('mouseup', (ev) => {
+    if (activeDragPieceEl && activeDragPieceEl._dragHandlers) {
+        activeDragPieceEl._dragHandlers.onEnd(ev);
+        activeDragPieceEl = null;
+    }
+});
+
+/* ドラッグを強制中止する (ゲームオーバー時に呼ぶ) */
+function forceCancelDrag() {
+    if (!drag && !activeDragPieceEl) return;
+    // フローター非表示
+    dragFloater.style.display = 'none';
+    dragFloater.innerHTML = '';
+    // 元ピースの非表示クラスを外す
+    if (activeDragPieceEl) {
+        activeDragPieceEl.classList.remove('dragging');
+        activeDragPieceEl = null;
+    }
+    // ドラッグ状態クリア
+    drag = null;
+    clearPreview();
+}
+
+function pointToBoardCell(x, y) {
+    const rect = boardEl.getBoundingClientRect();
+    const cellPx = getBoardCellPx();
+    const gap = 4;
+    const padding = 0; // #board は padding:0
+    const localX = x - rect.left - padding;
+    const localY = y - rect.top - padding;
+    if (localX < 0 || localY < 0) return null;
+    const c = Math.floor(localX / (cellPx + gap));
+    const r = Math.floor(localY / (cellPx + gap));
+    if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return null;
+    return { r, c };
+}
+
+function getPieceAnchor() {
+    if (!drag) return null;
+    // フローター内の (0,0) セル中心が盤面のどのセルにあるか
+    const rect = boardEl.getBoundingClientRect();
+    const padding = 0; // #board は padding:0
+    const gap = 4;
+    const cellPx = drag.cellPx;
+    const flx = parseFloat(dragFloater.style.left);
+    const fly = parseFloat(dragFloater.style.top);
+    // (0,0) セル中心の絶対座標
+    const cx = flx + cellPx / 2;
+    const cy = fly + cellPx / 2;
+    // 盤面ローカル座標 (paddingを引く)
+    const localX = cx - rect.left - padding;
+    const localY = cy - rect.top - padding;
+    // セルの中心に最も近い格子点
+    const c = Math.round((localX - cellPx / 2) / (cellPx + gap));
+    const r = Math.round((localY - cellPx / 2) / (cellPx + gap));
+    return { r, c };
+}
+
+let lastPreviewCells = [];
+function clearPreview() {
+    // ハイライト廃止のため処理なし
+    lastPreviewCells = [];
+}
+function updatePreview() {
+    // ハイライトは表示しない。判定だけ更新する。
+    if (!drag) return;
+    const anchor = getPieceAnchor();
+    if (!anchor) {
+        drag.targets = null;
+        drag.canPlace = false;
+        return;
+    }
+    const targets = drag.piece.cells.map(([dr,dc]) => ({ r: anchor.r + dr, c: anchor.c + dc }));
+    drag.targets = targets;
+    drag.canPlace = canPlace(targets);
+}
+function canPlace(targets) {
+    for (const {r,c} of targets) {
+        if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return false;
+        if (game.board[r][c] !== null) return false;
+    }
+    return true;
+}
+
+function tryDrop() {
+    if (!drag || !drag.targets || !drag.canPlace) return false;
+    // 置く
+    drag.targets.forEach(({r,c}) => {
+        game.board[r][c] = drag.piece.colorIdx;
+    });
+    // 配置予定ピースを消費 → next を current に昇格 → 新 next 生成
+    advancePieces();
+    renderBoard();
+    return true;
+}
+
+/* ==========================================================
+   ライン消去・スコア計算
+   ========================================================== */
+function findCompleteLines() {
+    const fullRows = [];
+    const fullCols = [];
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        if (game.board[r].every(v => v !== null)) fullRows.push(r);
+    }
+    for (let c = 0; c < BOARD_SIZE; c++) {
+        let full = true;
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            if (game.board[r][c] === null) { full = false; break; }
+        }
+        if (full) fullCols.push(c);
+    }
+    return { fullRows, fullCols };
+}
+
+function isMonoLine(cells) {
+    // cells: [{r,c}]
+    if (cells.length === 0) return false;
+    const v0 = game.board[cells[0].r][cells[0].c];
+    if (v0 === null) return false;
+    return cells.every(({r,c}) => game.board[r][c] === v0);
+}
+
+async function processLines() {
+    const { fullRows, fullCols } = findCompleteLines();
+    const totalLines = fullRows.length + fullCols.length;
+    if (totalLines === 0) {
+        // ライン消し無し → コンボリセット
+        game.combo = 0;
+        return { lines: 0, score: 0, monoCount: 0 };
+    }
+
+    // 同色判定 (ライン単位)
+    let monoCount = 0;
+    fullRows.forEach(r => {
+        const cells = [];
+        for (let c = 0; c < BOARD_SIZE; c++) cells.push({r,c});
+        if (isMonoLine(cells)) monoCount++;
+    });
+    fullCols.forEach(c => {
+        const cells = [];
+        for (let r = 0; r < BOARD_SIZE; r++) cells.push({r,c});
+        if (isMonoLine(cells)) monoCount++;
+    });
+
+    /* スコア計算
+       基本: 8 * lines * (lines倍率)  ただし lines倍率は lines そのもの
+        1列: 8*1 = 8
+        2列: 8*2*2 = 32
+        3列: 8*3*3 = 72
+        4列: 8*4*4 = 128
+       同色ライン1本ごとに ×10 加算 (ライン全体の10倍)
+       コンボ: 連続消去回数(2回目以降)で ×コンボ数
+    */
+    game.combo += 1;
+    const linesMul = totalLines;
+    let base = 8 * totalLines * linesMul;
+
+    // 同色ボーナス: ライン本数中 monoCount 本が同色 → そのライン分 ×10
+    // 簡略化: monoCount > 0 のとき base * 10 (全部同色ボーナス込みで×10倍)
+    // 仕様:「同じ絵柄で 1列そろえると点数は×10 という表示が出て、得点が１０倍になる」
+    // 「同じ絵柄で2列そろえると×2が出た後に×10が出て、点数に加算される」
+    // → 同色ライン1本でもあれば総スコアに×10倍
+    let monoMul = 1;
+    if (monoCount > 0) monoMul = 10;
+
+    const comboMul = game.combo >= 2 ? game.combo : 1;
+
+    const score = base * comboMul * monoMul;
+
+    // フラッシュ → 縮小消去のアニメ
+    const allCells = [];
+    fullRows.forEach(r => { for (let c = 0; c < BOARD_SIZE; c++) allCells.push({r,c}); });
+    fullCols.forEach(c => {
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            if (!allCells.some(x => x.r === r && x.c === c)) allCells.push({r,c});
+        }
+    });
+
+    playSE('get');
+    // 黄色フラッシュ
+    allCells.forEach(({r,c}) => cellEls[r][c].classList.add('flash'));
+    await sleep(280);
+    // 1ピースごとに縮小して消える演出
+    for (let i = 0; i < allCells.length; i++) {
+        const {r,c} = allCells[i];
+        cellEls[r][c].classList.remove('flash');
+        cellEls[r][c].classList.add('shrinking');
+        await sleep(40); // ピースごとに少しずつ
+    }
+    await sleep(260);
+    // 実消去
+    allCells.forEach(({r,c}) => { game.board[r][c] = null; });
+    renderBoard();
+
+    // 加点表示
+    showScorePop({ lines: totalLines, monoCount, comboMul, monoMul, score });
+
+    return { lines: totalLines, score, monoCount, comboMul, monoMul, fullRows, fullCols };
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function showScorePop({ lines, monoCount, comboMul, monoMul, score }) {
+    const overlay = document.getElementById('game-overlay');
+    const wrap = document.createElement('div');
+    wrap.className = 'score-pop';
+    const rect = boardEl.getBoundingClientRect();
+    const appRect = document.getElementById('app').getBoundingClientRect();
+    wrap.style.left = (rect.left - appRect.left + rect.width / 2) + 'px';
+    wrap.style.top  = (rect.top  - appRect.top  + rect.height / 2) + 'px';
+
+    const parts = [];
+    if (lines >= 2) parts.push('×' + lines);
+    if (comboMul >= 2) parts.push('×' + comboMul + ' COMBO');
+    if (monoMul >= 10) parts.push('×10 同色!');
+    parts.push('+' + score + 'pt');
+    wrap.innerHTML = parts.join('<br>');
+    overlay.appendChild(wrap);
+    setTimeout(() => { wrap.remove(); }, 900);
+}
+
+/* ==========================================================
+   ピース配置後の処理
+   ========================================================== */
+async function afterPlacement() {
+    const result = await processLines();
+    if (result.score > 0) {
+        game.score += result.score;
+        document.getElementById('cur-score').textContent = game.score;
+        // 最高得点更新
+        if (game.score > getHiScore()) setHiScore(game.score);
+    }
+
+    // ノルマ達成判定 (未達成のものを全て並列判定)
+    const newlyAchieved = []; // 今回の手で達成したノルマ
+    for (const n of NORMAS) {
+        if (!game.achievedSet.has(n.id)) continue; // 既達成 or 既に判定済み
+        let achieved = false;
+        if (n.type === 'lines') {
+            if (result.lines >= n.value) achieved = true;
+        } else if (n.type === 'cross') {
+            if (result.fullRows && result.fullCols
+                && result.fullRows.length >= 1 && result.fullCols.length >= 1) achieved = true;
+        } else if (n.type === 'combo') {
+            if (game.combo >= n.value) achieved = true;
+        } else if (n.type === 'mono') {
+            if (result.monoCount && result.monoCount >= n.value) achieved = true;
+        } else if (n.type === 'clearall') {
+            if (result.lines > 0 && isBoardEmpty()) achieved = true;
+        } else if (n.type === 'score') {
+            if (game.score >= n.value) achieved = true;
+        }
+        if (achieved) {
+            newlyAchieved.push(n);
+            game.achievedSet.delete(n.id);
+            addNormaClear(n.id);
+        }
+    }
+    if (newlyAchieved.length > 0) {
+        playSE('cutin');
+        cutInNorma(newlyAchieved.map(n => n.label));
+    }
+
+    // (補充は tryDrop 時に advancePieces で済んでいる)
+
+    // ゲームオーバー判定: 現在の配置予定ピースがどこにも置けなければ終了
+    if (!hasAnyValidPlacement()) {
+        gameOver();
+    }
+}
+
+/* ノルマ達成カットイン (2.5秒で自動消去、ゲーム続行) */
+function cutInNorma(labels) {
+    const overlay = document.getElementById('game-overlay');
+    const wrap = document.createElement('div');
+    wrap.className = 'cutin-norma';
+    const labelText = labels.join(' '); // 半角スペース区切り
+    wrap.innerHTML = `
+        <div class="cutin-label">${labelText}</div>
+        <div class="cutin-achieved">ノルマ達成！！</div>
+    `;
+    overlay.appendChild(wrap);
+    setTimeout(() => { wrap.remove(); }, 2500);
+}
+
+function hasAnyValidPlacement() {
+    const piece = game.current;
+    if (!piece) return true;
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            const targets = piece.cells.map(([dr,dc]) => ({ r: r + dr, c: c + dc }));
+            if (canPlace(targets)) return true;
+        }
+    }
+    return false;
+}
+
+function showBigText(text, opts = {}) {
+    const overlay = document.getElementById('game-overlay');
+    const div = document.createElement('div');
+    let cls = 'big-text';
+    if (opts.gameover) cls += ' gameover';
+    else if (opts.clear) cls += ' clear';
+    div.className = cls;
+    div.textContent = text;
+    overlay.appendChild(div);
+    setTimeout(() => { div.remove(); }, opts.persist ? 99999 : 1500);
+    return div;
+}
+
+function gameOver() {
+    game.over = true;
+    // BGMを即停止
+    stopBGM();
+    // 置けなくなった瞬間にドラッグ中なら即中止 (ピースを抱えたまま固まらないように)
+    forceCancelDrag();
+    // 音声は置けなくなった瞬間に再生
+    playSE('gameover');
+
+    // 文字とボタンの表示は2秒待ってから
+    setTimeout(() => {
+        // 念のため再度ドラッグ強制中止
+        forceCancelDrag();
+
+        const overlay = document.getElementById('game-overlay');
+        overlay.classList.add('show');
+        showBigText('GAMEOVER', { gameover: true, persist: true });
+
+        // 操作ボタン表示
+        const actions = document.createElement('div');
+        actions.className = 'over-actions';
+        actions.innerHTML = `
+            <button class="btn menu-btn orange" id="btn-retry">リトライ</button>
+            <button class="btn menu-btn blue" id="btn-back-over">戻る</button>
+        `;
+        overlay.appendChild(actions);
+        document.getElementById('btn-retry').addEventListener('click', () => {
+            cleanupOverlay();
+            playSE('start');
+            startGame();
+        });
+        document.getElementById('btn-back-over').addEventListener('click', () => {
+            cleanupOverlay();
+            refreshHiScoreLabel();
+            showScreen('screen-start');
+        });
+    }, 2000);
+}
+function cleanupOverlay() {
+    const overlay = document.getElementById('game-overlay');
+    overlay.innerHTML = '';
+    overlay.classList.remove('show');
+}
+
+/* ==========================================================
+   ゲーム開始
+   ========================================================== */
+function startGame() {
+    game.board = emptyBoard();
+    game.current = null;
+    game.next = null;
+    game.score = 0;
+    game.combo = 0;
+    game.over = false;
+    // 既達成のノルマは判定対象外。未達成のものだけセットに格納。
+    const cleared = new Set(getNormaClear());
+    game.achievedSet = new Set(NORMAS.filter(n => !cleared.has(n.id)).map(n => n.id));
+
+    cleanupOverlay();
+    document.getElementById('cur-score').textContent = '0';
+
+    showScreen('screen-game');
+    buildBoardDOM();
+    renderBoard();
+    // BGM 再生開始 (ループ)
+    playBGM('bgm1');
+    // 画面が表示されてからピース描画 (要素サイズ取得のため)
+    requestAnimationFrame(() => {
+        initPieces();
+    });
+}
+
+/* ==========================================================
+   ノルマ一覧描画
+   ========================================================== */
+function renderNormaList() {
+    const list = document.getElementById('norma-list');
+    list.innerHTML = '';
+    const cleared = getNormaClear();
+    NORMAS.forEach(n => {
+        const item = document.createElement('div');
+        item.className = 'norma-item' + (cleared.includes(n.id) ? ' cleared' : '');
+        item.innerHTML = `
+            <div class="check">${cleared.includes(n.id) ? '✓' : ''}</div>
+            <div class="label">${n.label}</div>
+        `;
+        // 項目クリックは無効 (ただの表示。色変化は継続)
+        list.appendChild(item);
+    });
+    // ALL CLEAR 判定
+    const all = NORMAS.every(n => cleared.includes(n.id));
+    document.getElementById('all-clear-msg').style.display = all ? '' : 'none';
+
+    // 一番下に「ノルマをリセットする」ボタン
+    const reset = document.createElement('div');
+    reset.className = 'norma-reset';
+    reset.textContent = 'ノルマをリセットする';
+    reset.addEventListener('click', confirmResetNorma);
+    list.appendChild(reset);
+
+    // iOS等のセーブ消去注意文
+    const note = document.createElement('p');
+    note.className = 'ios-note-p';
+    note.textContent = '・オートセーブ機能についてiOSでは7日間「ずんだもんスマホ専用デジタルおまけ」ページにアクセスしていないとセーブデータが消去される場合がございます(なお、7日の間に1度でも再アクセスすると延長されます)。さらにiOS・Android双方でOS初期化・OSアップデートなどでも同様に消える場合がございます。予めご了承ください。';
+    list.appendChild(note);
+}
+
+/* ノルマリセット確認ダイアログ */
+function confirmResetNorma() {
+    // 既存ダイアログがあれば消す
+    const old = document.getElementById('reset-dialog');
+    if (old) old.remove();
+
+    const dialog = document.createElement('div');
+    dialog.id = 'reset-dialog';
+    dialog.className = 'modal-dialog';
+    dialog.innerHTML = `
+        <div class="modal-back"></div>
+        <div class="modal-box">
+            <div class="modal-text">
+                記録されている最高得点とノルマが<br>完全消去されます。<br>よろしいでしょうか？
+            </div>
+            <div class="modal-buttons">
+                <button class="btn modal-btn yes" id="reset-yes">はい</button>
+                <button class="btn modal-btn no"  id="reset-no">いいえ</button>
+            </div>
+        </div>
+    `;
+    document.getElementById('app').appendChild(dialog);
+    document.getElementById('reset-yes').addEventListener('click', () => {
+        // localStorage を完全初期化
+        try {
+            localStorage.removeItem(LS.SOUND);
+            localStorage.removeItem(LS.HISCORE);
+            localStorage.removeItem(LS.NORMA);
+        } catch(e) {}
+        // リロードでスタート画面へ
+        location.reload();
+    });
+    document.getElementById('reset-no').addEventListener('click', () => {
+        dialog.remove();
+    });
+}
+
+/* ==========================================================
+   スタート画面ハイスコア更新
+   ========================================================== */
+function refreshHiScoreLabel() {
+    document.getElementById('hs-num').textContent = getHiScore();
+}
+
+/* ==========================================================
+   イベント結線
+   ========================================================== */
+document.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-action]');
+    if (!t) return;
+    const a = t.dataset.action;
+    if (a === 'goto-norma') {
+        renderNormaList();
+        showScreen('screen-norma');
+    } else if (a === 'start-game') {
+        playSE('start');
+        startGame();
+    } else if (a === 'goto-rule') {
+        location.href = 'rule.html';
+    } else if (a === 'goto-top') {
+        location.href = '../index.html';
+    } else if (a === 'back-to-start') {
+        refreshHiScoreLabel();
+        showScreen('screen-start');
+    } else if (a === 'back-from-game') {
+        stopBGM();
+        cleanupOverlay();
+        refreshHiScoreLabel();
+        showScreen('screen-start');
+    }
+});
+
+['btn-sound-start','btn-sound-norma','btn-sound-game'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('click', toggleSound);
+});
+
+/* スクロール/ズーム抑止 */
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('touchmove', e => {
+    if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+document.addEventListener('dblclick', e => e.preventDefault());
+
+/* iOS アドレスバー対策(高さ固定) */
+function fixHeight() {
+    document.documentElement.style.height = window.innerHeight + 'px';
+    document.body.style.height = window.innerHeight + 'px';
+    // ゲーム画面アクティブ時はトレイのピースサイズも再計算
+    if (document.getElementById('screen-game').classList.contains('active')) {
+        // 描画完了後に再レンダ
+        setTimeout(() => { renderTray(); }, 0);
+    }
+}
+window.addEventListener('resize', fixHeight);
+window.addEventListener('orientationchange', fixHeight);
+fixHeight();
+
+/* ==========================================================
+   初期化
+   ========================================================== */
+function init() {
+    // localStorage 初期値
+    if (localStorage.getItem(LS.SOUND) === null) setSound(true);
+    if (localStorage.getItem(LS.HISCORE) === null) setHiScore(0);
+    if (localStorage.getItem(LS.NORMA) === null) setNormaClear([]);
+    updateSoundIcons();
+    refreshHiScoreLabel();
+    // 最初はスタート画面
+    showScreen('screen-start');
+}
+init();
+
+</script>
+</body>
+</html>
