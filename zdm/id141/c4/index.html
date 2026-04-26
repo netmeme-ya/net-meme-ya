@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
 <link rel="preload" href="pic/se1.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/se2.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="pic/start_easy.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="pic/start_medium.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="pic/start_pro.mp3" as="audio" type="audio/mpeg">
@@ -374,7 +375,7 @@
     align-items: flex-end;
     justify-content: center;
     padding-bottom: clamp(12px, 3vh, 28px);
-    min-height: 80px;
+    min-height: 70px;
   }
 
   #turn-label {
@@ -675,6 +676,7 @@
 </head>
 <body oncontextmenu="return false;">
 <audio id="se-land" src="pic/se1.mp3" preload="auto"></audio>
+<audio id="se-land-enemy" src="pic/se2.mp3" preload="auto"></audio>
 <audio id="se-start-easy" src="pic/start_easy.mp3" preload="auto"></audio>
 <audio id="se-start-medium" src="pic/start_medium.mp3" preload="auto"></audio>
 <audio id="se-start-pro" src="pic/start_pro.mp3" preload="auto"></audio>
