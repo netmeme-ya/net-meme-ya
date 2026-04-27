@@ -27,6 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@100;300;400;500;700;800;900&display=swap" rel="stylesheet">
 
 <!-- 効果音プリロード -->
 <audio id="se_get" src="pic/se_get.mp3" preload="auto"></audio>
@@ -34,7 +35,6 @@
 <audio id="se_clear" src="pic/se_clear.mp3" preload="auto"></audio>
 <audio id="se_start" src="pic/se_start.mp3" preload="auto"></audio>
 <audio id="se_cutin" src="pic/se_cutin.mp3" preload="auto"></audio>
-<audio id="bgm1" src="pic/bgm1.mp3" preload="auto" loop></audio>
 
 <style>
 /* =========================================
@@ -159,14 +159,14 @@ html, body {
     margin-top: auto;
     margin-bottom: 8px;
     text-align: center;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.4;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 #screen-start .highscore .score-num {
     font-size: 22px;
     font-weight: 900;
-    margin-top: 4px;
+    margin-left: 4px;
 }
 #screen-start .copyright {
     font-size: 10px;
@@ -526,7 +526,13 @@ html, body {
     pointer-events: none;
     z-index: 100;
 }
-.overlay.show { pointer-events: auto; }
+/* show 状態でも overlay 自体はクリック透過。
+   要素単位で pointer-events: auto を付ける(big-text/over-actions) */
+.overlay.show .big-text,
+.overlay.show .over-actions,
+.overlay.show .cutin-norma {
+    pointer-events: auto;
+}
 
 .big-text {
     /* 帯状テロップ: 横幅100%、半透明白背景、縁取りなし */
@@ -544,6 +550,19 @@ html, body {
 }
 .big-text.gameover {
     color: #000000;
+}
+.big-text-top {
+    font-size: clamp(13px, 3.5vw, 18px);
+    font-weight: 700;
+    letter-spacing: 1px;
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+.big-text-main {
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+    line-height: 1;
 }
 @keyframes bigPop {
     0%   { transform: scaleY(0.2); opacity: 0; }
@@ -581,6 +600,8 @@ html, body {
 .score-pop {
     position: absolute;
     color: #fff;
+    /* 縁取りはNoto Sans JPで欠けが出るためM PLUS Rounded 1c を使用 */
+    font-family: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;
     font-size: clamp(28px, 7vw, 48px);
     font-weight: 900;
     -webkit-text-stroke: 2px #00a040;
@@ -643,7 +664,7 @@ html, body {
             <button class="btn menu-btn green"  data-action="goto-rule">ゲーム説明</button>
             <button class="btn menu-btn blue"   data-action="goto-top">TOPへ</button>
         </div>
-        <div class="highscore">現在の最高得点<br><span class="score-num" id="hs-num">0</span></div>
+        <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
         <div class="copyright">©ねとみむや</div>
     </div>
 
@@ -826,31 +847,6 @@ const SE = {
     start:    document.getElementById('se_start'),
     cutin:    document.getElementById('se_cutin'),
 };
-const BGM = {
-    bgm1: document.getElementById('bgm1'),
-};
-let currentBgm = null; // 現在再生中のBGM要素
-function playBGM(name) {
-    stopBGM();
-    if (!getSound()) return;
-    const el = BGM[name];
-    if (!el) return;
-    try {
-        el.currentTime = 0;
-        el.play().catch(()=>{});
-        currentBgm = el;
-    } catch(e) {}
-}
-function stopBGM() {
-    if (currentBgm) {
-        try { currentBgm.pause(); currentBgm.currentTime = 0; } catch(e) {}
-        currentBgm = null;
-    }
-    // 念のため全BGMを停止
-    Object.values(BGM).forEach(el => {
-        try { el.pause(); } catch(e) {}
-    });
-}
 function playSE(name) {
     if (!getSound()) return;
     const el = SE[name];
@@ -870,16 +866,6 @@ function updateSoundIcons() {
 function toggleSound() {
     setSound(!getSound());
     updateSoundIcons();
-    // 音OFFになったらBGMも停止
-    if (!getSound()) {
-        stopBGM();
-    } else {
-        // 音ONに戻したとき、ゲーム画面が表示中で進行中ならBGM再開
-        const inGame = document.getElementById('screen-game').classList.contains('active');
-        if (inGame && !game.over) {
-            playBGM('bgm1');
-        }
-    }
 }
 
 /* ==========================================================
@@ -1409,7 +1395,7 @@ function showScorePop({ lines, monoCount, comboMul, monoMul, score }) {
     const parts = [];
     if (lines >= 2) parts.push('×' + lines);
     if (comboMul >= 2) parts.push('×' + comboMul + ' COMBO');
-    if (monoMul >= 10) parts.push('×10 同色!');
+    if (monoMul >= 10) parts.push('×10 Chara!');
     parts.push('+' + score + 'pt');
     wrap.innerHTML = parts.join('<br>');
     overlay.appendChild(wrap);
@@ -1499,7 +1485,18 @@ function showBigText(text, opts = {}) {
     if (opts.gameover) cls += ' gameover';
     else if (opts.clear) cls += ' clear';
     div.className = cls;
-    div.textContent = text;
+    if (opts.smallTop) {
+        const top = document.createElement('div');
+        top.className = 'big-text-top';
+        top.textContent = opts.smallTop;
+        div.appendChild(top);
+        const main = document.createElement('div');
+        main.className = 'big-text-main';
+        main.textContent = text;
+        div.appendChild(main);
+    } else {
+        div.textContent = text;
+    }
     overlay.appendChild(div);
     setTimeout(() => { div.remove(); }, opts.persist ? 99999 : 1500);
     return div;
@@ -1507,8 +1504,6 @@ function showBigText(text, opts = {}) {
 
 function gameOver() {
     game.over = true;
-    // BGMを即停止
-    stopBGM();
     // 置けなくなった瞬間にドラッグ中なら即中止 (ピースを抱えたまま固まらないように)
     forceCancelDrag();
     // 音声は置けなくなった瞬間に再生
@@ -1521,7 +1516,7 @@ function gameOver() {
 
         const overlay = document.getElementById('game-overlay');
         overlay.classList.add('show');
-        showBigText('GAMEOVER', { gameover: true, persist: true });
+        showBigText('GAMEOVER', { gameover: true, persist: true, smallTop: 'ピースが置けなくなったので・・・' });
 
         // 操作ボタン表示
         const actions = document.createElement('div');
@@ -1569,8 +1564,6 @@ function startGame() {
     showScreen('screen-game');
     buildBoardDOM();
     renderBoard();
-    // BGM 再生開始 (ループ)
-    playBGM('bgm1');
     // 画面が表示されてからピース描画 (要素サイズ取得のため)
     requestAnimationFrame(() => {
         initPieces();
@@ -1677,7 +1670,6 @@ document.addEventListener('click', (e) => {
         refreshHiScoreLabel();
         showScreen('screen-start');
     } else if (a === 'back-from-game') {
-        stopBGM();
         cleanupOverlay();
         refreshHiScoreLabel();
         showScreen('screen-start');
