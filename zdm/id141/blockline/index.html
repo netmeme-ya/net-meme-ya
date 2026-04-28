@@ -4,7 +4,7 @@
 <meta name="robots" content="noindex">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ずんだブロックライン</title>
+<title>ずんだブロック並べ</title>
 <!--favicon-->
 <link rel="icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/favicon.ico" type="image/x-icon">
 <link rel="icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/i180.png" sizes="180x180" type="image/png">
@@ -35,6 +35,7 @@
 <audio id="se_clear" src="pic/se_clear.mp3" preload="auto"></audio>
 <audio id="se_start" src="pic/se_start.mp3" preload="auto"></audio>
 <audio id="se_cutin" src="pic/se_cutin.mp3" preload="auto"></audio>
+<audio id="se_point" src="pic/se_point.mp3" preload="auto"></audio>
 
 <style>
 /* =========================================
@@ -550,6 +551,10 @@ html, body {
 }
 .big-text.gameover {
     color: #000000;
+    opacity: 0.8;
+    /* bigPopの最終フレームでopacity:1になり上書きされるのを防ぐため、
+       gameover専用アニメを使う */
+    animation: bigPopGameover .5s cubic-bezier(.2,1.5,.6,1) forwards;
 }
 .big-text-top {
     font-size: clamp(13px, 3.5vw, 18px);
@@ -569,6 +574,11 @@ html, body {
     60%  { transform: scaleY(1.1); opacity: 1; }
     100% { transform: scaleY(1);   opacity: 1; }
 }
+@keyframes bigPopGameover {
+    0%   { transform: scaleY(0.2); opacity: 0; }
+    60%  { transform: scaleY(1.1); opacity: 0.8; }
+    100% { transform: scaleY(1);   opacity: 0.8; }
+}
 
 /* ノルマ達成カットイン: CLEAR/GAMEOVER と同じ帯状テロップ */
 .cutin-norma {
@@ -585,7 +595,10 @@ html, body {
     font-weight: 500;
     line-height: 1.4;
     letter-spacing: 0.5px;
-    word-break: break-word;
+}
+.cutin-norma .cutin-line {
+    /* 1ノルマ1行で表示 */
+    line-height: 1.4;
 }
 .cutin-norma .cutin-achieved {
     color: #FF0000;
@@ -594,6 +607,21 @@ html, body {
     letter-spacing: 4px;
     margin-top: 6px;
     line-height: 1.1;
+}
+
+/* 100点境界カットイン (赤文字) */
+.cutin-point {
+    width: 100%;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 18px 16px;
+    color: #FF0000;
+    font-size: clamp(36px, 10vw, 64px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    line-height: 1.1;
+    animation: bigPop .5s cubic-bezier(.2,1.5,.6,1) forwards;
+    pointer-events: none;
 }
 
 /* スコア加算ふきだし */
@@ -657,11 +685,11 @@ html, body {
                 <svg viewBox="0 0 24 24" fill="currentColor"><path id="snd-icon-start" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
             </button>
         </div>
-        <h1>ずんだブロックライン</h1>
+        <h1>ずんだブロック並べ</h1>
         <div class="menu">
             <button class="btn menu-btn orange" data-action="start-game">ゲームスタート</button>
             <button class="btn menu-btn pink"   data-action="goto-norma">ノルマ一覧</button>
-            <button class="btn menu-btn green"  data-action="goto-rule">ゲーム説明</button>
+            <!--<button class="btn menu-btn green"  data-action="goto-rule">ゲーム説明</button>-->
             <button class="btn menu-btn blue"   data-action="goto-top">TOPへ</button>
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
@@ -772,7 +800,12 @@ const SHAPES = [
      'combo'    … N連続コンボ達成 (game.combo >= value)
      'mono'     … 同色ライン消去 (1手で同色1ライン以上)
      'clearall' … ピースを置いた結果、盤面が完全に空になる
+     'gapline'  … 同方向の2列同時消去で、間に1列ぴったり隙間あり (どれか1ペアでOK)
+     'repdigit' … 累計スコアが「全桁同じ数字」(11,22,...,99,111,222,...)になる
      'score'    … 累計スコアが value を超える
+     'zerogame' … 0点でGAMEOVERになる (1手も置けずに終了)
+     'playcount'… 累計プレイ回数が value に到達 (ゲーム開始時にカウント)
+   silent: true を付けると、達成時にカットインを出さない (ノルマ一覧でチェックのみ)
    id: localStorage 保存用一意ID。並びを変えても達成状態は保持。
 */
 const NORMAS = [
@@ -786,6 +819,8 @@ const NORMAS = [
     { id: 'combo4',   label: '4連続コンボをキメろ！',             type: 'combo',    value: 4 },
     { id: 'mono1',    label: '同じキャラで1列揃えろ！',           type: 'mono',     value: 1 },
     { id: 'clearall', label: '全部消せ！',                        type: 'clearall', value: 1 },
+    { id: 'gapline',  label: 'サンドイッチ消し！',                 type: 'gapline',  value: 1 },
+    { id: 'repdigit', label: 'ゾロ目得点を狙え！',                 type: 'repdigit', value: 1 },
     { id: 'score50',  label: '50点を超えろ！',                    type: 'score',    value: 50 },
     { id: 'score100', label: '100点を超えろ！',                   type: 'score',    value: 100 },
     { id: 'score200', label: '200点を超えろ！',                   type: 'score',    value: 200 },
@@ -797,6 +832,10 @@ const NORMAS = [
     { id: 'score800', label: '800点を超えろ！',                   type: 'score',    value: 800 },
     { id: 'score900', label: '900点を超えろ！',                   type: 'score',    value: 900 },
     { id: 'score1000',label: '1000点を超えろ！',                  type: 'score',    value: 1000 },
+    { id: 'zerogame', label: '0点でGAMEOVER',                     type: 'zerogame', value: 1,   silent: true },
+    { id: 'play10',   label: '10回ゲームせよ！',                   type: 'playcount',value: 10,  silent: true },
+    { id: 'play50',   label: '50回ゲームプレイせよ！',             type: 'playcount',value: 50,  silent: true },
+    { id: 'play100',  label: '100回ゲームプレイせよ！',            type: 'playcount',value: 100, silent: true },
     /* ★ 新ノルマ追加例:
        { id: 'score1500', label: '1500点を超えろ！', type: 'score', value: 1500 },
     */
@@ -809,7 +848,18 @@ const LS = {
     SOUND: 'bl_sound',
     HISCORE: 'bl_highscore',
     NORMA: 'bl_norma_clear',
+    PLAYCOUNT: 'bl_play_count',
 };
+function getPlayCount() {
+    const v = localStorage.getItem(LS.PLAYCOUNT);
+    return v === null ? 0 : (parseInt(v, 10) || 0);
+}
+function setPlayCount(n) { localStorage.setItem(LS.PLAYCOUNT, String(n)); }
+function incrementPlayCount() {
+    const n = getPlayCount() + 1;
+    setPlayCount(n);
+    return n;
+}
 function getSound() {
     const v = localStorage.getItem(LS.SOUND);
     if (v === null) return true;
@@ -846,12 +896,23 @@ const SE = {
     clear:    document.getElementById('se_clear'),
     start:    document.getElementById('se_start'),
     cutin:    document.getElementById('se_cutin'),
+    point:    document.getElementById('se_point'),
 };
 function playSE(name) {
     if (!getSound()) return;
     const el = SE[name];
     if (!el) return;
     try { el.currentTime = 0; el.play().catch(()=>{}); } catch(e) {}
+}
+/* 全SEを即停止 (Androidの音声マーク残り対策) */
+function stopAllSE() {
+    Object.values(SE).forEach(el => {
+        if (!el) return;
+        try {
+            el.pause();
+            el.currentTime = 0;
+        } catch(e) {}
+    });
 }
 function updateSoundIcons() {
     const on = getSound();
@@ -916,6 +977,7 @@ const game = {
     combo: 0,             // 連続消し数
     over: false,
     achievedSet: new Set(),  // 今プレイ中に「これから判定すべき」ノルマID集合 (達成済みは除外済)
+    lastPointMilestone: 0,   // 100点カットインで直近どの境界を表示したか (0=未表示, 100=100点GET済, 200=200点GET済)
 };
 
 function emptyBoard() {
@@ -934,6 +996,39 @@ function isBoardEmpty() {
         }
     }
     return true;
+}
+/* ライン番号配列が「サンドイッチ消し」条件を満たすか判定。
+   条件: ちょうど2本のラインで、その差が2(間に1行/1列の隙間)。
+   例: [1,3] → true / [1,3,5] → false (3本) / [1,2] → false (隣接) /
+       [1,4] → false (隙間2)
+*/
+function hasGapLinePair(arr) {
+    if (!arr || arr.length !== 2) return false;
+    const sorted = [...arr].sort((a,b) => a - b);
+    return sorted[1] - sorted[0] === 2;
+}
+/* 全桁が同じ数字のゾロ目スコアか判定 (2桁以上)
+   true: 11, 22, ..., 99, 111, 222, ..., 999, 1111, ...
+   false: 1, 10, 100, 12, 110, 121 など */
+function isRepDigit(n) {
+    if (typeof n !== 'number' || n < 11) return false;
+    if (!Number.isInteger(n)) return false;
+    const s = String(n);
+    if (s.length < 2) return false;
+    const ch = s[0];
+    for (let i = 1; i < s.length; i++) {
+        if (s[i] !== ch) return false;
+    }
+    return true;
+}
+/* 累計スコアから「最も近いカットイン対象境界」を返す
+   対象: 50, 100, 200, 300, 400, 500, ...
+   非対象: 150, 250, 350, ... (50点+100倍数)
+   例: score=49 → 0 / 50〜99 → 50 / 100〜199 → 100 / 200〜299 → 200 */
+function computePointMilestone(score) {
+    if (score < 50) return 0;
+    if (score < 100) return 50;
+    return Math.floor(score / 100) * 100;
 }
 
 /* ==========================================================
@@ -1430,6 +1525,12 @@ async function afterPlacement() {
             if (result.monoCount && result.monoCount >= n.value) achieved = true;
         } else if (n.type === 'clearall') {
             if (result.lines > 0 && isBoardEmpty()) achieved = true;
+        } else if (n.type === 'gapline') {
+            // 同方向2列で間にちょうど1列の隙間があるペアが1つでもあれば達成
+            if (hasGapLinePair(result.fullRows) || hasGapLinePair(result.fullCols)) achieved = true;
+        } else if (n.type === 'repdigit') {
+            // 累計スコアが2桁以上のゾロ目 (11,22,...,99,111,222,...,999,1111,...)
+            if (isRepDigit(game.score)) achieved = true;
         } else if (n.type === 'score') {
             if (game.score >= n.value) achieved = true;
         }
@@ -1439,9 +1540,20 @@ async function afterPlacement() {
             addNormaClear(n.id);
         }
     }
-    if (newlyAchieved.length > 0) {
+    // silent でないものだけカットイン対象
+    const visible = newlyAchieved.filter(n => !n.silent);
+    if (visible.length > 0) {
         playSE('cutin');
-        cutInNorma(newlyAchieved.map(n => n.label));
+        cutInNorma(visible.map(n => n.label));
+    } else {
+        // ノルマ達成カットインが出ない場合のみ、点境界カットインを出す
+        // 対象: 50点 / 100, 200, 300... (150や250など50点+100倍数は対象外)
+        const milestone = computePointMilestone(game.score);
+        if (milestone > 0 && milestone > game.lastPointMilestone) {
+            game.lastPointMilestone = milestone;
+            playSE('point');
+            cutInPointMilestone(milestone);
+        }
     }
 
     // (補充は tryDrop 時に advancePieces で済んでいる)
@@ -1457,13 +1569,24 @@ function cutInNorma(labels) {
     const overlay = document.getElementById('game-overlay');
     const wrap = document.createElement('div');
     wrap.className = 'cutin-norma';
-    const labelText = labels.join(' '); // 半角スペース区切り
+    // 1ノルマ1行で表示 (改行)
+    const lines = labels.map(l => `<div class="cutin-line">${l}</div>`).join('');
     wrap.innerHTML = `
-        <div class="cutin-label">${labelText}</div>
+        <div class="cutin-label">${lines}</div>
         <div class="cutin-achieved">ノルマ達成！！</div>
     `;
     overlay.appendChild(wrap);
     setTimeout(() => { wrap.remove(); }, 2500);
+}
+
+/* 100点境界カットイン (ノルマ達成カットインが出ないターンに表示) */
+function cutInPointMilestone(milestone) {
+    const overlay = document.getElementById('game-overlay');
+    const wrap = document.createElement('div');
+    wrap.className = 'cutin-point';
+    wrap.textContent = milestone + '点GET！';
+    overlay.appendChild(wrap);
+    setTimeout(() => { wrap.remove(); }, 1500);
 }
 
 function hasAnyValidPlacement() {
@@ -1509,6 +1632,15 @@ function gameOver() {
     // 音声は置けなくなった瞬間に再生
     playSE('gameover');
 
+    // 「0点でGAMEOVER」など、ゲームオーバー時に達成扱いになるサイレントノルマ判定
+    for (const n of NORMAS) {
+        if (!game.achievedSet.has(n.id)) continue;
+        if (n.type === 'zerogame' && game.score === 0) {
+            game.achievedSet.delete(n.id);
+            addNormaClear(n.id);
+        }
+    }
+
     // 文字とボタンの表示は2秒待ってから
     setTimeout(() => {
         // 念のため再度ドラッグ強制中止
@@ -1532,6 +1664,7 @@ function gameOver() {
             startGame();
         });
         document.getElementById('btn-back-over').addEventListener('click', () => {
+            stopAllSE();
             cleanupOverlay();
             refreshHiScoreLabel();
             showScreen('screen-start');
@@ -1554,9 +1687,20 @@ function startGame() {
     game.score = 0;
     game.combo = 0;
     game.over = false;
+    game.lastPointMilestone = 0;
     // 既達成のノルマは判定対象外。未達成のものだけセットに格納。
     const cleared = new Set(getNormaClear());
     game.achievedSet = new Set(NORMAS.filter(n => !cleared.has(n.id)).map(n => n.id));
+
+    // プレイ回数をインクリメントし、playcountノルマを判定 (silent: カットインなし)
+    const playCount = incrementPlayCount();
+    for (const n of NORMAS) {
+        if (!game.achievedSet.has(n.id)) continue;
+        if (n.type === 'playcount' && playCount >= n.value) {
+            game.achievedSet.delete(n.id);
+            addNormaClear(n.id);
+        }
+    }
 
     cleanupOverlay();
     document.getElementById('cur-score').textContent = '0';
@@ -1633,6 +1777,7 @@ function confirmResetNorma() {
             localStorage.removeItem(LS.SOUND);
             localStorage.removeItem(LS.HISCORE);
             localStorage.removeItem(LS.NORMA);
+            localStorage.removeItem(LS.PLAYCOUNT);
         } catch(e) {}
         // リロードでスタート画面へ
         location.reload();
@@ -1670,6 +1815,7 @@ document.addEventListener('click', (e) => {
         refreshHiScoreLabel();
         showScreen('screen-start');
     } else if (a === 'back-from-game') {
+        stopAllSE();
         cleanupOverlay();
         refreshHiScoreLabel();
         showScreen('screen-start');
