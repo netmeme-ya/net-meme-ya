@@ -20,9 +20,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <!---->
-<!--css-->
-<link rel="stylesheet" href="pic/top.css">
-
 <!-- Google Fonts: Noto Sans JP -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,7 +114,8 @@ html, body {
 #screen-start .top-bar {
     width: 100%;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 12px;
 }
 #screen-start h1 {
@@ -125,9 +123,19 @@ html, body {
     font-weight: 900;
     color: #fff;
     margin-top: 4vh;
-    margin-bottom: 6vh;
+    margin-bottom: 12px;
     letter-spacing: 2px;
     text-align: center;
+}
+#screen-start .subtitle {
+    text-align: center;
+    color: #fff;
+    font-size: clamp(13px, 3.4vw, 16px);
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 4vh;
+    letter-spacing: 0.5px;
+    opacity: 0.95;
 }
 #screen-start .menu {
     display: flex;
@@ -681,11 +689,15 @@ html, body {
          ============================================ -->
     <div id="screen-start" class="screen active">
         <div class="top-bar">
+            <a href="../index.html" target="_top" class="icon-btn" aria-label="戻る">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </a>
             <button class="icon-btn" id="btn-sound-start" aria-label="音声切替">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path id="snd-icon-start" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
             </button>
         </div>
         <h1>ずんだブロック並べ</h1>
+        <div class="subtitle">キャラを縦横１列に並べて消そう！<br>同時消し・連続消しで高得点!!</div>
         <div class="menu">
             <button class="btn menu-btn orange" data-action="start-game">ゲームスタート</button>
             <button class="btn menu-btn pink"   data-action="goto-norma">ノルマ一覧</button>
@@ -805,6 +817,7 @@ const SHAPES = [
      'score'    … 累計スコアが value を超える
      'zerogame' … 0点でGAMEOVERになる (1手も置けずに終了)
      'playcount'… 累計プレイ回数が value に到達 (ゲーム開始時にカウント)
+     'placecount'… 1GAME中にピースを value 回置く
    silent: true を付けると、達成時にカットインを出さない (ノルマ一覧でチェックのみ)
    id: localStorage 保存用一意ID。並びを変えても達成状態は保持。
 */
@@ -821,6 +834,13 @@ const NORMAS = [
     { id: 'clearall', label: '全部消せ！',                        type: 'clearall', value: 1 },
     { id: 'gapline',  label: 'サンドイッチ消し！',                 type: 'gapline',  value: 1 },
     { id: 'repdigit', label: 'ゾロ目得点を狙え！',                 type: 'repdigit', value: 1 },
+    { id: 'zerogame', label: '0点でGAMEOVER',                     type: 'zerogame', value: 1,   silent: true },
+    { id: 'play10',   label: '10回ゲームせよ！',                   type: 'playcount',value: 10,  silent: true },
+    { id: 'play50',   label: '50回ゲームプレイせよ！',             type: 'playcount',value: 50,  silent: true },
+    { id: 'play100',  label: '100回ゲームプレイせよ！',            type: 'playcount',value: 100, silent: true },
+    { id: 'place10',  label: '1GAMEで10回置け！',                  type: 'placecount',value: 10 },
+    { id: 'place20',  label: '1GAMEで20回置け！',                  type: 'placecount',value: 20 },
+    { id: 'place50',  label: '1GAMEで50回置け！',                  type: 'placecount',value: 50 },
     { id: 'score50',  label: '50点を超えろ！',                    type: 'score',    value: 50 },
     { id: 'score100', label: '100点を超えろ！',                   type: 'score',    value: 100 },
     { id: 'score200', label: '200点を超えろ！',                   type: 'score',    value: 200 },
@@ -832,10 +852,6 @@ const NORMAS = [
     { id: 'score800', label: '800点を超えろ！',                   type: 'score',    value: 800 },
     { id: 'score900', label: '900点を超えろ！',                   type: 'score',    value: 900 },
     { id: 'score1000',label: '1000点を超えろ！',                  type: 'score',    value: 1000 },
-    { id: 'zerogame', label: '0点でGAMEOVER',                     type: 'zerogame', value: 1,   silent: true },
-    { id: 'play10',   label: '10回ゲームせよ！',                   type: 'playcount',value: 10,  silent: true },
-    { id: 'play50',   label: '50回ゲームプレイせよ！',             type: 'playcount',value: 50,  silent: true },
-    { id: 'play100',  label: '100回ゲームプレイせよ！',            type: 'playcount',value: 100, silent: true },
     /* ★ 新ノルマ追加例:
        { id: 'score1500', label: '1500点を超えろ！', type: 'score', value: 1500 },
     */
@@ -975,6 +991,7 @@ const game = {
     next: null,           // 次のピース
     score: 0,
     combo: 0,             // 連続消し数
+    placedCount: 0,       // 今プレイで置いたピース数
     over: false,
     achievedSet: new Set(),  // 今プレイ中に「これから判定すべき」ノルマID集合 (達成済みは除外済)
     lastPointMilestone: 0,   // 100点カットインで直近どの境界を表示したか (0=未表示, 100=100点GET済, 200=200点GET済)
@@ -1501,6 +1518,7 @@ function showScorePop({ lines, monoCount, comboMul, monoMul, score }) {
    ピース配置後の処理
    ========================================================== */
 async function afterPlacement() {
+    game.placedCount++;
     const result = await processLines();
     if (result.score > 0) {
         game.score += result.score;
@@ -1533,6 +1551,8 @@ async function afterPlacement() {
             if (isRepDigit(game.score)) achieved = true;
         } else if (n.type === 'score') {
             if (game.score >= n.value) achieved = true;
+        } else if (n.type === 'placecount') {
+            if (game.placedCount >= n.value) achieved = true;
         }
         if (achieved) {
             newlyAchieved.push(n);
@@ -1686,6 +1706,7 @@ function startGame() {
     game.next = null;
     game.score = 0;
     game.combo = 0;
+    game.placedCount = 0;
     game.over = false;
     game.lastPointMilestone = 0;
     // 既達成のノルマは判定対象外。未達成のものだけセットに格納。
