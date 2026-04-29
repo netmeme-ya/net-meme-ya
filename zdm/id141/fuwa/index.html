@@ -536,7 +536,18 @@
   function updateSpeedMultiplier() {
     // ステージのCSS幅（cssW）が541px以上なら1.7倍
     speedMultiplier = (cssW >= 541) ? 1.7 : 1.0;
-    PIPE_SPEED = PIPE_SPEED_BASE * speedMultiplier;
+    refreshPipeSpeed();
+  }
+
+  // スコアに応じた加速量を計算（30点超えから10点ごとに+0.1）
+  function getScoreSpeedBonus() {
+    if (score < 30) return 0;
+    return Math.floor((score - 20) / 10) * 0.1;
+  }
+
+  // 現在の倍率＋スコアボーナスから PIPE_SPEED を再計算
+  function refreshPipeSpeed() {
+    PIPE_SPEED = PIPE_SPEED_BASE * (speedMultiplier + getScoreSpeedBonus());
   }
 
   // 自機の論理X座標（GAME_Wの30%か100pxの大きい方）
@@ -566,6 +577,7 @@
     shakeFrames = 0;
     invincibleFrames = 0;
     groundOffset = 0;
+    refreshPipeSpeed(); // スコアリセットに合わせて速度も基準値に戻す
     // 最初のパイプは画面右外から
     spawnPipe(GAME_W + 80);
     spawnPipe(GAME_W + 80 + PIPE_INTERVAL);
@@ -638,6 +650,7 @@
         score++;
         playSound('point');
         updateScoreDisplay();
+        refreshPipeSpeed(); // スコアに応じて速度更新
       }
     }
 
