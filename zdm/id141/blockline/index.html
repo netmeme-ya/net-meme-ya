@@ -291,10 +291,12 @@ html, body {
 .ios-note-p {
     font-size: 10px;
     color: #ccc;
-    text-align: center;
-    width: 90%;
+    text-align: left;
+    width: fit-content;
+    max-width: 90%;
     margin: 10px auto;
     line-height: 1.5;
+    font-weight: 400;
 }
 
 /* リセット確認ダイアログ */
@@ -761,6 +763,7 @@ html, body {
         </div>
 
         <div class="overlay" id="game-overlay"></div>
+        <div class="overlay" id="gameover-overlay"></div>
     </div>
 
     <!-- ドラッグ追従要素 -->
@@ -1622,7 +1625,7 @@ function hasAnyValidPlacement() {
 }
 
 function showBigText(text, opts = {}) {
-    const overlay = document.getElementById('game-overlay');
+    const overlay = opts.target || document.getElementById('game-overlay');
     const div = document.createElement('div');
     let cls = 'big-text';
     if (opts.gameover) cls += ' gameover';
@@ -1666,9 +1669,14 @@ function gameOver() {
         // 念のため再度ドラッグ強制中止
         forceCancelDrag();
 
-        const overlay = document.getElementById('game-overlay');
+        // ノルマ達成カットイン等が出ている game-overlay を非表示にして、
+        // GAMEOVER 専用 overlay にカットインを出す (画面分割を防ぐ)
+        const gameOverlay = document.getElementById('game-overlay');
+        gameOverlay.style.display = 'none';
+
+        const overlay = document.getElementById('gameover-overlay');
         overlay.classList.add('show');
-        showBigText('GAMEOVER', { gameover: true, persist: true, smallTop: 'ピースが置けなくなったので・・・' });
+        showBigText('GAMEOVER', { gameover: true, persist: true, smallTop: 'ピースが置けなくなったので・・・', target: overlay });
 
         // 操作ボタン表示
         const actions = document.createElement('div');
@@ -1695,6 +1703,10 @@ function cleanupOverlay() {
     const overlay = document.getElementById('game-overlay');
     overlay.innerHTML = '';
     overlay.classList.remove('show');
+    overlay.style.display = ''; // gameOver時に非表示にしたのを戻す
+    const goOverlay = document.getElementById('gameover-overlay');
+    goOverlay.innerHTML = '';
+    goOverlay.classList.remove('show');
 }
 
 /* ==========================================================
@@ -1766,7 +1778,7 @@ function renderNormaList() {
     // iOS等のセーブ消去注意文
     const note = document.createElement('p');
     note.className = 'ios-note-p';
-    note.textContent = '・オートセーブ機能についてiOSでは7日間「ずんだもんスマホ専用デジタルおまけ」ページにアクセスしていないとセーブデータが消去される場合がございます(なお、7日の間に1度でも再アクセスすると延長されます)。さらにiOS・Android双方でOS初期化・OSアップデートなどでも同様に消える場合がございます。予めご了承ください。';
+    note.textContent = 'オートセーブ機能について、iOSでは7日間「ずんだもんスマホ専用デジタルおまけ」ページにアクセスしていないとセーブデータが消去される場合がございます(なお、7日の間に1度でも再アクセスすると延長されます)。さらにiOS・Android双方でOS初期化・OSアップデートなどでも同様に消える場合がございます。予めご了承ください。';
     list.appendChild(note);
 }
 
