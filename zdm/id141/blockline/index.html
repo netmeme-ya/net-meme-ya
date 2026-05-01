@@ -1687,6 +1687,7 @@ function gameOver() {
         `;
         overlay.appendChild(actions);
         document.getElementById('btn-retry').addEventListener('click', () => {
+            stopAllSE(); // 鳴っているGAMEOVER SEを止めてからスタートSEを再生
             cleanupOverlay();
             playSE('start');
             startGame();

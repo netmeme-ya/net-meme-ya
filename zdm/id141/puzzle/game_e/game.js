@@ -119,6 +119,7 @@ function fc_syokika() {
 }
 //ギブアップボタンのIDまとめ
 let giveUpButton = document.getElementById('giveUpButton');
+let reloadButton = document.getElementById('reloadButton');
 //URLがHttpで始まるか否か
 let isHttp = window.location.href.startsWith("http");
 //このステージをクリアしたかどうかフラグ
@@ -130,6 +131,7 @@ function fc_start() {
         //GameStartのパネル除去
         document.getElementById('start_anime').style.display = "none";
         giveUpButton.style.display = "block";
+        reloadButton.style.display = "none";
         //★●スタート音声を鳴らす
         playAudio();
         playBGM();
@@ -487,13 +489,14 @@ function fc_tKeshi() {
 //★★音声周り★★
 //■■■音のON・OFF(fc_start()にもあり)■■■
 let isOto = true;//音は基本的に最初からアリ
+/*
 //音は最初はある。自分でOFFにしたら無しになる。(nullのときは1である)
 let otoNum = Number(localStorage.getItem('otoflg') ?? "1");
 //音無しににした場合、最初から音声OFFボタン画像になる
 if(otoNum == 0){
     isOto = false;
     fc_oto();
-}
+}*/
 //ミュージック番号
 let mmNumBefore = Number(localStorage.getItem('mmNum') ?? "0");
 let mmNum = mmNumBefore + 1;
@@ -571,8 +574,8 @@ preloadImg1.src = imgSrc;
 preloadImg1.onload = function() { isImg1Loaded = true; };
 
 // ■■■音のONOFFトグルボタン■■■
-const bt_oto = document.getElementById("bt_oto");
-function fc_oto() {    
+bt_oto = document.getElementById("bt_oto");
+function fc_oto() {       
     if (isOto) {
         // ミュートする
         isOto = false;

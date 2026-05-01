@@ -233,7 +233,7 @@ a {
     display: none;
 }
 
-.giveUpButton {
+.giveUpButton ,.reloadButton{
     display: none;
     position: fixed;
     right: 2px;
@@ -253,6 +253,21 @@ a {
     user-select: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
+}
+
+.reloadButton{
+    display: block;
+    padding-right:0;
+    left:0;
+    right:0;
+    bottom:5px;
+}
+.reloadButton svg{
+    fill:#FFF;
+    margin: 0 auto;
+    width: 24px;
+    height: 24px;
+    vertical-align: bottom;
 }
 
 .giveup_div {
