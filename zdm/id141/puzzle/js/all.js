@@ -57,3 +57,40 @@ window.addEventListener('popstate', function () {
 console.log("0nowarea:" + localStorage.getItem("nowarea"));
 console.log("0cleararea:" + localStorage.getItem("cleararea"));
 console.log("0allclear:" + localStorage.getItem("allclear"));
+
+
+(function () {
+  // (a) history guard
+  try { history.pushState({ _edgeGuard: true }, ''); } catch (e) {}
+  window.addEventListener('popstate', function () {
+    try { history.pushState({ _edgeGuard: true }, ''); } catch (e) {}
+  });
+
+  // (b) touchmove blocker
+  var EDGE_ZONE_PX = 30;
+  var active = false, sx = 0, sy = 0;
+
+  document.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) { active = false; return; }
+    var t = e.touches[0];
+    if (t.clientX <= EDGE_ZONE_PX || t.clientX >= window.innerWidth - EDGE_ZONE_PX) {
+      active = true; sx = t.clientX; sy = t.clientY;
+    } else {
+      active = false;
+    }
+  }, { passive: true, capture: true });
+
+  document.addEventListener('touchmove', function (e) {
+    if (!active) return;
+    var t = e.touches[0];
+    if (!t) return;
+    var dx = Math.abs(t.clientX - sx);
+    var dy = Math.abs(t.clientY - sy);
+    if (dx > dy && dx > 4) {
+      try { e.preventDefault(); } catch (err) {}
+    }
+  }, { passive: false, capture: true });
+
+  document.addEventListener('touchend',    function () { active = false; }, { passive: true, capture: true });
+  document.addEventListener('touchcancel', function () { active = false; }, { passive: true, capture: true });
+})();

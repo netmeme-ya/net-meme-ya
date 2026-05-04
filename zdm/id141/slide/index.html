@@ -973,6 +973,64 @@
     if (e.touches.length > 1) e.preventDefault();
   }, { passive: false });
 
+  // -------- iOS Safari edge-swipe-back suppression --------
+  // iOS reserves the left ~30px of the viewport for "swipe to go back".
+  // We can suppress it by:
+  //   (a) pushing an extra history entry so any back navigation lands here, and
+  //   (b) preventDefault'ing touch events that start near the left edge.
+  // (a) is the most reliable safety net; (b) reduces the visual jolt.
+
+  // (a) Push a "guard" history entry so a back-swipe leaves us on this page.
+  try {
+    history.pushState({ slidepuzzle_guard: true }, '');
+  } catch (e) {}
+  window.addEventListener('popstate', (e) => {
+    // If user managed to navigate back via OS gesture, immediately push again
+    // so the URL/state stays put. We don't fight the user's "back" button
+    // beyond once — but the guard restores the slot so the next swipe also fails.
+    try {
+      history.pushState({ slidepuzzle_guard: true }, '');
+    } catch (err) {}
+  });
+
+  // (b) Block edge-zone horizontal swipes to suppress iOS back-gesture.
+  //     We do NOT preventDefault on touchstart — that would break taps on
+  //     buttons in the edge zone (e.g. the top-left back arrow). Instead, we
+  //     wait until touchmove and only block when horizontal motion dominates,
+  //     which is the back-swipe pattern. Taps don't generate touchmove with
+  //     significant horizontal travel, so they pass through normally.
+  const EDGE_ZONE_PX = 30;
+  let edgeTouchActive = false;
+  let edgeStartX = 0, edgeStartY = 0;
+
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) { edgeTouchActive = false; return; }
+    const t = e.touches[0];
+    const inEdgeZone = (t.clientX <= EDGE_ZONE_PX || t.clientX >= window.innerWidth - EDGE_ZONE_PX);
+    if (inEdgeZone) {
+      edgeTouchActive = true;
+      edgeStartX = t.clientX;
+      edgeStartY = t.clientY;
+    } else {
+      edgeTouchActive = false;
+    }
+  }, { passive: true, capture: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!edgeTouchActive) return;
+    const t = e.touches[0];
+    if (!t) return;
+    const dx = Math.abs(t.clientX - edgeStartX);
+    const dy = Math.abs(t.clientY - edgeStartY);
+    // Block iff horizontal motion dominates — this is the edge-swipe-back pattern.
+    if (dx > dy && dx > 4) {
+      try { e.preventDefault(); } catch (err) {}
+    }
+  }, { passive: false, capture: true });
+
+  document.addEventListener('touchend', () => { edgeTouchActive = false; }, { passive: true, capture: true });
+  document.addEventListener('touchcancel', () => { edgeTouchActive = false; }, { passive: true, capture: true });
+
   // Lock viewport to screen height to "stop" address bar movement
   function lockHeight() {
     document.documentElement.style.height = window.innerHeight + 'px';
