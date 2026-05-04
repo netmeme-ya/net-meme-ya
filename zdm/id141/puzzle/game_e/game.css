@@ -234,7 +234,7 @@ a {
 }
 
 .giveUpButton ,.reloadButton{
-    display: none;
+    display: block;
     position: fixed;
     right: 2px;
     bottom: 10px;

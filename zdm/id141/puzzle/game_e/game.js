@@ -119,7 +119,7 @@ function fc_syokika() {
 }
 //ギブアップボタンのIDまとめ
 let giveUpButton = document.getElementById('giveUpButton');
-let reloadButton = document.getElementById('reloadButton');
+//let reloadButton = document.getElementById('reloadButton');
 //URLがHttpで始まるか否か
 let isHttp = window.location.href.startsWith("http");
 //このステージをクリアしたかどうかフラグ
@@ -131,7 +131,7 @@ function fc_start() {
         //GameStartのパネル除去
         document.getElementById('start_anime').style.display = "none";
         giveUpButton.style.display = "block";
-        reloadButton.style.display = "none";
+        //reloadButton.style.display = "none";
         //★●スタート音声を鳴らす
         playAudio();
         playBGM();
