@@ -913,17 +913,49 @@
 
   // ========= Initial setup =========
   refreshSoundIcons();
-  // Warm sound on first user interaction (mobile autoplay policies)
-  function warmSounds() {
+
+  // -------- Audio unlock for mobile (iOS Safari / Chrome) --------
+  // iOS blocks audio playback until a user gesture has played at least one
+  // <audio>. The fragile bit: when the very first user gesture is *also* the
+  // gesture that triggers playSe() (e.g. tapping a menu button), the autoplay
+  // policy still sometimes drops the call if the audio element hasn't been
+  // "primed" yet within that exact gesture.
+  //
+  // Reliable trick: on the FIRST user gesture (touchstart/pointerdown — earlier
+  // than click), synchronously call .play() (NOT muted, NOT awaited) on every
+  // <audio> and immediately pause+rewind them. This unlocks all three audio
+  // elements within a single user gesture, before any subsequent click handler
+  // fires. The actual playSe('start') call that follows on click will then play
+  // normally.
+  let audioUnlocked = false;
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
     [SE.start, SE.clear, SE.gohobi].forEach(a => {
       if (!a) return;
-      try { a.muted = true; a.play().then(() => { a.pause(); a.currentTime = 0; a.muted = false; }).catch(()=>{ a.muted = false; }); } catch(e){}
+      try {
+        // Synchronous play() inside the user gesture. We don't mute, but we
+        // rewind+pause immediately so nothing is heard. iOS treats this as
+        // "user-initiated playback" and keeps the audio element unlocked for
+        // future programmatic .play() calls.
+        const p = a.play();
+        a.pause();
+        a.currentTime = 0;
+        if (p && typeof p.then === 'function') p.catch(() => {});
+      } catch (e) {}
     });
-    document.removeEventListener('touchend', warmSounds);
-    document.removeEventListener('click', warmSounds);
+    document.removeEventListener('touchstart', unlockAudio, true);
+    document.removeEventListener('pointerdown', unlockAudio, true);
+    document.removeEventListener('mousedown', unlockAudio, true);
+    document.removeEventListener('keydown', unlockAudio, true);
   }
-  document.addEventListener('touchend', warmSounds, { once: true });
-  document.addEventListener('click', warmSounds, { once: true });
+  // Use capture phase so this runs BEFORE any button click handler in the same
+  // gesture chain. touchstart/pointerdown also fire before click, giving us
+  // the unlock done before playSe('start') is invoked.
+  document.addEventListener('touchstart', unlockAudio, true);
+  document.addEventListener('pointerdown', unlockAudio, true);
+  document.addEventListener('mousedown', unlockAudio, true);
+  document.addEventListener('keydown', unlockAudio, true);
 
   // Prevent pinch zoom & double-tap zoom
   document.addEventListener('gesturestart', e => e.preventDefault());
