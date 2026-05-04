@@ -1463,7 +1463,7 @@ async function processLines() {
 
     const comboMul = game.combo >= 2 ? game.combo : 1;
 
-    let score = base * comboMul * monoMul;
+    const score = base * comboMul * monoMul;
 
     // フラッシュ → 縮小消去のアニメ
     const allCells = [];
@@ -1490,23 +1490,15 @@ async function processLines() {
     allCells.forEach(({r,c}) => { game.board[r][c] = null; });
     renderBoard();
 
-    // 全消し判定: 消去後に盤面が完全に空ならボーナスとして +80pt 加算
-    const allClear = isBoardEmpty();
-    let allClearBonus = 0;
-    if (allClear) {
-        allClearBonus = 80;
-        score = score + allClearBonus;
-    }
-
     // 加点表示
-    showScorePop({ lines: totalLines, monoCount, comboMul, monoMul, allClearBonus, score });
+    showScorePop({ lines: totalLines, monoCount, comboMul, monoMul, score });
 
-    return { lines: totalLines, score, monoCount, comboMul, monoMul, allClearBonus, fullRows, fullCols };
+    return { lines: totalLines, score, monoCount, comboMul, monoMul, fullRows, fullCols };
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-function showScorePop({ lines, monoCount, comboMul, monoMul, allClearBonus, score }) {
+function showScorePop({ lines, monoCount, comboMul, monoMul, score }) {
     const overlay = document.getElementById('game-overlay');
     const wrap = document.createElement('div');
     wrap.className = 'score-pop';
@@ -1519,7 +1511,6 @@ function showScorePop({ lines, monoCount, comboMul, monoMul, allClearBonus, scor
     if (lines >= 2) parts.push('×' + lines);
     if (comboMul >= 2) parts.push('×' + comboMul + ' COMBO');
     if (monoMul >= 10) parts.push('×10 Chara!');
-    if (allClearBonus > 0) parts.push('+' + allClearBonus + ' ALL CLEAR!');
     parts.push('+' + score + 'pt');
     wrap.innerHTML = parts.join('<br>');
     overlay.appendChild(wrap);
@@ -1554,7 +1545,7 @@ async function afterPlacement() {
         } else if (n.type === 'mono') {
             if (result.monoCount && result.monoCount >= n.value) achieved = true;
         } else if (n.type === 'clearall') {
-            if (result.allClearBonus > 0) achieved = true;
+            if (result.lines > 0 && isBoardEmpty()) achieved = true;
         } else if (n.type === 'gapline') {
             // 同方向2列で間にちょうど1列の隙間があるペアが1つでもあれば達成
             if (hasGapLinePair(result.fullRows) || hasGapLinePair(result.fullCols)) achieved = true;
@@ -1859,9 +1850,7 @@ document.addEventListener('click', (e) => {
         showScreen('screen-start');
     } else if (a === 'back-from-game') {
         stopAllSE();
-        cleanupOverlay();
-        refreshHiScoreLabel();
-        showScreen('screen-start');
+        location.reload();
     }
 });
 

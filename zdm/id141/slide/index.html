@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="format-detection" content="telephone=no">
+<title>スライドパズル9</title>
+<!--favicon-->
+<link rel="icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/i180.png">
+<!--OGP-->
+<meta name="twitter:site" content="ねとみむや">
+<meta name="twitter:image" content="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/pic/ogp.jpg">
+<meta property="og:image" content="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/pic/ogp.jpg">
+<meta name="author" content="ねとみむや">
+<!--APP-->
+<meta name="apple-mobile-web-app-title" content="ずんだもん スマホ専用デジタルおまけ">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<!---->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<!-- preload sounds -->
+<audio id="se_start" src="se/se_start.mp3" preload="auto"></audio>
+<audio id="se_clear" src="se/se_clear.mp3" preload="auto"></audio>
+<audio id="se_gohobi" src="se/se_gohobi.mp3" preload="auto"></audio>
+<style>
+  :root {
+    --bg: #d39410;       /* mustard / yellow-ochre to match screenshots */
+    --btn: #ec4889;      /* pink button */
+    --btn-top: #1f00ff;  /* TOP blue */
+    --txt: #ffffff;
+    --panel-border: #000000;
+    --hint: #5fe3df;     /* cyan hint number */
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: "Noto Sans JP", sans-serif;
+    color: var(--txt);
+    overscroll-behavior: none;
+    touch-action: none;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  #app {
+    position: fixed;
+    inset: 0;
+    margin: 0 auto;
+    max-width: 1024px;
+    width: 100%; height: 100%;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Top bar shared by start/game */
+  .topbar {
+    flex: 0 0 auto;
+    height: 64px;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: 48px 1fr 48px;
+    align-items: center;
+    gap: 10px;
+  }
+  .icon-btn {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: #fff;
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  }
+  .icon-btn svg { width: 26px; height: 26px; fill: #111; }
+  .topbar .title {
+    text-align: center;
+    font-weight: 700;
+    font-size: clamp(18px, 5vw, 26px);
+    color: #fff;
+    letter-spacing: 0.05em;
+  }
+
+  /* ===== Start screen ===== */
+  #startScreen {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .start-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 24px 12px;
+    gap: 18px;
+    overflow: hidden;
+  }
+  .start-title {
+    font-weight: 900;
+    font-size: clamp(38px, 10vw, 58px);
+    margin: 6px 0 8px;
+    letter-spacing: 0.02em;
+    text-align: center;
+  }
+  .menu-btn {
+    width: min(82%, 460px);
+    padding: 18px 16px;
+    border: none;
+    border-radius: 999px;
+    background: var(--btn);
+    color: #fff;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: clamp(18px, 5vw, 26px);
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.08);
+    text-align: center;
+    transition: transform .08s ease;
+  }
+  .menu-btn:active { transform: translateY(1px); }
+  .menu-btn.top {
+    background: var(--btn-top);
+    width: min(60%, 320px);
+    margin-top: 6px;
+  }
+  .copyright {
+    flex: 0 0 auto;
+    text-align: center;
+    font-size: 12px;
+    color: #fff;
+    padding: 6px 0 10px;
+    opacity: 0.95;
+  }
+
+  /* ===== Game screen ===== */
+  #gameScreen {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+  }
+  .game-body {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  #boardWrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-width: min(100vw, 1024px, calc(100vh - 200px));
+    background: #000;
+    overflow: hidden;
+  }
+  #board {
+    position: absolute;
+    inset: 0;
+    background: #000;
+  }
+  .tile {
+    position: absolute;
+    background-repeat: no-repeat;
+    background-color: #000;
+    overflow: hidden;
+    transition: left .12s ease, top .12s ease;
+    will-change: left, top;
+    cursor: pointer;
+    border: 1px solid #000;
+  }
+  .tile .num,
+  #finalTile .num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--hint);
+    font-weight: 800;
+    text-shadow:
+      -1px -1px 0 rgba(0,0,0,0.6),
+       1px -1px 0 rgba(0,0,0,0.6),
+      -1px  1px 0 rgba(0,0,0,0.6),
+       1px  1px 0 rgba(0,0,0,0.6);
+    pointer-events: none;
+  }
+  .tile.empty { background: #000 !important; cursor: default; }
+
+  /* Final fade-in tile (after clear) */
+  #finalTile {
+    position: absolute;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    border: 1px solid #000;
+  }
+  #finalTile.show { opacity: 1; }
+
+  /* Full single-image overlay placed on top of the puzzle when CLEAR is pressed.
+     Covers the entire boardWrap so any sub-pixel seams between tiles are hidden. */
+  .clear_img {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    z-index: 999;
+    display: none;
+    pointer-events: none;
+  }
+  .clear_img.show { display: block; }
+
+  /* Control area below board */
+  .game-controls {
+    flex: 0 0 auto;
+    padding: 12px 16px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+  }
+  .clear-btn {
+    position: fixed;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    z-index: 1000;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 999px;
+    background: var(--btn);
+    color: #fff;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: clamp(18px, 5vw, 24px);
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12);
+    display: none;
+    animation: pop .35s ease;
+  }
+  .clear-btn:active { transform: translateX(-50%) translateY(1px); }
+  /* All transforms keep translateX(-50%) so the button stays horizontally centered
+     during the entrance animation and on tap. */
+  @keyframes pop {
+    0%   { transform: translateX(-50%) scale(0.6); opacity: 0; }
+    100% { transform: translateX(-50%) scale(1);   opacity: 1; }
+  }
+
+  /* hide-on-clear helper: when CLEAR is pressed, drop tile borders and number labels */
+  .hide-grid .tile,
+  .hide-grid #finalTile { border: none !important; box-shadow: none !important; }
+  .hide-grid .tile .num,
+  .hide-grid #finalTile .num { display: none; }
+  .hide-grid #board { background: #000; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============== START SCREEN ============== -->
+  <section id="startScreen">
+    <div class="topbar">
+      <button class="icon-btn" id="startBack" aria-label="戻る">
+        <svg viewBox="0 0 24 24"><path d="M15.5 4.5l-7.5 7.5 7.5 7.5 1.4-1.4-6.1-6.1 6.1-6.1z"/></svg>
+      </button>
+      <div class="title"></div>
+      <button class="icon-btn" id="startSound" aria-label="音">
+        <svg id="startSoundIcon" viewBox="0 0 24 24"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+      </button>
+    </div>
+
+    <div class="start-body">
+      <div class="start-title">スライドパズル9</div>
+      <button class="menu-btn" data-mode="3-num">9×9 数字あり</button>
+      <button class="menu-btn" data-mode="3-frame">9×9 ワクあり</button>
+      <button class="menu-btn" data-mode="3-no">9×9 ヒントなし</button>
+      <button class="menu-btn top" id="goTop">TOPへ</button>
+    </div>
+
+    <div class="copyright">©ねとみむや</div>
+  </section>
+
+  <!-- ============== GAME SCREEN ============== -->
+  <section id="gameScreen">
+    <div class="topbar">
+      <button class="icon-btn" id="gameBack" aria-label="戻る">
+        <svg viewBox="0 0 24 24"><path d="M15.5 4.5l-7.5 7.5 7.5 7.5 1.4-1.4-6.1-6.1 6.1-6.1z"/></svg>
+      </button>
+      <div class="title" id="moveLabel">回数：0</div>
+      <button class="icon-btn" id="gameSound" aria-label="音">
+        <svg id="gameSoundIcon" viewBox="0 0 24 24"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+      </button>
+    </div>
+
+    <div class="game-body">
+      <div id="boardWrap">
+        <div id="board"></div>
+        <div id="finalTile"></div>
+        <img id="clearImg" class="clear_img" alt="">
+      </div>
+    </div>
+
+    <div class="game-controls">
+      <button id="clearBtn" class="clear-btn">CLEAR</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ========= LocalStorage helpers =========
+  const LS_SOUND = 'sl_sound';
+  const LS_PIC   = 'sl_picnum';
+  const MAX_PIC  = 63;
+
+  function getSound() {
+    const v = localStorage.getItem(LS_SOUND);
+    if (v === null) return true;
+    return v === 'true';
+  }
+  function setSound(b) { localStorage.setItem(LS_SOUND, b ? 'true' : 'false'); }
+
+  function getPicNum() {
+    let n = parseInt(localStorage.getItem(LS_PIC), 10);
+    if (!Number.isFinite(n) || n < 1 || n > MAX_PIC) n = 1;
+    return n;
+  }
+  function setPicNum(n) {
+    if (!Number.isFinite(n) || n < 1) n = 1;
+    if (n > MAX_PIC) n = 1;
+    localStorage.setItem(LS_PIC, String(n));
+  }
+
+  // ========= Sound =========
+  const SE = {
+    start:  document.getElementById('se_start'),
+    clear:  document.getElementById('se_clear'),
+    gohobi: document.getElementById('se_gohobi')
+  };
+  function playSe(name) {
+    if (!getSound()) return;
+    const a = SE[name];
+    if (!a) return;
+    try { a.currentTime = 0; a.play().catch(()=>{}); } catch(e){}
+  }
+
+  // sound icon SVG paths
+  const ICON_ON  = '<path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+  const ICON_OFF = '<path d="M3 9v6h4l5 4V5L7 9H3z"/><path fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" d="M15 9l5 6M20 9l-5 6"/>';
+
+  function refreshSoundIcons() {
+    const on = getSound();
+    const startIcon = document.getElementById('startSoundIcon');
+    const gameIcon  = document.getElementById('gameSoundIcon');
+    const html = on ? ICON_ON : ICON_OFF;
+    if (startIcon) startIcon.innerHTML = html;
+    if (gameIcon)  gameIcon.innerHTML  = html;
+  }
+
+  function toggleSound() {
+    setSound(!getSound());
+    refreshSoundIcons();
+  }
+  document.getElementById('startSound').addEventListener('click', toggleSound);
+  document.getElementById('gameSound').addEventListener('click', toggleSound);
+
+  // ========= Navigation =========
+  const startScreen = document.getElementById('startScreen');
+  const gameScreen  = document.getElementById('gameScreen');
+
+  function showStart() {
+    gameScreen.style.display = 'none';
+    startScreen.style.display = 'flex';
+  }
+  function showGame() {
+    startScreen.style.display = 'none';
+    gameScreen.style.display = 'flex';
+  }
+
+  document.getElementById('startBack').addEventListener('click', () => {
+    location.href = '../index.html';
+  });
+  document.getElementById('goTop').addEventListener('click', () => {
+    location.href = '../index.html';
+  });
+  document.getElementById('gameBack').addEventListener('click', () => {
+    showStart();
+    resetGameState();
+  });
+
+  // ========= Mode buttons =========
+  document.querySelectorAll('.menu-btn[data-mode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      playSe('start');
+      const mode = btn.getAttribute('data-mode'); // "3-num" / "3-frame" / "3-no"
+      const [sizeStr, kind] = mode.split('-');
+      const size = parseInt(sizeStr, 10);   // currently always 3 (9-piece)
+      const showNumbers = (kind === 'num');
+      const showFrame   = (kind === 'frame');
+      startGame(size, showNumbers, showFrame);
+    });
+  });
+
+  // ========= Game state =========
+  let G = null;
+
+  function resetGameState() {
+    if (G && G.boardEl) G.boardEl.innerHTML = '';
+    const ft = document.getElementById('finalTile');
+    if (ft) {
+      ft.classList.remove('show');
+      ft.style.background = '#fff';
+      ft.innerHTML = '';
+    }
+    const ci = document.getElementById('clearImg');
+    if (ci) {
+      ci.classList.remove('show');
+      ci.removeAttribute('src');
+    }
+    document.getElementById('boardWrap').classList.remove('hide-grid');
+    const btn = document.getElementById('clearBtn');
+    btn.style.display = 'none';
+    btn.textContent = 'CLEAR';
+    btn.dataset.state = '';
+    document.getElementById('moveLabel').textContent = '回数：0';
+    G = null;
+  }
+
+  // ========= Image processing =========
+  // Frame colors used by 「ワクあり」mode — chosen randomly per game.
+  const FRAME_COLORS = ['#FF00FF', '#FF0000', '#00FF00'];
+
+  // Load pic/N.webp. If withFrame=true, draw to canvas:
+  //   1024x1024 canvas filled with random frame color,
+  //   original image (1024px) scaled to 980x980, centered (22px frame on all sides),
+  // then return a data-URL src usable everywhere the original src would be.
+  // Returns a Promise resolving to the (possibly processed) image src.
+  function loadAndProcessImage(src, withFrame) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      // Inline data URL doesn't need CORS, but local pics do not require it either
+      // since we don't read pixels — only draw. Keep it simple.
+      img.onload = () => {
+        if (!withFrame) { resolve(src); return; }
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = 1024;
+          canvas.height = 1024;
+          const ctx = canvas.getContext('2d');
+
+          // Pick random frame color
+          const color = FRAME_COLORS[Math.floor(Math.random() * FRAME_COLORS.length)];
+          ctx.fillStyle = color;
+          ctx.fillRect(0, 0, 1024, 1024);
+
+          // Draw original image at 980x980, centered (offset = (1024-980)/2 = 22)
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 22, 22, 980, 980);
+
+          // Export as webp data URL
+          let dataUrl;
+          try {
+            dataUrl = canvas.toDataURL('image/webp', 0.92);
+            // Some browsers (older Safari) may not support webp output — fall back to png
+            if (!dataUrl || dataUrl.indexOf('data:image/webp') !== 0) {
+              dataUrl = canvas.toDataURL('image/png');
+            }
+          } catch (e) {
+            dataUrl = canvas.toDataURL('image/png');
+          }
+          resolve(dataUrl);
+        } catch (e) {
+          // Canvas failed for some reason — use the original src
+          resolve(src);
+        }
+      };
+      img.onerror = () => reject(new Error('image load failed: ' + src));
+      img.src = src;
+    });
+  }
+
+  function startGame(size, showNumbers, showFrame) {
+    resetGameState();
+    showGame();
+
+    const boardWrap = document.getElementById('boardWrap');
+    const board = document.getElementById('board');
+    const finalTile = document.getElementById('finalTile');
+
+    // Pick image
+    const picNum = getPicNum();
+    const imgSrc = `pic/${picNum}.webp`;
+
+    // Try to load image (and apply frame if needed); fallback to 1.webp on error
+    loadAndProcessImage(imgSrc, showFrame).then(processedSrc => {
+      buildBoard(processedSrc);
+    }).catch(() => {
+      if (picNum !== 1) {
+        setPicNum(1);
+        loadAndProcessImage('pic/1.webp', showFrame).then(processedSrc => {
+          buildBoard(processedSrc);
+        }).catch(() => buildBoard(''));
+      } else {
+        buildBoard('');
+      }
+    });
+
+    function buildBoard(src) {
+      // wait for layout sized
+      requestAnimationFrame(() => {
+        const rect = boardWrap.getBoundingClientRect();
+        const W = rect.width, H = rect.height;
+        const N = size;
+        const tileW = W / N, tileH = H / N;
+
+        // Build solved positions: index 0..N*N-1, last is empty
+        const total = N * N;
+        const tiles = [];
+        for (let i = 0; i < total - 1; i++) tiles.push(i);
+        tiles.push(-1); // -1 = empty
+
+        // current arrangement: array of length total, value = piece id (-1 empty)
+        // index = position on grid (row*N + col)
+        let arrangement = tiles.slice();
+
+        // shuffle by performing valid random moves from solved (guarantees solvability)
+        const moves = (N === 3) ? 200 : 600;
+        let emptyIdx = total - 1;
+        let lastEmpty = -1;
+        for (let m = 0; m < moves; m++) {
+          const neighbors = neighborsOf(emptyIdx, N).filter(x => x !== lastEmpty);
+          const pick = neighbors[Math.floor(Math.random() * neighbors.length)];
+          arrangement[emptyIdx] = arrangement[pick];
+          arrangement[pick] = -1;
+          lastEmpty = emptyIdx;
+          emptyIdx = pick;
+        }
+
+        // Ensure not already solved
+        if (isSolved(arrangement)) {
+          const nb = neighborsOf(emptyIdx, N);
+          const pick = nb[0];
+          arrangement[emptyIdx] = arrangement[pick];
+          arrangement[pick] = -1;
+          emptyIdx = pick;
+        }
+
+        // Create tile DOM elements (without size/position; those are applied by applySize)
+        board.innerHTML = '';
+        const tileEls = []; // index by piece id
+        const tileNumEls = []; // num span per tile (for resize-time font size update)
+        for (let id = 0; id < total - 1; id++) {
+          const el = document.createElement('div');
+          el.className = 'tile';
+          if (src) {
+            el.style.backgroundImage = `url("${src}")`;
+          }
+          if (showNumbers) {
+            const num = document.createElement('div');
+            num.className = 'num';
+            num.textContent = String(id + 1);
+            el.appendChild(num);
+            tileNumEls[id] = num;
+          }
+          el.addEventListener('click', () => onTileClick(id));
+          board.appendChild(el);
+          tileEls[id] = el;
+        }
+
+        // Setup final tile (9th piece) — created here, sized by applySize
+        finalTile.classList.remove('show');
+        finalTile.style.backgroundColor = '#fff';
+        if (src) {
+          finalTile.style.backgroundImage = `url("${src}")`;
+        }
+        finalTile.innerHTML = '';
+        let finalNumEl = null;
+        if (showNumbers) {
+          const num = document.createElement('div');
+          num.className = 'num';
+          num.textContent = String(total); // 9 for 3x3
+          finalTile.appendChild(num);
+          finalNumEl = num;
+        }
+
+        // Setup clear image overlay (single full webp displayed when CLEAR is pressed)
+        const clearImgEl = document.getElementById('clearImg');
+        clearImgEl.classList.remove('show');
+        if (src) {
+          clearImgEl.src = src;
+        } else {
+          clearImgEl.removeAttribute('src');
+        }
+
+        G = {
+          N, total,
+          size: { W, H, tileW, tileH }, // updated by applySize on resize
+          src, showNumbers,
+          arrangement, emptyIdx,
+          tileEls, tileNumEls, finalNumEl,
+          boardEl: board,
+          moves: 0,
+          cleared: false,
+          touch: null,
+        };
+
+        // Apply size/position for all tiles + finalTile
+        applySize();
+
+        // Setup swipe handling on board
+        attachSwipe();
+      });
+    }
+  }
+
+  // Re-measures the boardWrap and re-applies width/height/background-size/position
+  // to every tile and finalTile, then re-runs layoutAll(). Called on every resize.
+  function applySize() {
+    if (!G) return;
+    const boardWrap = document.getElementById('boardWrap');
+    const finalTile = document.getElementById('finalTile');
+    const rect = boardWrap.getBoundingClientRect();
+    const W = rect.width, H = rect.height;
+    if (W <= 0 || H <= 0) return;
+    const N = G.N;
+    const tileW = W / N, tileH = H / N;
+    G.size = { W, H, tileW, tileH };
+
+    // Update each tile's dimensions, background size and source-clip position
+    for (let id = 0; id < G.total - 1; id++) {
+      const el = G.tileEls[id];
+      if (!el) continue;
+      el.style.width  = tileW + 'px';
+      el.style.height = tileH + 'px';
+      if (G.src) el.style.backgroundSize = `${W}px ${H}px`;
+      const srcRow = Math.floor(id / N);
+      const srcCol = id % N;
+      el.style.backgroundPosition = `-${srcCol * tileW}px -${srcRow * tileH}px`;
+      // Resize hint number font
+      if (G.tileNumEls && G.tileNumEls[id]) {
+        G.tileNumEls[id].style.fontSize = (Math.min(tileW, tileH) * 0.42) + 'px';
+      }
+    }
+
+    // Update finalTile (9th piece — bottom-right cell in solved layout)
+    const lastSrcRow = Math.floor((G.total - 1) / N);
+    const lastSrcCol = (G.total - 1) % N;
+    finalTile.style.width  = tileW + 'px';
+    finalTile.style.height = tileH + 'px';
+    finalTile.style.left = (lastSrcCol * tileW) + 'px';
+    finalTile.style.top  = (lastSrcRow * tileH) + 'px';
+    if (G.src) {
+      finalTile.style.backgroundSize = `${W}px ${H}px`;
+      finalTile.style.backgroundPosition = `-${lastSrcCol * tileW}px -${lastSrcRow * tileH}px`;
+    }
+    if (G.finalNumEl) {
+      G.finalNumEl.style.fontSize = (Math.min(tileW, tileH) * 0.42) + 'px';
+    }
+
+    // Re-position every tile to its current arrangement slot
+    layoutAll();
+  }
+
+  function neighborsOf(idx, N) {
+    const r = Math.floor(idx / N), c = idx % N;
+    const out = [];
+    if (r > 0)     out.push(idx - N);
+    if (r < N - 1) out.push(idx + N);
+    if (c > 0)     out.push(idx - 1);
+    if (c < N - 1) out.push(idx + 1);
+    return out;
+  }
+
+  function isSolved(arr) {
+    for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i] !== i) return false;
+    }
+    return arr[arr.length - 1] === -1;
+  }
+
+  function layoutAll() {
+    if (!G) return;
+    const { N, arrangement, tileEls, size } = G;
+    for (let pos = 0; pos < arrangement.length; pos++) {
+      const id = arrangement[pos];
+      if (id === -1) continue;
+      const r = Math.floor(pos / N), c = pos % N;
+      const el = tileEls[id];
+      el.style.left = (c * size.tileW) + 'px';
+      el.style.top  = (r * size.tileH) + 'px';
+    }
+  }
+
+  function findPos(arr, id) {
+    for (let i = 0; i < arr.length; i++) if (arr[i] === id) return i;
+    return -1;
+  }
+
+  // Try to slide a piece (id) into the empty slot.
+  // Supports: same row OR same column AS empty -> slides 1 or 2 (or more) at once
+  // along that line (multi-tile slide). Returns number of slides counted.
+  function tryMove(id) {
+    if (!G || G.cleared) return 0;
+    const N = G.N;
+    const arr = G.arrangement;
+    const ePos = G.emptyIdx;
+    const tPos = findPos(arr, id);
+    if (tPos < 0) return 0;
+
+    const eR = Math.floor(ePos / N), eC = ePos % N;
+    const tR = Math.floor(tPos / N), tC = tPos % N;
+
+    let moves = 0;
+    if (eR === tR) {
+      // same row — shift tiles between empty and tapped tile horizontally
+      const dir = (tC > eC) ? -1 : 1; // direction tiles move (towards empty)
+      // tiles from empty's neighbor up to tapped tile shift one step toward empty
+      let cur = ePos;
+      const steps = Math.abs(tC - eC);
+      for (let s = 0; s < steps; s++) {
+        const next = cur + (dir * -1); // next tile coming into 'cur' is in opposite of dir? Let's think
+        // We want to move tile at (cur - dir) into cur (since dir is movement direction of tiles)
+        // Tiles move in 'dir' direction, so into cur from (cur - dir)
+        const from = cur - dir;
+        arr[cur] = arr[from];
+        arr[from] = -1;
+        cur = from;
+        moves++;
+      }
+      G.emptyIdx = tPos;
+    } else if (eC === tC) {
+      const dir = (tR > eR) ? -1 : 1;
+      let cur = ePos;
+      const steps = Math.abs(tR - eR);
+      for (let s = 0; s < steps; s++) {
+        const from = cur - dir * N;
+        arr[cur] = arr[from];
+        arr[from] = -1;
+        cur = from;
+        moves++;
+      }
+      G.emptyIdx = tPos;
+    } else {
+      return 0;
+    }
+
+    if (moves > 0) {
+      // Spec: a single tap counts as 1 move even when 2 tiles slide.
+      // We'll count the "tap action" not number of tiles. So +1 per tryMove call that slides.
+      G.moves += 1;
+      document.getElementById('moveLabel').textContent = '回数：' + G.moves;
+      layoutAll();
+      checkClear();
+    }
+    return moves;
+  }
+
+  function onTileClick(id) {
+    tryMove(id);
+  }
+
+  // Swipe support: detect swipe direction; identify which tile was first touched, slide tile in line with empty if direction matches.
+  function attachSwipe() {
+    const wrap = document.getElementById('boardWrap');
+    let startX = 0, startY = 0, startId = -1, active = false;
+
+    function getIdFromPoint(x, y) {
+      if (!G) return -1;
+      const rect = wrap.getBoundingClientRect();
+      const lx = x - rect.left, ly = y - rect.top;
+      if (lx < 0 || ly < 0 || lx >= rect.width || ly >= rect.height) return -1;
+      const c = Math.floor(lx / G.size.tileW);
+      const r = Math.floor(ly / G.size.tileH);
+      const pos = r * G.N + c;
+      return G.arrangement[pos]; // piece id (-1 if empty)
+    }
+
+    wrap.addEventListener('touchstart', (e) => {
+      if (!G || G.cleared) return;
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      startX = t.clientX; startY = t.clientY;
+      startId = getIdFromPoint(startX, startY);
+      active = true;
+    }, { passive: true });
+
+    wrap.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 1) { active = false; return; }
+    }, { passive: true });
+
+    wrap.addEventListener('touchend', (e) => {
+      if (!active) return;
+      active = false;
+      if (!G || G.cleared) return;
+      const t = (e.changedTouches && e.changedTouches[0]);
+      if (!t) return;
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      const adx = Math.abs(dx), ady = Math.abs(dy);
+      const TH = 18; // swipe threshold px
+      if (Math.max(adx, ady) < TH) {
+        // treat as tap — handled by click on tile already (but if tap was on empty, ignore)
+        return;
+      }
+      if (startId < 0 || startId === -1) {
+        // started on empty — find adjacent tile in swipe direction relative to empty
+        const N = G.N;
+        const ePos = G.emptyIdx;
+        const eR = Math.floor(ePos / N), eC = ePos % N;
+        let target = -1;
+        if (adx > ady) {
+          if (dx > 0 && eC > 0)        target = ePos - 1;       // swipe right -> tile to left of empty moves right
+          else if (dx < 0 && eC < N-1) target = ePos + 1;
+        } else {
+          if (dy > 0 && eR > 0)        target = ePos - N;
+          else if (dy < 0 && eR < N-1) target = ePos + N;
+        }
+        if (target >= 0) {
+          const tid = G.arrangement[target];
+          if (tid !== -1) tryMove(tid);
+        }
+        return;
+      }
+      // started on a tile; only slide if swipe direction matches direction tile must travel toward empty
+      const N = G.N;
+      const ePos = G.emptyIdx;
+      const tPos = (function(){ for (let i=0;i<G.arrangement.length;i++) if (G.arrangement[i]===startId) return i; return -1; })();
+      if (tPos < 0) return;
+      const eR = Math.floor(ePos/N), eC = ePos%N;
+      const tR = Math.floor(tPos/N), tC = tPos%N;
+      let ok = false;
+      if (eR === tR) {
+        // horizontal slide: tile must move toward empty horizontally
+        if (adx > ady) {
+          if (tC > eC && dx < 0) ok = true; // tile right of empty, swipe left
+          else if (tC < eC && dx > 0) ok = true;
+        }
+      } else if (eC === tC) {
+        if (ady > adx) {
+          if (tR > eR && dy < 0) ok = true;
+          else if (tR < eR && dy > 0) ok = true;
+        }
+      }
+      if (ok) tryMove(startId);
+    }, { passive: true });
+  }
+
+  function checkClear() {
+    if (!G) return;
+    if (!isSolved(G.arrangement)) return;
+    G.cleared = true;
+    playSe('clear');
+
+    // fade in final piece
+    const ft = document.getElementById('finalTile');
+    requestAnimationFrame(() => ft.classList.add('show'));
+
+    // Show CLEAR button after a beat
+    setTimeout(() => {
+      const btn = document.getElementById('clearBtn');
+      btn.textContent = 'CLEAR';
+      btn.dataset.state = 'clear';
+      btn.style.display = 'inline-block';
+    }, 700);
+  }
+
+  // CLEAR / スタートへ button handler
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    const btn = document.getElementById('clearBtn');
+    if (btn.dataset.state === 'clear') {
+      // Reveal pure image — hide grid lines & numbers, drop tile borders, place full image on top
+      document.getElementById('boardWrap').classList.add('hide-grid');
+      document.getElementById('clearImg').classList.add('show');
+      playSe('gohobi');
+      // advance picture for next game
+      let p = getPicNum() + 1;
+      if (p > MAX_PIC) p = 1;
+      setPicNum(p);
+
+      btn.textContent = 'スタートへ';
+      btn.dataset.state = 'toStart';
+    } else if (btn.dataset.state === 'toStart') {
+      showStart();
+      resetGameState();
+    }
+  });
+
+  // ========= Initial setup =========
+  refreshSoundIcons();
+  // Warm sound on first user interaction (mobile autoplay policies)
+  function warmSounds() {
+    [SE.start, SE.clear, SE.gohobi].forEach(a => {
+      if (!a) return;
+      try { a.muted = true; a.play().then(() => { a.pause(); a.currentTime = 0; a.muted = false; }).catch(()=>{ a.muted = false; }); } catch(e){}
+    });
+    document.removeEventListener('touchend', warmSounds);
+    document.removeEventListener('click', warmSounds);
+  }
+  document.addEventListener('touchend', warmSounds, { once: true });
+  document.addEventListener('click', warmSounds, { once: true });
+
+  // Prevent pinch zoom & double-tap zoom
+  document.addEventListener('gesturestart', e => e.preventDefault());
+  document.addEventListener('gesturechange', e => e.preventDefault());
+  document.addEventListener('gestureend', e => e.preventDefault());
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) e.preventDefault();
+    lastTouchEnd = now;
+  }, { passive: false });
+
+  // Prevent rubber-band scroll
+  document.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+
+  // Lock viewport to screen height to "stop" address bar movement
+  function lockHeight() {
+    document.documentElement.style.height = window.innerHeight + 'px';
+    document.body.style.height = window.innerHeight + 'px';
+    const app = document.getElementById('app');
+    if (app) app.style.height = window.innerHeight + 'px';
+  }
+  lockHeight();
+
+  // Resize handler: re-lock viewport, then re-measure & re-apply tile sizes.
+  // Debounced via rAF so rapid resize events don't thrash layout.
+  let resizeRAF = 0;
+  function onResize() {
+    lockHeight();
+    if (resizeRAF) cancelAnimationFrame(resizeRAF);
+    resizeRAF = requestAnimationFrame(() => {
+      resizeRAF = 0;
+      applySize();
+    });
+  }
+  window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onResize);
+
+})();
+</script>
+</body>
+</html>
