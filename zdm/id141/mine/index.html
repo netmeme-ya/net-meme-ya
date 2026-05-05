@@ -123,6 +123,9 @@ body {
   font-weight: 900;
   font-size: clamp(1rem, 3.6vw, 1.8rem);
   margin-top: 1.8vh;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
 }
 .btn-top:active { filter: brightness(0.85); }
 
@@ -448,6 +451,32 @@ body {
 .grid.clean .cell::before,
 .grid.clean .cell::after { display: none !important; }
 .grid.clean .cell * { display: none !important; }
+
+/* ===== Rule Overlay (遊び方) ===== */
+#ruleOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+#ruleOverlay img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
 </style>
 </head>
 <body>
@@ -473,12 +502,17 @@ body {
     <!-- SVGはJS側で動的に差し替え -->
   </button>
   <h1 class="title">ずんだスイーパー</h1>
-  <a href="?level=1" class="btn-level">4 × 4</a>
   <a href="?level=2" class="btn-level">6 × 6</a>
   <a href="?level=3" class="btn-level">8 × 8</a>
   <a href="?level=4" class="btn-level">10 × 10</a>
   <a href="?level=5" class="btn-level">12 × 12</a>
   <a href="../index.html" class="btn-top">TOPへ</a>
+  <button type="button" class="btn-top" id="howToPlayBtn">遊び方</button>
+</div>
+
+<!-- ===== Rule Overlay ===== -->
+<div id="ruleOverlay" style="display:none;">
+  <img src="dat/rule.webp" alt="ルール説明" id="ruleImage">
 </div>
 
 <!-- ===== Game Screen ===== -->
@@ -628,6 +662,22 @@ body {
         }
       });
     });
+
+    // ========== 遊び方（ルール画像）の表示／非表示 ==========
+    const howToPlayBtn = document.getElementById('howToPlayBtn');
+    const ruleOverlay  = document.getElementById('ruleOverlay');
+    if (howToPlayBtn && ruleOverlay) {
+      howToPlayBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        ruleOverlay.style.display = 'flex';
+        // 表示直後のクリック誤爆防止：次のフレームから閉じるハンドラを有効化
+      });
+      // オーバーレイのどこをタップしても閉じる（画像下部のｘ印含め、画像のどこを押しても可）
+      ruleOverlay.addEventListener('click', function () {
+        ruleOverlay.style.display = 'none';
+      });
+    }
   }
 
   // ========== 画面表示切替 ==========
