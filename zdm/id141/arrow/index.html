@@ -146,6 +146,29 @@
             text-shadow: 1px 1px 1px #000;
         }
 
+        #high-score-display {
+            font-size: 16px;
+            color: #FFF;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #000;
+            margin: 8px 0;
+            letter-spacing: 1px;
+        }
+
+        #high-score-message {
+            color: red;
+            font-size: 22px;
+            font-weight: 900;
+            text-align: center;
+            text-shadow:1px 1px 0 #FFF, -1px -1px 0 #FFF,
+              -1px 1px 0 #FFF, 1px -1px 0 #FFF,
+              0px 1px 0 #FFF,  0-1px 0 #FFF,
+              -1px 0 0 #FFF, 1px 0 0 #FFF;
+            margin: 8px 0;
+            letter-spacing: 1px;
+        }
+
         .start-goods_p {
             text-shadow: 0 0 2px #FFF;
             font-size: 14px;
@@ -168,10 +191,38 @@
 
         /*GameOver*/
         #restart-button,
-        #tw-button {
+        #tw-button,
+        #top-button {
             font-size: 18px;
             width: 100%;
             max-width: 200px;
+        }
+
+        #top-button {
+            background-color: #FF8C00;
+            color: #FFF;
+            text-decoration: none;
+        }
+
+        /* スタート画面 左上の戻るボタン */
+        #start-back-button {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #FFF;
+            color: #000;
+            font-size: 22px;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            z-index: 20;
+            line-height: 1;
         }
 
         #start-button {
@@ -323,6 +374,9 @@
             h1{
                 font-size: 28px;
             }
+            #re-button{
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -332,9 +386,11 @@
         <canvas id="game-canvas"></canvas>
 
         <div id="start-screen">
+            <a href="../index.html" id="start-back-button" aria-label="TOPへ戻る">←</a>
             <div id="start_content">
                 <h1>ずんだ × アロロー<br><span>Zunda * Arrow</span></h1>
                 <img src="zdm2.png" alt="スタートずんだもん" class="start_icon_img">
+                <p id="high-score-display">HIGH SCORE: 0</p>
                 <p class="start_mini_p">ずんだもん・四国めたん<br class="sp358on">両面アクリルフィギュアセット<br>発売記念ゲーム</p>
                 <p class="start-goods_p">
                     <a onclick="location.href=amazonLINK" style="color: #00ffff;opacity: 0.5;font-family: sans-serif;">＜<u>グッズ購入ページへ</u>＞</a>
@@ -345,10 +401,12 @@
 
         <div id="game-over">
             <h1 id="h1id">ずんだ OVER</h1>
+            <p id="high-score-message" style="display: none;">HIGH SCORE!!</p>
             <p id="final-score_p"><span id="final-score">ずんだ餅: 0</span>コ</p>
             <p id="final-time">TIME: 00:00.0</p>
 
             <a href="#" class="green_btn" id="restart-button"><b>RETRY!</b></a>
+            <a href="../index.html" class="green_btn" id="top-button"><b>TOPへ</b></a>
             <a href="#" target="_blank" class="green_btn" id="tw-button">X(Twitter)投稿</a>
 
             <p class="start_mini_p">ずんだもん・四国めたん<br>
@@ -386,6 +444,34 @@
             const xButton = document.getElementById('x-button');
             const reButton = document.getElementById('re-button');
             const tomei = document.getElementById('tomei');
+            const highScoreDisplay = document.getElementById('high-score-display');
+            const highScoreMessage = document.getElementById('high-score-message');
+
+            // ハイスコア取得(localStorage)
+            const HIGH_SCORE_KEY = 'ar_highscore';
+            function getHighScore() {
+                try {
+                    const v = localStorage.getItem(HIGH_SCORE_KEY);
+                    const n = parseInt(v, 10);
+                    return isNaN(n) ? 0 : n;
+                } catch (e) {
+                    return 0;
+                }
+            }
+            function setHighScore(value) {
+                try {
+                    localStorage.setItem(HIGH_SCORE_KEY, String(value));
+                } catch (e) {
+                    // localStorage 利用不可の環境では何もしない
+                }
+            }
+            function updateHighScoreDisplay() {
+                if (highScoreDisplay) {
+                    highScoreDisplay.textContent = `HIGH SCORE: ${getHighScore()}`;
+                }
+            }
+            // 初回表示
+            updateHighScoreDisplay();
             //プレイヤー画像（後ろ向き）の配置
             const playerImage = new Image();
             playerImage.src = 'zdm.png';
@@ -733,6 +819,20 @@
 
                 finalScore.textContent = `ずんだ餅: ${score}`;
                 finalTime.textContent = `Time: ${timerDisplay.textContent}`;
+
+                // ハイスコア判定・更新・メッセージ表示
+                const prevHighScore = getHighScore();
+                if (score > prevHighScore && score > 0) {
+                    setHighScore(score);
+                    if (highScoreMessage) {
+                        highScoreMessage.style.display = 'block';
+                    }
+                } else {
+                    if (highScoreMessage) {
+                        highScoreMessage.style.display = 'none';
+                    }
+                }
+                updateHighScoreDisplay();
                 //twitterコメント
                 const twButton = document.getElementById('tw-button');               
                 const tweetText = `ずんだアローに挑戦！ずんだ餅：${score}個！TIME：${timerDisplay.textContent}！両面アクリルフィギュアセット発売記念！#ずんだもん #ずんだゲーム ${baseUrl}`;

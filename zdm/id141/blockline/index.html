@@ -177,6 +177,25 @@ html, body {
     font-weight: 900;
     margin-left: 4px;
 }
+#screen-start .start-pieces {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(4px, 1.5vw, 10px);
+    width: 92%;
+    max-width: 420px;
+}
+#screen-start .start-pieces img {
+    width: clamp(36px, 13vw, 56px);
+    height: clamp(36px, 13vw, 56px);
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+}
+/* highscore が auto で上に押し上げられないよう調整 */
+#screen-start .start-pieces + .highscore {
+    margin-top: 12px;
+}
 #screen-start .copyright {
     font-size: 10px;
     color: #ccc;
@@ -215,7 +234,7 @@ html, body {
 }
 .header-bar .all-clear {
     font-size: clamp(16px, 4vw, 22px);
-    color: #ff2b2b;
+    color: red;
     font-weight: 900;
     letter-spacing: 2px;
     text-shadow: 0 1px 2px rgba(0,0,0,.15);
@@ -238,6 +257,17 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 14px;
+}
+/* 全ノルマ達成時に表示する画像 (リスト先頭、1列揃えろ！の上) */
+.norma-allclear-img {
+    display: block;
+    margin: 0 auto 6px;
+    width: 100%;
+    max-width: 1024px;
+    max-height: 1024px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
 }
 .norma-item {
     display: flex;
@@ -718,6 +748,14 @@ html, body {
             <!--<button class="btn menu-btn green"  data-action="goto-rule">ゲーム説明</button>-->
             <button class="btn menu-btn blue"   data-action="goto-top">TOPへ</button>
         </div>
+        <div class="start-pieces" aria-hidden="true">
+            <img src="pic/b0.gif" alt="">
+            <img src="pic/b1.gif" alt="">
+            <img src="pic/b2.gif" alt="">
+            <img src="pic/b3.gif" alt="">
+            <img src="pic/b4.gif" alt="">
+            <img src="pic/b5.gif" alt="">
+        </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
         <div class="copyright">©ねとみむや</div>
     </div>
@@ -784,6 +822,13 @@ html, body {
 
 <script>
 'use strict';
+
+/* ==========================================================
+   テスト用フラグ
+   true にするとノルマが全達成された状態として扱われる
+   (セーブデータには影響しない。falseで元に戻る)
+   ========================================================== */
+const testMax = false;
 
 /* ==========================================================
    定数 / 設定
@@ -903,6 +948,8 @@ function getHiScore() {
 }
 function setHiScore(n) { localStorage.setItem(LS.HISCORE, String(n)); }
 function getNormaClear() {
+    // テスト用: testMax が true なら全ノルマ達成済みとして扱う
+    if (testMax) return NORMAS.map(n => n.id);
     try {
         const v = localStorage.getItem(LS.NORMA);
         if (!v) return [];
@@ -1767,6 +1814,17 @@ function renderNormaList() {
     const list = document.getElementById('norma-list');
     list.innerHTML = '';
     const cleared = getNormaClear();
+    // ALL CLEAR 判定 (画像をリスト先頭に入れるため、forEachより先に判定)
+    const all = NORMAS.every(n => cleared.includes(n.id));
+    // 全ノルマ達成時、最初のノルマ「1列揃えろ！」の上に画像を表示
+    if (all) {
+        const img = document.createElement('img');
+        img.src = 'pic/max.webp';
+        img.alt = '全ノルマ達成';
+        img.className = 'norma-allclear-img';
+        img.decoding = 'async';
+        list.appendChild(img);
+    }
     NORMAS.forEach(n => {
         const item = document.createElement('div');
         item.className = 'norma-item' + (cleared.includes(n.id) ? ' cleared' : '');
@@ -1777,9 +1835,10 @@ function renderNormaList() {
         // 項目クリックは無効 (ただの表示。色変化は継続)
         list.appendChild(item);
     });
-    // ALL CLEAR 判定
-    const all = NORMAS.every(n => cleared.includes(n.id));
     document.getElementById('all-clear-msg').style.display = all ? '' : 'none';
+    // ALL CLEAR 表示中は「達成しやすいノルマから挑戦して行くのだ！」の文を隠す
+    const subtitle = document.querySelector('.norma-subtitle');
+    if (subtitle) subtitle.style.display = all ? 'none' : '';
 
     // 一番下に「ノルマをリセットする」ボタン
     const reset = document.createElement('div');
