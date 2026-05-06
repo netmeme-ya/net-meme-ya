@@ -34,6 +34,13 @@
 <audio id="se_cutin" src="pic/se_cutin.mp3" preload="auto"></audio>
 <audio id="se_point" src="pic/se_point.mp3" preload="auto"></audio>
 
+<!--画像のプリロード-->
+<link rel="preload" href="pic/b0.gif" as="image" fetchpriority="high">
+<link rel="preload" href="pic/b1.gif" as="image" fetchpriority="high">
+<link rel="preload" href="pic/b2.gif" as="image" fetchpriority="high">
+<link rel="preload" href="pic/b3.gif" as="image" fetchpriority="high">
+<link rel="preload" href="pic/b4.gif" as="image" fetchpriority="high">
+<link rel="preload" href="pic/b5.gif" as="image" fetchpriority="high">
 <style>
 /* =========================================
    基本リセット & 全画面固定
@@ -725,7 +732,7 @@ html, body {
 
 </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 <div id="app">
 
     <!-- ============================================
@@ -741,7 +748,7 @@ html, body {
             </button>
         </div>
         <h1>ずんだブロック並べ</h1>
-        <div class="subtitle">キャラを縦横１列に並べて消そう！<br>同時消し・連続消しで高得点!!</div>
+        <div class="subtitle">キャラを縦横１列に並べて消そう！</div>
         <div class="menu">
             <button class="btn menu-btn orange" data-action="start-game">ゲームスタート</button>
             <button class="btn menu-btn pink"   data-action="goto-norma">ノルマ一覧</button>
