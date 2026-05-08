@@ -270,6 +270,16 @@
   .hide-grid .tile .num,
   .hide-grid #finalTile .num { display: none; }
   .hide-grid #board { background: #000; }
+
+  /* CLEAR!! ボタン出現時の背景フラッシュ
+     #fff から #d39410 へ 1秒かけてフェードバック */
+  #app.clear-flash {
+    animation: clearFlash 1s ease-out forwards;
+  }
+  @keyframes clearFlash {
+    0%   { background: #ffffff; }
+    100% { background: #d39410; }
+  }
 </style>
 </head>
 <body>
@@ -877,9 +887,22 @@
     G.cleared = true;
     playSe('clear');
 
-    // fade in final piece
+    // fade in final piece + 背景フラッシュ(#fff -> #d39410 を1秒かけて)を同タイミングで開始
     const ft = document.getElementById('finalTile');
-    requestAnimationFrame(() => ft.classList.add('show'));
+    const appEl = document.getElementById('app');
+    requestAnimationFrame(() => {
+      ft.classList.add('show');
+      appEl.classList.remove('clear-flash');
+      // クラス再付与で確実にアニメを再走させる
+      void appEl.offsetWidth;
+      appEl.classList.add('clear-flash');
+      appEl.addEventListener('animationend', function onEnd(e) {
+        if (e.animationName === 'clearFlash') {
+          appEl.classList.remove('clear-flash');
+          appEl.removeEventListener('animationend', onEnd);
+        }
+      });
+    });
 
     // Show CLEAR button after a beat
     setTimeout(() => {
