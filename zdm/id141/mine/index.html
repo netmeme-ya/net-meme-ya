@@ -151,6 +151,15 @@ body {
   color: white;
 }
 
+/* クリア時：背景を白く光らせて1秒かけて元の色に戻す */
+@keyframes clearFlash {
+  0%   { background: #FFFFFF; }
+  100% { background: #434957; }
+}
+#gameScreen.clear-flash {
+  animation: clearFlash 1s ease-out;
+}
+
 .game-header {
   display: flex;
   justify-content: space-between;
@@ -485,8 +494,6 @@ body {
 <!-- ===== Audio ===== -->
 <audio id="seStart" src="dat/se_start.mp3" preload="auto"></audio>
 <audio id="seBomb"  src="dat/se_bomb.mp3"  preload="auto"></audio>
-<audio id="seHata"  src="dat/se_hata.mp3"  preload="auto"></audio>
-<audio id="seClick" src="dat/se_click.mp3" preload="auto"></audio>
 <audio id="seClear" src="dat/se_clear.mp3" preload="auto"></audio>
 <audio id="seMax"   src="dat/se_max.mp3"   preload="auto"></audio>
 <audio id="seIllust" src="dat/se_illust.mp3" preload="auto"></audio>
@@ -607,8 +614,6 @@ body {
     const next = !isSoundOn();
     setSoundOn(next);
     refreshSoundButtons();
-    // ONにした瞬間は、ユーザーに「今ONになった」と分かるようクリック音を鳴らす
-    if (next) playSE('seClick');
   }
 
   // ========== 効果音再生ヘルパー ==========
@@ -919,9 +924,7 @@ body {
         return;
       }
 
-      // 爆弾以外のマスを開く → パネルめくり音
-      playSE('seClick');
-
+      // 爆弾以外のマスを開く
       const count = countNeighbors(idx);
       if (count > 0) {
         // 数字マス：1 つだけ開く
@@ -966,7 +969,6 @@ body {
         flagged.add(idx);
         cells[idx].classList.add('flagged');
         cells[idx].innerHTML = FLAG_SVG;
-        playSE('seHata');
       }
       updateBombCounter();
     }
@@ -1017,6 +1019,16 @@ body {
         playSE(panel1Side === 12 ? 'seMax' : 'seClear');
         // クリア時だけ次回用に画像番号を進める
         advanceBackgroundImage();
+        // クリア時：画面を白く光らせて1秒かけて元の色に戻す
+        const gameScreenEl = document.getElementById('gameScreen');
+        gameScreenEl.classList.remove('clear-flash');
+        // リフローを強制してアニメーションを再起動可能に
+        void gameScreenEl.offsetWidth;
+        gameScreenEl.classList.add('clear-flash');
+        gameScreenEl.addEventListener('animationend', function handler() {
+          gameScreenEl.classList.remove('clear-flash');
+          gameScreenEl.removeEventListener('animationend', handler);
+        });
       } else {
         nextBtn.textContent = 'RETRY';
         nextBtn.classList.add('state-retry');
