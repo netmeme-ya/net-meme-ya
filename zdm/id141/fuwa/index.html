@@ -867,38 +867,11 @@
       ctx.imageSmoothingEnabled = false; // ドット絵をくっきり表示
       ctx.drawImage(charaImg, -targetW / 2, -targetH / 2, targetW, targetH);
     } else {
-      // フォールバック：元のずんだもち風図形
-      const grd = ctx.createRadialGradient(-6, -6, 4, 0, 0, BIRD_R + 4);
-      grd.addColorStop(0, '#d8e87a');
-      grd.addColorStop(0.5, '#a8c94a');
-      grd.addColorStop(1, '#6b8d28');
-      ctx.fillStyle = grd;
+      // フォールバック：単色の丸（目・クチバシなし）
+      ctx.fillStyle = '#a8c94a';
       ctx.beginPath();
       ctx.arc(0, 0, BIRD_R, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#4a6818';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(6, -4, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#222';
-      ctx.beginPath();
-      ctx.arc(7, -4, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#ff9933';
-      ctx.strokeStyle = '#cc6600';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(14, 2);
-      ctx.lineTo(22, 4);
-      ctx.lineTo(14, 7);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
     }
 
     ctx.restore();

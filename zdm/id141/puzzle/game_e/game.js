@@ -28,14 +28,20 @@ if(nowAreaNum >= 4){
 //難易度設定
 //1ステージのクリア”面”数・3f=18、3n=16、4f=10、4n=6、5f=5、5n=4、6f=3、6n=1(3分で攻略できる目安)
 let clearAreaMenMax = 16;
-//ラスト３ステージ以降は9マス
-if (nowAreaNum >= 63) {
+//14ステージ以降は9マス
+if (nowAreaNum >= 41) {
     ippenNum = 3;
+    clearAreaMenMax = 16;
 }
-//ラストステージは4マスの6面
+//中ボスステージは4マスの9面
+if (nowAreaNum == 64) {
+    ippenNum = 4;
+    clearAreaMenMax = 7;
+}
+//ラストステージは5マスの3面
 if(nowAreaNum == 65){
-	ippenNum = 4;
-	clearAreaMenMax = 6;
+	ippenNum = 5;
+	clearAreaMenMax = 3;
 }
 //アフターノベル対応
 if (nowAreaNum == 24) {
