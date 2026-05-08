@@ -47,7 +47,8 @@
    ========================================= */
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 html, body {
-    width: 100%; height: 100%;
+    width: 100%; 
+    height: 100%;
     overflow: hidden;
     overscroll-behavior: none;
     touch-action: manipulation;
@@ -57,7 +58,11 @@ html, body {
     color: #fff;
     position: fixed;
 }
-
+@media (min-width:1025px){
+    html, body {
+        background: #000;
+    }
+}
 /* 画面コンテナ:最大幅1024px、縦長中央寄せ */
 #app {
     position: relative;
@@ -115,22 +120,25 @@ html, body {
    ========================================= */
 #screen-start {
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     padding: 20px 24px;
 }
 #screen-start .top-bar {
-    width: 100%;
+    position: absolute;
+    top:10px;
+    left:0;
+    right: 0;
+    margin: 0 auto;
+    width: 94%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
 }
 #screen-start h1 {
     font-size: clamp(28px, 7vw, 48px);
     font-weight: 900;
     color: #fff;
-    margin-top: 4vh;
-    margin-bottom: 12px;
+    margin: 12px auto;
     letter-spacing: 2px;
     text-align: center;
 }
@@ -185,13 +193,18 @@ html, body {
     margin-left: 4px;
 }
 #screen-start .start-pieces {
-    margin-top: auto;
+    margin-top: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: clamp(4px, 1.5vw, 10px);
     width: 92%;
     max-width: 420px;
+}
+@media (max-width:376px) and (min-width:374px){
+    #screen-start .start-pieces {
+        margin-top: 10px;
+    }
 }
 #screen-start .start-pieces img {
     width: clamp(36px, 13vw, 56px);
@@ -204,10 +217,14 @@ html, body {
     margin-top: 12px;
 }
 #screen-start .copyright {
+    position: fixed;
+    left:0;right:0;
+    bottom: 10px;
+    margin: 0;
     font-size: 10px;
     color: #ccc;
     text-align: center;
-    margin-bottom: 16px;
+    font-weight: 400;
 }
 
 /* =========================================
@@ -541,6 +558,10 @@ html, body {
 @media (max-width:375px) {
     .next-label {
         font-size: 16px;
+    }
+    .icon-btn{
+        width: 45px;
+        height: 45px;
     }
 }
 .next-slot {
