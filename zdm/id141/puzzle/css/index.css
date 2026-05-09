@@ -1,41 +1,67 @@
 @charset "utf-8";
+
 /*おまけゲーム全体indexのcss*/
 * {
-	margin: 0;padding: 0;
-  	box-sizing:border-box;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
 }
-.sp375on{display: block;}
-html,body {margin: 0;padding: 0;background:#000;}
+
+.sp375on {
+	display: none;
+}
+
+html,
 body {
-	width: 100%;	
+	margin: 0;
+	padding: 0;
+	background: #000;
+}
+
+body {
+	width: 100%;
 	position: relative;
-	overflow: hidden;	
+	overflow: hidden;
 	color: #FFF;
 	text-align: center;
 	font-size: 100%;
-	font-family: sans-serif;		
-	display:block;
-	
+	font-family: sans-serif;
+	display: block;
+
 }
-img{width: auto;height: auto;}
-a{text-decoration: none;opacity: 1;}
-p{opacity: 1;}
-.dammy_btn{
+
+img {
+	width: auto;
+	height: auto;
+}
+
+a {
+	text-decoration: none;
+	opacity: 1;
+}
+
+p {
+	opacity: 1;
+}
+
+.dammy_btn {
 	position: fixed;
-	top:0;
+	top: 0;
 	left: 0;
 	width: 20px;
 	height: 20px;
 	background-color: red;
 	z-index: 999;
 }
-.top_img{
+
+.top_img {
 	width: 100%;
 	height: auto;
-	margin:16px auto;
+	margin: 16px auto;
 	max-width: 600px;
 }
-.index_main{
+
+.index_main {
 	-webkit-overflow-scrolling: touch;
 	overflow: auto;
 	position: relative;
@@ -48,20 +74,23 @@ p{opacity: 1;}
 	min-height: 100vh;
 	margin: 0 auto;
 }
-.btn_div{
+
+.btn_div {
 	margin: 0 auto;
 	width: 100%;
 	max-width: 600px;
-	padding:2px 0;
+	padding: 2px 0;
 	margin: 0 auto;
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-.btn_a{
+
+.btn_a {
 	display: block;
 }
-.btn_a p{
-	font-size:28px;
+
+.btn_a p {
+	font-size: 28px;
 	width: 90%;
 	max-width: 400px;
 	border-radius: 100px;
@@ -70,11 +99,12 @@ p{opacity: 1;}
 	font-family: "Noto Sans JP", sans-serif;
 	font-weight: 900;
 	color: #FFF;
-	padding:0.5em 0;
+	padding: 0.5em 0;
 	margin: 20px auto;
-	text-shadow: 0 0 4px rgba(0,0,0,0.4);
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
 }
-.footer_div{
+
+.footer_div {
 	margin: 0px auto;
 	position: fixed;
 	bottom: 0;
@@ -83,19 +113,24 @@ p{opacity: 1;}
 	background: #000;
 	z-index: 3;
 	padding: 4px 0;
-	left: 0;right: 0;margin: 0 auto;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
 }
-.footer_div p{
+
+.footer_div p {
 	font-size: 10px;
 	color: #FFF;
 }
-.footer_p{
+
+.footer_p {
 	text-align: left;
 	width: fit-content;
 	margin: 0 auto;
 	margin-bottom: 4px;
 }
-.footer_copy_p{
+
+.footer_copy_p {
 	text-align: center;
 	width: 99%;
 	margin: 0 auto;
@@ -103,47 +138,60 @@ p{opacity: 1;}
 	font-size: 10px;
 	padding: 4px 0;
 }
-.footer_totop_div{
+
+.footer_totop_div {
 	opacity: 0;
 	position: fixed;
 	left: 2px;
-	bottom:4px;
+	bottom: 4px;
 	z-index: 4;
 	border: 1px solid #FFF;
 	color: #FFF;
 }
-.footer_totop_div a{
+
+.footer_totop_div a {
 	color: #FFF;
 }
-.footer_totop_div p{	
+
+.footer_totop_div p {
 	font-family: sans-serif;
 	font-size: 9px;
 	text-align: center;
 	font-weight: 400;
-	padding: 10px 0.5em;		
+	padding: 10px 0.5em;
 	line-height: 0;
 }
+
 @media screen and (max-width: 600px) {
-.footer_totop_div{
-	opacity: 1;
-}
-}
-@media screen and (max-width: 430px) {
-	.main{padding-top: 70px;}
-	.btn_a p{
-		font-size:5vw;
+	.footer_totop_div {
+		opacity: 1;
 	}
 }
+
+@media screen and (max-width: 430px) {
+	.main {
+		padding-top: 70px;
+	}
+
+	.btn_a p {
+		font-size: 5vw;
+	}
+}
+
 @media screen and (max-width: 375px) {
-	.sp375on{
+	.sp375on {
 		display: block;
 	}
-	.sp375off{
+
+	.sp375off {
 		display: none;
 	}
 }
+
 @media screen and (max-width: 360px) {
-	.footer_div p{font-size: 9px;}	
+	.footer_div p {
+		font-size: 9px;
+	}
 }
 
 /*PCのときに画面を小さくする
