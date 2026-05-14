@@ -3,6 +3,10 @@
     padding: 0;
 }
 
+html {
+    overscroll-behavior-x: none;
+}
+
 body {
     background: #000;
     color: #FFF;
@@ -18,6 +22,8 @@ body {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    overscroll-behavior-x: none;
+    overscroll-behavior-y: contain;
 }
 img,div{-webkit-tap-highlight-color: transparent;}
 p {

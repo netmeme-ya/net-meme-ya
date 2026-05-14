@@ -671,3 +671,10 @@ document.addEventListener("visibilitychange", function () {
         }
     }
 });
+//■■■iOS Safari エッジスワイプバック対策■■■
+//画面左端20px以内から始まるタッチをキャンセル（ブラウザの「戻る」ジェスチャー抑制）
+document.addEventListener('touchstart', function (e) {
+    if (e.touches[0].clientX < 20) {
+        e.preventDefault();
+    }
+}, { passive: false });
