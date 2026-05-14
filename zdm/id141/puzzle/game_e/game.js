@@ -1,6 +1,17 @@
 //★★ゲームパート★★
 //「〇TEST用対応」は後で消す。実験で値を作ったりしたら必ず「//〇TEST用」を入れる。
 //
+//■■■デバッグ用ログ表示（実機確認用・あとで削除）■■■
+let _debugLogList = [];
+function fc_debugLog(msg) {
+    const t = new Date();
+    const ts = t.getMinutes() + ':' + String(t.getSeconds()).padStart(2,'0') + '.' + String(t.getMilliseconds()).padStart(3,'0');
+    _debugLogList.unshift(ts + ' ' + msg);
+    if (_debugLogList.length > 8) _debugLogList.pop();
+    const el = document.getElementById('debug_log');
+    if (el) el.innerHTML = _debugLogList.join('<br>');
+}
+//
 //パネルの数=難易度(1辺の数4*4=16など)
 let ippenNum = 2; // 3,4,5,6 のみ許可
 let isTimer = false;//タイマーの有無
@@ -200,6 +211,7 @@ function createTiles() {
 }
 //タイルをクリックしたときの関数
 function selectTile(tile) {
+    fc_debugLog('selectTile(click)');
     if (isClear === false && isGameover === false && isgiveupwindow === false) {
         //1回目の選択
         if (!selectedTile) {
@@ -238,6 +250,7 @@ function getBackgroundPosition(index) {
 //■■■スワイプ操作■■■
 //2枚のパネルを直接入れ替える（アニメーション付き）
 function swapTiles(tileA, tileB) {
+    fc_debugLog('swapTiles');
     if (!tileA || !tileB || tileA === tileB) return;
     let tempIndex = tileA.dataset.index;
     tileA.dataset.index = tileB.dataset.index;
@@ -344,6 +357,7 @@ let next_div = document.getElementById('next_div');
 let allnext_div = document.getElementById('allnext_div');
 
 function checkWin() {
+    fc_debugLog('checkWin');
     //everyで指定通りの並びになっているかチェック
     if (tiles.every((tile, index) => tile.dataset.index == index)) {
         //クリアフラグをtrue
@@ -554,12 +568,12 @@ function stopBGM() {
 
 // 面クリア音を再生
 function playClearSound() {
-    console.log('▼playClearSound 呼び出し:', new Date().getTime());
+    fc_debugLog('playClearSound');
     if(isOto){
         snd_clear.pause();
         snd_clear.currentTime = 0;
         snd_clear.play().catch(err => {
-            console.log('clear音再生失敗:', err);
+            fc_debugLog('clear音失敗:' + err);
         });
     }
 }
