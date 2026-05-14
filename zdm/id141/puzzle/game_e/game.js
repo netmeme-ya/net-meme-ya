@@ -539,6 +539,7 @@ snd_bgm.loop    = true;
 // 面クリア音
 const snd_clear = new Audio("bgm/clear.mp3");
 snd_clear.preload = "auto";
+let _clearSoundStopTimer = null;//clear音の自動停止タイマー管理用
 
 // 全面クリア音
 const snd_allclear = new Audio("bgm/allclear1.mp3");
@@ -552,6 +553,25 @@ document.getElementById('start_anime').style.filter = "none";
 function playAudio() {
     snd_start.currentTime = 0;
     snd_start.play().catch(() => {});
+    //■■■iOS Audio アンロック対策■■■
+    //fc_start()のユーザー直接タップの文脈でsnd_clearも小音量で再生してアンロック
+    //（これをやらないと初回スワイプクリア時にNotAllowedErrorが出ることがある）
+    if (_clearSoundStopTimer) {
+        clearTimeout(_clearSoundStopTimer);
+        _clearSoundStopTimer = null;
+    }
+    snd_clear.volume = 0.1;
+    snd_clear.currentTime = 0;
+    snd_clear.play().catch(err => {
+        fc_debugLog('アンロック失敗:' + err);
+    });
+    //1.5秒後（自然な鳴り終わりタイミング）に確実に停止＆リセット
+    _clearSoundStopTimer = setTimeout(function(){
+        snd_clear.pause();
+        snd_clear.currentTime = 0;
+        _clearSoundStopTimer = null;
+        fc_debugLog('clear音 自動停止(初回)');
+    }, 1500);
 }
 
 // BGMを再生
@@ -567,7 +587,6 @@ function stopBGM() {
 }
 
 // 面クリア音を再生
-let _clearSoundStopTimer = null;
 function playClearSound() {
     fc_debugLog('playClearSound');
     if(isOto){
@@ -576,6 +595,7 @@ function playClearSound() {
             clearTimeout(_clearSoundStopTimer);
             _clearSoundStopTimer = null;
         }
+        snd_clear.volume = 1;//通常クリア時は必ず音量1に戻す
         snd_clear.currentTime = 0;
         snd_clear.play().catch(err => {
             fc_debugLog('clear音失敗:' + err);
