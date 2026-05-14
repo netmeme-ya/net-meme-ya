@@ -407,7 +407,7 @@ function checkWin() {
             //NEXTゲーム・クリア画面とNEXTボタン
             setTimeout(function(){
     			next_div.style.display = "block";
-			}, 1000);           
+			}, 1500);           
         }
     }
 }
@@ -567,14 +567,26 @@ function stopBGM() {
 }
 
 // 面クリア音を再生
+let _clearSoundStopTimer = null;
 function playClearSound() {
     fc_debugLog('playClearSound');
     if(isOto){
-        snd_clear.pause();
+        //前回の停止タイマーが残っていたらクリア
+        if (_clearSoundStopTimer) {
+            clearTimeout(_clearSoundStopTimer);
+            _clearSoundStopTimer = null;
+        }
         snd_clear.currentTime = 0;
         snd_clear.play().catch(err => {
             fc_debugLog('clear音失敗:' + err);
         });
+        //1.5秒後に確実に停止＆リセット（iOS Safariの内部状態リセット用）
+        _clearSoundStopTimer = setTimeout(function(){
+            snd_clear.pause();
+            snd_clear.currentTime = 0;
+            _clearSoundStopTimer = null;
+            fc_debugLog('clear音 自動停止');
+        }, 1500);
     }
 }
 
