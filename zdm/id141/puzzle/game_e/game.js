@@ -554,6 +554,7 @@ function stopBGM() {
 
 // 面クリア音を再生
 function playClearSound() {
+    console.log('▼playClearSound 呼び出し:', new Date().getTime());
     if(isOto){
         snd_clear.pause();
         snd_clear.currentTime = 0;
