@@ -554,10 +554,13 @@ function stopBGM() {
 
 // 面クリア音を再生
 function playClearSound() {
-    snd_clear.currentTime = 0;
     if(isOto){
-    	snd_clear.cloneNode().play().catch(() => {});
-	}
+        snd_clear.pause();
+        snd_clear.currentTime = 0;
+        snd_clear.play().catch(err => {
+            console.log('clear音再生失敗:', err);
+        });
+    }
 }
 
 // 面クリア音を停止
