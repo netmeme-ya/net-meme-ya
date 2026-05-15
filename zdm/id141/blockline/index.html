@@ -787,7 +787,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.00</div>
+        <div class="copyright">©ねとみむや ver.1.01</div>
     </div>
 
     <!-- ============================================
@@ -1989,8 +1989,9 @@ document.addEventListener('click', (e) => {
     } else if (a === 'start-game') {
         unlockSEsIfIOS(); // iOS Safari対策: タップで3つのSEを一瞬鳴らして解禁
         // se_get はunlock対象外 (冒頭無音なしのため100ms再生だと"ピッ"と聞こえる)。
-        // 代わりにスタートボタンタップで最後まで通常再生して解禁する。iOS限定。
-        if (isIOS()) playSE('get');
+        // スタートボタンタップで最後まで通常再生する。
+        // iOSでは解禁を兼ね、Windows/Androidでは心地よいSEとして全プラットフォームで鳴らす。
+        playSE('get');
         playSE('start');
         startGame();
     } else if (a === 'goto-rule') {
