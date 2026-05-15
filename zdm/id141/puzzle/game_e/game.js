@@ -11,6 +11,10 @@ function fc_debugLog(msg) {
     const el = document.getElementById('debug_log');
     if (el) el.innerHTML = _debugLogList.join('<br>');
 }
+//■■■iOS（iPhone/iPad/iPod）判定■■■
+//iPadOS 13+ はUAがMacと区別つかないのでmaxTouchPointsで判定
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 //
 //パネルの数=難易度(1辺の数4*4=16など)
 let ippenNum = 2; // 3,4,5,6 のみ許可
@@ -553,25 +557,28 @@ document.getElementById('start_anime').style.filter = "none";
 function playAudio() {
     snd_start.currentTime = 0;
     snd_start.play().catch(() => {});
-    //■■■iOS Audio アンロック対策■■■
+    //■■■iOS Audio アンロック対策（iPhone/iPadのみ）■■■
     //fc_start()のユーザー直接タップの文脈でsnd_clearを一瞬だけ再生してアンロック
     //（これをやらないと初回スワイプクリア時にNotAllowedErrorが出ることがある）
-    if (_clearSoundStopTimer) {
-        clearTimeout(_clearSoundStopTimer);
-        _clearSoundStopTimer = null;
-    }
-    snd_clear.volume = 1;
-    snd_clear.currentTime = 0;
-    snd_clear.play().catch(err => {
-        fc_debugLog('アンロック失敗:' + err);
-    });
-    //100ms後に確実に停止＆リセット（アンロックだけ済ませて即停止）
-    _clearSoundStopTimer = setTimeout(function(){
-        snd_clear.pause();
+    //Android/PCは元々autoplayポリシーが緩いので不要、かつ一瞬音が漏れるため除外
+    if (isIOS) {
+        if (_clearSoundStopTimer) {
+            clearTimeout(_clearSoundStopTimer);
+            _clearSoundStopTimer = null;
+        }
+        snd_clear.volume = 1;
         snd_clear.currentTime = 0;
-        _clearSoundStopTimer = null;
-        fc_debugLog('clear音 自動停止(初回)');
-    }, 100);
+        snd_clear.play().catch(err => {
+            fc_debugLog('アンロック失敗:' + err);
+        });
+        //100ms後に確実に停止＆リセット（アンロックだけ済ませて即停止）
+        _clearSoundStopTimer = setTimeout(function(){
+            snd_clear.pause();
+            snd_clear.currentTime = 0;
+            _clearSoundStopTimer = null;
+            fc_debugLog('clear音 自動停止(初回)');
+        }, 100);
+    }
 }
 
 // BGMを再生
