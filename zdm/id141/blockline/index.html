@@ -29,7 +29,6 @@
 <!-- 効果音プリロード -->
 <audio id="se_get" src="pic/se_get.mp3" preload="auto"></audio>
 <audio id="se_gameover" src="pic/se_gameover.mp3" preload="auto"></audio>
-<audio id="se_clear" src="pic/se_clear.mp3" preload="auto"></audio>
 <audio id="se_start" src="pic/se_start.mp3" preload="auto"></audio>
 <audio id="se_cutin" src="pic/se_cutin.mp3" preload="auto"></audio>
 <audio id="se_point" src="pic/se_point.mp3" preload="auto"></audio>
@@ -788,7 +787,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや</div>
+        <div class="copyright">©ねとみむや ver.1.00</div>
     </div>
 
     <!-- ============================================
@@ -1002,7 +1001,6 @@ function addNormaClear(id) {
 const SE = {
     get:      document.getElementById('se_get'),
     gameover: document.getElementById('se_gameover'),
-    clear:    document.getElementById('se_clear'),
     start:    document.getElementById('se_start'),
     cutin:    document.getElementById('se_cutin'),
     point:    document.getElementById('se_point'),
@@ -1012,6 +1010,44 @@ function playSE(name) {
     const el = SE[name];
     if (!el) return;
     try { el.currentTime = 0; el.play().catch(()=>{}); } catch(e) {}
+}
+/* iOS Safari対策: スワイプ起点で発火するSEは鳴らせないため、
+   ゲームスタートボタンの"タップ"を起点に対象SEを一瞬play→即stopして解禁する。
+   se_get だけは冒頭無音を入れていない (入れると配置時の体感が遅くなる) ため
+   一瞬鳴らすと"ピッ"と聞こえてしまう。そこでgetはunlock対象から外し、
+   スタートボタンタップ時に最後まで通常再生して解禁する (呼び出し側で対応)。
+   iOS以外 (Windows / Android) では何もしない。 */
+function isIOS() {
+    const ua = navigator.userAgent || '';
+    if (/iPad|iPhone|iPod/.test(ua)) return true;
+    // iPadOS 13+ はUAがMacintoshになるためタッチ可否で判定
+    if (/Macintosh/.test(ua) && 'ontouchend' in document) return true;
+    return false;
+}
+let _seUnlocked = false;
+function unlockSEsIfIOS() {
+    if (_seUnlocked) return;
+    if (!isIOS()) return;
+    _seUnlocked = true;
+    const targets = ['cutin', 'gameover', 'point'];
+    targets.forEach(name => {
+        const el = SE[name];
+        if (!el) return;
+        try {
+            el.currentTime = 0;
+            el.play().catch(()=>{});
+        } catch(e) {}
+    });
+    setTimeout(() => {
+        targets.forEach(name => {
+            const el = SE[name];
+            if (!el) return;
+            try {
+                el.pause();
+                el.currentTime = 0;
+            } catch(e) {}
+        });
+    }, 100);
 }
 /* 全SEを即停止 (Androidの音声マーク残り対策) */
 function stopAllSE() {
@@ -1951,6 +1987,10 @@ document.addEventListener('click', (e) => {
         renderNormaList();
         showScreen('screen-norma');
     } else if (a === 'start-game') {
+        unlockSEsIfIOS(); // iOS Safari対策: タップで3つのSEを一瞬鳴らして解禁
+        // se_get はunlock対象外 (冒頭無音なしのため100ms再生だと"ピッ"と聞こえる)。
+        // 代わりにスタートボタンタップで最後まで通常再生して解禁する。iOS限定。
+        if (isIOS()) playSE('get');
         playSE('start');
         startGame();
     } else if (a === 'goto-rule') {
