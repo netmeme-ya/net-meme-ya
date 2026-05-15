@@ -463,7 +463,11 @@ html, body {
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
     gap: 4px;
+    /* fallback: 100vh (iOS 15.3以前) */
     width: min(94vw, 100%, 720px, calc(100vh - 280px));
+    /* dvh (dynamic viewport height) で iOS standalone のホームインジケータ領域を
+       除いた実表示エリアに基づきボードサイズを決定。対応ブラウザでは上の行を上書き。 */
+    width: min(94vw, 100%, 720px, calc(100dvh - 280px));
     aspect-ratio: 1 / 1;
     padding: 0;
 }
@@ -787,7 +791,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.01</div>
+        <div class="copyright">©ねとみむや ver.1.02</div>
     </div>
 
     <!-- ============================================
