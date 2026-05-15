@@ -72,6 +72,9 @@ html, body {
     margin: 0 auto;
     overflow: hidden;
     background: #5f8ce8;
+    /* iOS standalone (ホーム画面追加) 起動時、ホームインジケータ領域に
+       最下段ピーストレイ等が隠れないよう下端のsafe-area分を確保 */
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* 各画面 */
@@ -1653,6 +1656,12 @@ async function afterPlacement() {
     // silent でないものだけカットイン対象
     const visible = newlyAchieved.filter(n => !n.silent);
     if (visible.length > 0) {
+        // ノルマ達成ターンは点境界カットインを出さない。
+        // さらに、現在スコアの境界を「通過済み」として記録し、後続ターンでも出さない。
+        const milestone = computePointMilestone(game.score);
+        if (milestone > game.lastPointMilestone) {
+            game.lastPointMilestone = milestone;
+        }
         playSE('cutin');
         cutInNorma(visible.map(n => n.label));
     } else {
@@ -1677,6 +1686,8 @@ async function afterPlacement() {
 /* ノルマ達成カットイン (2.5秒で自動消去、ゲーム続行) */
 function cutInNorma(labels) {
     const overlay = document.getElementById('game-overlay');
+    // 既存のカットイン(ノルマ達成・点境界)が残っていれば即座に削除
+    overlay.querySelectorAll('.cutin-norma, .cutin-point').forEach(el => el.remove());
     const wrap = document.createElement('div');
     wrap.className = 'cutin-norma';
     // 1ノルマ1行で表示 (改行)
@@ -1692,6 +1703,8 @@ function cutInNorma(labels) {
 /* 100点境界カットイン (ノルマ達成カットインが出ないターンに表示) */
 function cutInPointMilestone(milestone) {
     const overlay = document.getElementById('game-overlay');
+    // 既存のカットイン(ノルマ達成・点境界)が残っていれば即座に削除
+    overlay.querySelectorAll('.cutin-norma, .cutin-point').forEach(el => el.remove());
     const wrap = document.createElement('div');
     wrap.className = 'cutin-point';
     wrap.textContent = milestone + '点GET！';
