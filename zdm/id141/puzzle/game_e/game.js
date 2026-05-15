@@ -554,24 +554,24 @@ function playAudio() {
     snd_start.currentTime = 0;
     snd_start.play().catch(() => {});
     //■■■iOS Audio アンロック対策■■■
-    //fc_start()のユーザー直接タップの文脈でsnd_clearも小音量で再生してアンロック
+    //fc_start()のユーザー直接タップの文脈でsnd_clearを一瞬だけ再生してアンロック
     //（これをやらないと初回スワイプクリア時にNotAllowedErrorが出ることがある）
     if (_clearSoundStopTimer) {
         clearTimeout(_clearSoundStopTimer);
         _clearSoundStopTimer = null;
     }
-    snd_clear.volume = 0.1;
+    snd_clear.volume = 1;
     snd_clear.currentTime = 0;
     snd_clear.play().catch(err => {
         fc_debugLog('アンロック失敗:' + err);
     });
-    //1.5秒後（自然な鳴り終わりタイミング）に確実に停止＆リセット
+    //100ms後に確実に停止＆リセット（アンロックだけ済ませて即停止）
     _clearSoundStopTimer = setTimeout(function(){
         snd_clear.pause();
         snd_clear.currentTime = 0;
         _clearSoundStopTimer = null;
         fc_debugLog('clear音 自動停止(初回)');
-    }, 1500);
+    }, 100);
 }
 
 // BGMを再生
