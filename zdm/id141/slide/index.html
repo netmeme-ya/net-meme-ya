@@ -379,6 +379,30 @@
     try { a.currentTime = 0; a.play().catch(()=>{}); } catch(e){}
   }
 
+  // iOS判定(iPhone/iPod/iPad、iPadOS13+も含む)
+  const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  // iOS Safari用:タップ時に se_clear を 0.1 秒だけ鳴らして unlock する
+  // (スワイプでは再生ポリシーをクリアできないため、明示的タップでプライムする)
+  function primeClearForIOS() {
+    if (!IS_IOS) return;
+    if (!getSound()) return;
+    const a = SE.clear;
+    if (!a) return;
+    try {
+      a.currentTime = 0;
+      const p = a.play();
+      if (p && typeof p.then === 'function') p.catch(()=>{});
+      setTimeout(() => {
+        try {
+          a.pause();
+          a.currentTime = 0;
+        } catch(e){}
+      }, 100);
+    } catch(e){}
+  }
+
   // sound icon SVG paths
   const ICON_ON  = '<path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
   const ICON_OFF = '<path d="M3 9v6h4l5 4V5L7 9H3z"/><path fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" d="M15 9l5 6M20 9l-5 6"/>';
@@ -426,6 +450,7 @@
   // ========= Mode buttons =========
   document.querySelectorAll('.menu-btn[data-mode]').forEach(btn => {
     btn.addEventListener('click', () => {
+      primeClearForIOS();
       playSe('start');
       const mode = btn.getAttribute('data-mode'); // "3-num" / "3-frame" / "3-no"
       const [sizeStr, kind] = mode.split('-');
