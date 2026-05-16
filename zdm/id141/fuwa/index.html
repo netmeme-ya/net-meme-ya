@@ -980,6 +980,22 @@
     }
   });
 
+  // iOS Safari対策: ユーザー操作と同期して全音を一度実発火させてアンロック
+  function unlockAllSounds() {
+    if (!audioCtx) return;
+    try {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      Object.keys(SOUND_FILES).forEach(function(key) {
+        const buf = audioBuffers[key];
+        if (!buf) return;
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+        src.connect(audioCtx.destination);
+        src.start(0);
+      });
+    } catch (e) {}
+  }
+
   // スタートボタン
   const startBtn = document.getElementById('startBtn');
   let startLock = 0;
@@ -989,6 +1005,7 @@
     startLock = now + 300;
     initAudio();
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    unlockAllSounds();
     startGame();
   }
   startBtn.addEventListener('click', function(e) {
