@@ -24,9 +24,9 @@
 <meta name="mobile-web-app-capable" content="no">
 <!---->
 <!-- 音声プリロード -->
-<link rel="preload" href="pic/se_poi.mp3" as="fetch" type="audio/mpeg" crossorigin="anonymous">
-<link rel="preload" href="pic/se_hit.mp3" as="fetch" type="audio/mpeg" crossorigin="anonymous">
-<link rel="preload" href="pic/se_point.mp3" as="fetch" type="audio/mpeg" crossorigin="anonymous">
+<link rel="preload" href="pic/se_poi.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/se_hit.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/se_point.mp3" as="audio" type="audio/mpeg">
 
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -397,7 +397,7 @@
   <div id="startScreen" class="overlay active">
     <div class="title">ふわっピ〜<br>ずんだ</div>
     <button id="startBtn" class="start-btn" type="button">スタート</button>
-    <div style="font-size:10px;color:#ccc;margin-top:6px;">©ねとみむや ver.1.00</div>
+    <div style="font-size:10px;color:#ccc;margin-top:6px;">©ねとみむや ver.1.01</div>
     <div class="highscore">
       <span class="label">ハイスコア</span>
       <span id="highScoreText">0</span>
@@ -441,45 +441,43 @@
   let soundOn = localStorage.getItem(SOUND_KEY) === 'true';
   let highScore = parseInt(localStorage.getItem(HIGHSCORE_KEY), 10) || 0;
 
-  // ========== Web Audio ==========
-  let audioCtx = null;
-  const audioBuffers = {};
+  // ========== Audio (HTMLAudioElement) ==========
   const SOUND_FILES = {
     poi: 'pic/se_poi.mp3',
     hit: 'pic/se_hit.mp3',
     point: 'pic/se_point.mp3'
   };
+  const audioEls = {};
+  Object.keys(SOUND_FILES).forEach(function(key) {
+    const a = new Audio(SOUND_FILES[key]);
+    a.preload = 'auto';
+    a.playsInline = true;
+    audioEls[key] = a;
+  });
 
-  function initAudio() {
-    if (audioCtx) return;
-    try {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      audioCtx = new AC();
-      Object.keys(SOUND_FILES).forEach(function(key) {
-        fetch(SOUND_FILES[key])
-          .then(function(res) { return res.arrayBuffer(); })
-          .then(function(buf) {
-            return new Promise(function(resolve, reject) {
-              audioCtx.decodeAudioData(buf, resolve, reject);
-            });
-          })
-          .then(function(decoded) { audioBuffers[key] = decoded; })
-          .catch(function() {});
-      });
-    } catch (e) {
-      audioCtx = null;
-    }
+  // iOS Safari対策: ユーザー操作と同期して全Audioを一度play()してアンロック
+  function unlockAllSounds() {
+    Object.keys(audioEls).forEach(function(key) {
+      const a = audioEls[key];
+      try {
+        const p = a.play();
+        if (p && typeof p.then === 'function') {
+          p.then(function() {}).catch(function() {});
+        }
+      } catch (e) {}
+    });
   }
 
   function playSound(key) {
-    if (!soundOn || !audioCtx || !audioBuffers[key]) return;
+    if (!soundOn) return;
+    const a = audioEls[key];
+    if (!a) return;
     try {
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const src = audioCtx.createBufferSource();
-      src.buffer = audioBuffers[key];
-      src.connect(audioCtx.destination);
-      src.start(0);
+      a.currentTime = 0;
+      const p = a.play();
+      if (p && typeof p.then === 'function') {
+        p.then(function() {}).catch(function() {});
+      }
     } catch (e) {}
   }
 
@@ -934,8 +932,6 @@
 
   // ========== 入力 ==========
   function tapDuringPlay() {
-    initAudio();
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     if (gameState === STATE.PLAYING) {
       flap();
     }
@@ -973,29 +969,13 @@
     if (e.code === 'Space') {
       e.preventDefault();
       if (gameState === STATE.READY) {
-        initAudio();
+        unlockAllSounds();
         startGame();
       } else {
         tryTapDuringPlay();
       }
     }
   });
-
-  // iOS Safari対策: ユーザー操作と同期して全音を一度実発火させてアンロック
-  function unlockAllSounds() {
-    if (!audioCtx) return;
-    try {
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      Object.keys(SOUND_FILES).forEach(function(key) {
-        const buf = audioBuffers[key];
-        if (!buf) return;
-        const src = audioCtx.createBufferSource();
-        src.buffer = buf;
-        src.connect(audioCtx.destination);
-        src.start(0);
-      });
-    } catch (e) {}
-  }
 
   // スタートボタン
   const startBtn = document.getElementById('startBtn');
@@ -1004,8 +984,6 @@
     const now = Date.now();
     if (now < startLock) return;
     startLock = now + 300;
-    initAudio();
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     unlockAllSounds();
     startGame();
   }
@@ -1036,8 +1014,7 @@
     localStorage.setItem(SOUND_KEY, soundOn ? 'true' : 'false');
     updateSoundBtn();
     if (soundOn) {
-      initAudio();
-      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      unlockAllSounds();
     }
   }
   soundBtn.addEventListener('click', function(e) {
