@@ -23,10 +23,13 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="no">
 <!---->
+<!-- 画像プリロード（音声より優先） -->
+<link rel="preload" href="pic/chara.gif" as="image">
+
 <!-- 音声プリロード -->
-<link rel="preload" href="pic/se_poi.mp3" as="audio" type="audio/mpeg">
-<link rel="preload" href="pic/se_hit.mp3" as="audio" type="audio/mpeg">
-<link rel="preload" href="pic/se_point.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="pic/se_poi.mp3" as="fetch" type="audio/mpeg" crossorigin="anonymous">
+<link rel="preload" href="pic/se_hit.mp3" as="fetch" type="audio/mpeg" crossorigin="anonymous">
+<link rel="preload" href="pic/se_point.mp3" as="fetch" type="audio/mpeg" crossorigin="anonymous">
 
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -280,9 +283,9 @@
   .gameover-buttons {
     margin-top: 20px;
     display: flex;
+    flex-direction: column;
     gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
+    align-items: center;
   }
 
   .restart-btn {
@@ -303,6 +306,7 @@
     text-align: center;
     letter-spacing: 0.05em;
     -webkit-tap-highlight-color: transparent;
+    width: 220px;
   }
 
   .restart-btn.top-btn {
@@ -311,11 +315,20 @@
     border: 3px solid #5fb83a;
     padding: 9px 22px;
     box-shadow: 0 4px 0 #3d8420, 0 6px 12px rgba(0,0,0,0.3);
+    width: 150px;
   }
 
   .restart-btn:active {
     transform: translateY(2px);
     box-shadow: 0 2px 0 #3d8420;
+  }
+
+  /* Windowsのフォントレンダリング対策（ガビガビ防止） */
+  html.is-win .restart-btn {
+    transform: rotate(0.03deg);
+  }
+  html.is-win .restart-btn:active {
+    transform: translateY(2px) rotate(0.03deg);
   }
 
   /* 共通の丸ボタン（音声ボタン・戻るボタン） */
@@ -397,7 +410,7 @@
   <div id="startScreen" class="overlay active">
     <div class="title">ふわっピ〜<br>ずんだ</div>
     <button id="startBtn" class="start-btn" type="button">スタート</button>
-    <div style="font-size:10px;color:#ccc;margin-top:6px;">©ねとみむや ver.1.01</div>
+    <div style="font-size:10px;color:#ccc;margin-top:6px;">©ねとみむや ver.1.05</div>
     <div class="highscore">
       <span class="label">ハイスコア</span>
       <span id="highScoreText">0</span>
@@ -438,46 +451,52 @@
     localStorage.setItem(HIGHSCORE_KEY, '0');
   }
 
-  let soundOn = localStorage.getItem(SOUND_KEY) === 'true';
+  // iPhone判定（iPhoneでは音ズレが酷いため音声機能を完全に無効化）
+  const isIPhone = /iPhone|iPod/.test(navigator.userAgent);
+
+  let soundOn = isIPhone ? false : (localStorage.getItem(SOUND_KEY) === 'true');
   let highScore = parseInt(localStorage.getItem(HIGHSCORE_KEY), 10) || 0;
 
-  // ========== Audio (HTMLAudioElement) ==========
+  // ========== Web Audio ==========
+  let audioCtx = null;
+  const audioBuffers = {};
   const SOUND_FILES = {
     poi: 'pic/se_poi.mp3',
     hit: 'pic/se_hit.mp3',
     point: 'pic/se_point.mp3'
   };
-  const audioEls = {};
-  Object.keys(SOUND_FILES).forEach(function(key) {
-    const a = new Audio(SOUND_FILES[key]);
-    a.preload = 'auto';
-    a.playsInline = true;
-    audioEls[key] = a;
-  });
 
-  // iOS Safari対策: ユーザー操作と同期して全Audioを一度play()してアンロック
-  function unlockAllSounds() {
-    Object.keys(audioEls).forEach(function(key) {
-      const a = audioEls[key];
-      try {
-        const p = a.play();
-        if (p && typeof p.then === 'function') {
-          p.then(function() {}).catch(function() {});
-        }
-      } catch (e) {}
-    });
+  function initAudio() {
+    if (isIPhone) return;
+    if (audioCtx) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      audioCtx = new AC();
+      Object.keys(SOUND_FILES).forEach(function(key) {
+        fetch(SOUND_FILES[key])
+          .then(function(res) { return res.arrayBuffer(); })
+          .then(function(buf) {
+            return new Promise(function(resolve, reject) {
+              audioCtx.decodeAudioData(buf, resolve, reject);
+            });
+          })
+          .then(function(decoded) { audioBuffers[key] = decoded; })
+          .catch(function() {});
+      });
+    } catch (e) {
+      audioCtx = null;
+    }
   }
 
   function playSound(key) {
-    if (!soundOn) return;
-    const a = audioEls[key];
-    if (!a) return;
+    if (!soundOn || !audioCtx || !audioBuffers[key]) return;
     try {
-      a.currentTime = 0;
-      const p = a.play();
-      if (p && typeof p.then === 'function') {
-        p.then(function() {}).catch(function() {});
-      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const src = audioCtx.createBufferSource();
+      src.buffer = audioBuffers[key];
+      src.connect(audioCtx.destination);
+      src.start(0);
     } catch (e) {}
   }
 
@@ -538,8 +557,14 @@
     refreshPipeSpeed();
   }
 
-  // スコアに応じた加速量を計算（30点超えから10点ごとに+0.1）
+  // スコアに応じた加速量を計算
+  // スマホ(cssW < 541): 15pt超えたら1pt加算ごとに+0.1
+  // PC(cssW >= 541): 30pt超えたら10pt加算ごとに+0.1（現状維持）
   function getScoreSpeedBonus() {
+    if (cssW < 541) {
+      if (score < 16) return 0;
+      return (score - 15) * 0.1;
+    }
     if (score < 30) return 0;
     return Math.floor((score - 20) / 10) * 0.1;
   }
@@ -932,6 +957,8 @@
 
   // ========== 入力 ==========
   function tapDuringPlay() {
+    initAudio();
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     if (gameState === STATE.PLAYING) {
       flap();
     }
@@ -969,7 +996,7 @@
     if (e.code === 'Space') {
       e.preventDefault();
       if (gameState === STATE.READY) {
-        unlockAllSounds();
+        initAudio();
         startGame();
       } else {
         tryTapDuringPlay();
@@ -984,7 +1011,8 @@
     const now = Date.now();
     if (now < startLock) return;
     startLock = now + 300;
-    unlockAllSounds();
+    initAudio();
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     startGame();
   }
   startBtn.addEventListener('click', function(e) {
@@ -999,6 +1027,7 @@
 
   // サウンドボタン
   const soundBtn = document.getElementById('soundBtn');
+  if (isIPhone && soundBtn) soundBtn.style.display = 'none';
   function updateSoundBtn() {
     const onIcon = document.getElementById('soundIconOn');
     const offIcon = document.getElementById('soundIconOff');
@@ -1014,7 +1043,8 @@
     localStorage.setItem(SOUND_KEY, soundOn ? 'true' : 'false');
     updateSoundBtn();
     if (soundOn) {
-      unlockAllSounds();
+      initAudio();
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     }
   }
   soundBtn.addEventListener('click', function(e) {
@@ -1029,6 +1059,13 @@
 
   // リスタートボタン
   const restartBtn = document.getElementById('restartBtn');
+
+  // Windowsのフォントレンダリング対策（ガビガビ防止）
+  const isWindows = /Windows/.test(navigator.userAgent);
+  if (isWindows) {
+    document.documentElement.classList.add('is-win');
+  }
+
   let restartLock = 0;
   function doRestart() {
     const now = Date.now();
