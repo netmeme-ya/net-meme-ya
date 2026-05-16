@@ -1,0 +1,63 @@
+/*PC_SP_BR_ONOFF*/
+.sp1150on,.sp1024on,.sp820on,.sp768on,.sp767on,.sp600on,.sp540on,.sp440on,.sp430on,.sp414on,.sp390on,.sp375on,.sp360on,.sp358on,.sp320on
+{display: none;}
+@media screen and (max-width: 1150px) {
+	.sp1150on{display: block;}
+	.sp1150off{display: none;}
+}
+@media screen and (max-width: 1024px) {
+	.sp1024on{display: block;}
+	.sp1024off{display: none;}
+}
+@media screen and (max-width: 820px) {
+	.sp820on{display: block;}
+	.sp820off{display: none;}
+}
+@media screen and (max-width: 768px) {
+	.sp768on{display: block;}
+	.sp768off{display: none;}
+}
+@media screen and (max-width: 767px) {
+	.sp767on{display: block;}
+	.sp767off{display: none;}
+}
+@media screen and (max-width: 600px) {
+	.sp600on{display: block;}
+	.sp600off{display: none;}
+}
+@media screen and (max-width: 540px) {
+	.sp540on{display: block;}
+	.sp540off{display: none;}
+}
+@media screen and (max-width: 440px) {
+	.sp440on{display: block;}
+	.sp440off{display: none;}
+}
+@media screen and (max-width: 430px) {
+	.sp430on{display: block;}
+	.sp430off{display: none;}
+}
+@media screen and (max-width: 414px) {
+	.sp414on{display: block;}
+	.sp414off{display: none;}
+}
+@media screen and (max-width: 390px) {
+	.sp390on{display: block;}
+	.sp390off{display: none;}
+}
+@media screen and (max-width: 375px) {
+	.sp375on{display: block;}
+	.sp375off{display: none;}
+}
+@media screen and (max-width: 360px) {
+	.sp360on{display: block;}
+	.sp360off{display: none;}
+}
+@media screen and (max-width: 358px) {
+	.sp358on{display: block;}
+	.sp358off{display: none;}
+}
+@media screen and (max-width: 320px) {
+	.sp320on{display: block;}
+	.sp320off{display: none;}
+}
