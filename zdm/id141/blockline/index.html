@@ -791,7 +791,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.03</div>
+        <div class="copyright">©ねとみむや ver.1.04</div>
     </div>
 
     <!-- ============================================
@@ -1015,6 +1015,21 @@ function playSE(name) {
     if (!el) return;
     try { el.currentTime = 0; el.play().catch(()=>{}); } catch(e) {}
 }
+/* ページ離脱時 (タブ閉じ・リロード・スワイプで戻る等) に全SEを停止する。
+   iOSのロック画面/コントロールセンターのメディアプレーヤーに
+   音声が残って再生可能になるのを防ぐ目的。
+   pagehide はiOS Safariで確実に発火するイベント。beforeunloadは保険。 */
+function stopAllSEs() {
+    Object.values(SE).forEach(el => {
+        if (!el) return;
+        try {
+            el.pause();
+            el.currentTime = 0;
+        } catch(e) {}
+    });
+}
+window.addEventListener('pagehide', stopAllSEs);
+window.addEventListener('beforeunload', stopAllSEs);
 /* iOS Safari対策: スワイプ起点で発火するSEは鳴らせないため、
    ゲームスタートボタンの"タップ"を起点に対象SEを一瞬play→即stopして解禁する。
    se_get だけは冒頭無音を入れていない (入れると配置時の体感が遅くなる) ため
@@ -1794,6 +1809,18 @@ function gameOver() {
     forceCancelDrag();
     // 音声は置けなくなった瞬間に再生
     playSE('gameover');
+    // iOSのロック画面/コントロールセンターのメディアプレーヤーに
+    // se_gameover が残って再生可能になるのを防ぐため、再生完了時に
+    // pause + 先頭巻き戻しで明示的に停止状態にする。
+    const seGO = SE.gameover;
+    if (seGO) {
+        seGO.addEventListener('ended', () => {
+            try {
+                seGO.pause();
+                seGO.currentTime = 0;
+            } catch(e) {}
+        }, { once: true });
+    }
 
     // 「0点でGAMEOVER」など、ゲームオーバー時に達成扱いになるサイレントノルマ判定
     for (const n of NORMAS) {

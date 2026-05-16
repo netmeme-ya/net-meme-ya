@@ -411,7 +411,7 @@ function checkWin() {
             //NEXTゲーム・クリア画面とNEXTボタン
             setTimeout(function(){
     			next_div.style.display = "block";
-			}, 1500);           
+			}, 1000);           
         }
     }
 }
