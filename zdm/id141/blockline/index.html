@@ -28,9 +28,10 @@
 
 <!-- 効果音プリロード -->
 <audio id="se_get" src="pic/se_get.mp3" preload="auto"></audio>
-<!-- se_start / se_point / se_gameover は se_c1.mp3 に統合 (オーディオスプライト方式)
-     3.0〜4.5s: se_start相当 / 6.0〜8.0s: se_point相当 / 11.0〜16.5s: se_gameover相当
-     先頭0〜3sは無音 (iOSアンロック時に音漏れしないためのバッファ) -->
+<audio id="se_start" src="pic/se_start.mp3" preload="auto"></audio>
+<!-- se_point / se_gameover は se_c1.mp3 に統合 (オーディオスプライト方式)
+     5.0〜7.0s: se_point相当 / 10.0〜17.0s: se_gameover相当
+     先頭0〜5sは無音 (iOSアンロック時に音漏れしないためのバッファ) -->
 <audio id="se_c1" src="pic/se_c1.mp3" preload="auto"></audio>
 
 <!--画像のプリロード-->
@@ -806,7 +807,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.15</div>
+        <div class="copyright">©ねとみむや ver.1.16</div>
     </div>
 
     <!-- ============================================
@@ -1017,20 +1018,22 @@ function addNormaClear(id) {
 /* ==========================================================
    音声管理
    ========================================================== */
-/* SE管理。start/point/gameover は se_c1.mp3 に統合済 (オーディオスプライト方式)。
-   playSE('start'/'point'/'gameover') を呼ぶと c1 の該当区間にシークして再生し、
+/* SE管理。point/gameover は se_c1.mp3 に統合 (オーディオスプライト方式)。
+   playSE('point'/'gameover') を呼ぶと c1 の該当区間にシークして再生し、
    区間長ぶんの setTimeout で停止する。
    ・各区間の後ろに無音マージンがあるため、setTimeout が多少遅延しても
      次のSE区間まで到達せず、音漏れしない。
-   ・新しいSEを鳴らすときは前のタイマーをクリアして上書きする。 */
+   ・新しいSEを鳴らすときは前のタイマーをクリアして上書きする。
+   start/get は単独ファイル (start は iPhone11 でシーク再生が不安定だったため
+   単独ファイル運用に戻した)。 */
 const SE_SPRITE = {
-    start:    { el: 'c1', start: 3.0,  end: 4.5  },
-    point:    { el: 'c1', start: 6.0,  end: 8.0  },
-    gameover: { el: 'c1', start: 11.0, end: 16.5 },
+    point:    { el: 'c1', start: 5.0,  end: 7.0  },
+    gameover: { el: 'c1', start: 10.0, end: 17.0 },
 };
 const SE = {
-    get: document.getElementById('se_get'),
-    c1:  document.getElementById('se_c1'),
+    get:   document.getElementById('se_get'),
+    start: document.getElementById('se_start'),
+    c1:    document.getElementById('se_c1'),
 };
 // スプライト要素ごとの停止タイマーID (要素id → timeoutID)
 const _spriteStopTimers = {};
@@ -1877,7 +1880,7 @@ function gameOver() {
     game.over = true;
     // 置けなくなった瞬間にドラッグ中なら即中止 (ピースを抱えたまま固まらないように)
     forceCancelDrag();
-    // 音声は置けなくなった瞬間に再生 (se_c1.mp3 の11.0s〜16.5s区間)
+    // 音声は置けなくなった瞬間に再生 (se_c1.mp3 の10.0s〜17.0s区間)
     playSE('gameover');
     // iOSのロック画面/コントロールセンターのメディアプレーヤーに
     // se_c1 が残って再生可能になるのを防ぐため、再生完了時に
@@ -2089,7 +2092,27 @@ document.addEventListener('click', (e) => {
         showScreen('screen-norma');
     } else if (a === 'start-game') {
         unlockSEsIfIOS(); // iOS Safari対策: muted経由で全SE解禁 (音は鳴らない)
-        playSE('start');
+        playSE('start');  // se_start.mp3 を通常再生
+        /* se_c1.mp3 も鳴らして「即停止指示」する。冒頭5秒は無音なので、
+           停止が遅れても聞こえない (iPhone11でstartがシーク再生だと鳴らなかった
+           問題の回避策。c1自体はタップ起点で一度play()しておくことで、後の
+           point/gameover再生をスムーズにする目的も兼ねる)。 */
+        const seC1 = SE.c1;
+        if (seC1 && getSound()) {
+            try {
+                if (_spriteStopTimers.c1) {
+                    clearTimeout(_spriteStopTimers.c1);
+                    _spriteStopTimers.c1 = null;
+                }
+                seC1.currentTime = 0;
+                seC1.play().catch(()=>{});
+                // 0秒指定で停止 (実際は数百ms〜1秒鳴るが無音区間)
+                _spriteStopTimers.c1 = setTimeout(() => {
+                    _spriteStopTimers.c1 = null;
+                    try { seC1.pause(); seC1.currentTime = 0; } catch(e) {}
+                }, 0);
+            } catch(e) {}
+        }
         startGame();
     } else if (a === 'goto-rule') {
         location.href = 'rule.html';
