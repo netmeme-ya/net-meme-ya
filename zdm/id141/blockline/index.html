@@ -791,7 +791,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.07</div>
+        <div class="copyright">©ねとみむや ver.1.08</div>
     </div>
 
     <!-- ============================================
@@ -2034,7 +2034,27 @@ document.addEventListener('click', (e) => {
         showScreen('screen-start');
     } else if (a === 'back-from-game') {
         stopAllSE();
-        location.reload();
+        // ドラッグ中なら強制終了 (フローター非表示・状態クリア)
+        if (drag) {
+            dragFloater.style.display = 'none';
+            dragFloater.innerHTML = '';
+            drag = null;
+        }
+        // ゲーム盤・スコア・ピース等を初期化 (次回 startGame で再構築されるが、
+        // スタート画面に戻った時点で残骸を残さない)
+        game.board = emptyBoard();
+        game.current = null;
+        game.next = null;
+        game.score = 0;
+        game.combo = 0;
+        game.placedCount = 0;
+        game.over = false;
+        game.lastPointMilestone = 0;
+        game.achievedSet = new Set();
+        cleanupOverlay();
+        // スタート画面のハイスコア表示を更新して戻る
+        refreshHiScoreLabel();
+        showScreen('screen-start');
     }
 });
 
