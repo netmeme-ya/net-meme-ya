@@ -798,7 +798,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.10</div>
+        <div class="copyright">©ねとみむや ver.1.11</div>
     </div>
 
     <!-- ============================================
@@ -1054,25 +1054,33 @@ function unlockSEsIfIOS() {
     if (_seUnlocked) return;
     if (!isIOS()) return;
     _seUnlocked = true;
+    /* muted=trueでplay()→即pause()するとiOS Safariの音声ロックは解除されるが、
+       実際の音は1サンプルも出ない。setTimeoutの遅延に依存しないため、
+       メインスレッドが混雑していても誤って長く鳴ってしまうことがない。 */
     const targets = ['gameover', 'point'];
     targets.forEach(name => {
         const el = SE[name];
         if (!el) return;
         try {
+            el.muted = true;
             el.currentTime = 0;
-            el.play().catch(()=>{});
-        } catch(e) {}
+            const p = el.play();
+            const finalize = () => {
+                try {
+                    el.pause();
+                    el.currentTime = 0;
+                    el.muted = false;
+                } catch(e) {}
+            };
+            if (p && typeof p.then === 'function') {
+                p.then(finalize).catch(finalize);
+            } else {
+                finalize();
+            }
+        } catch(e) {
+            try { el.muted = false; } catch(_) {}
+        }
     });
-    setTimeout(() => {
-        targets.forEach(name => {
-            const el = SE[name];
-            if (!el) return;
-            try {
-                el.pause();
-                el.currentTime = 0;
-            } catch(e) {}
-        });
-    }, 100);
 }
 /* 全SEを即停止 (Androidの音声マーク残り対策) */
 function stopAllSE() {
