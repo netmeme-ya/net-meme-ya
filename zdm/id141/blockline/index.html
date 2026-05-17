@@ -28,9 +28,10 @@
 
 <!-- 効果音プリロード -->
 <audio id="se_get" src="pic/se_get.mp3" preload="auto"></audio>
-<audio id="se_gameover" src="pic/se_gameover.mp3" preload="auto"></audio>
-<audio id="se_start" src="pic/se_start.mp3" preload="auto"></audio>
-<audio id="se_point" src="pic/se_point.mp3" preload="auto"></audio>
+<!-- se_start / se_point / se_gameover は se_c1.mp3 に統合 (オーディオスプライト方式)
+     3.0〜4.5s: se_start相当 / 6.0〜8.0s: se_point相当 / 11.0〜16.5s: se_gameover相当
+     先頭0〜3sは無音 (iOSアンロック時に音漏れしないためのバッファ) -->
+<audio id="se_c1" src="pic/se_c1.mp3" preload="auto"></audio>
 
 <!--画像のプリロード-->
 <link rel="preload" href="pic/b0.gif" as="image" fetchpriority="high">
@@ -805,7 +806,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.14</div>
+        <div class="copyright">©ねとみむや ver.1.15</div>
     </div>
 
     <!-- ============================================
@@ -1016,14 +1017,48 @@ function addNormaClear(id) {
 /* ==========================================================
    音声管理
    ========================================================== */
-const SE = {
-    get:      document.getElementById('se_get'),
-    gameover: document.getElementById('se_gameover'),
-    start:    document.getElementById('se_start'),
-    point:    document.getElementById('se_point'),
+/* SE管理。start/point/gameover は se_c1.mp3 に統合済 (オーディオスプライト方式)。
+   playSE('start'/'point'/'gameover') を呼ぶと c1 の該当区間にシークして再生し、
+   区間長ぶんの setTimeout で停止する。
+   ・各区間の後ろに無音マージンがあるため、setTimeout が多少遅延しても
+     次のSE区間まで到達せず、音漏れしない。
+   ・新しいSEを鳴らすときは前のタイマーをクリアして上書きする。 */
+const SE_SPRITE = {
+    start:    { el: 'c1', start: 3.0,  end: 4.5  },
+    point:    { el: 'c1', start: 6.0,  end: 8.0  },
+    gameover: { el: 'c1', start: 11.0, end: 16.5 },
 };
+const SE = {
+    get: document.getElementById('se_get'),
+    c1:  document.getElementById('se_c1'),
+};
+// スプライト要素ごとの停止タイマーID (要素id → timeoutID)
+const _spriteStopTimers = {};
 function playSE(name) {
     if (!getSound()) return;
+    // スプライト対象 (start/point/gameover) は c1 をシークして再生
+    const sp = SE_SPRITE[name];
+    if (sp) {
+        const el = SE[sp.el];
+        if (!el) return;
+        try {
+            // 前回のSE再生で予約された停止タイマーをキャンセル
+            // (前のSEが鳴っている最中に別のSEを鳴らすケース)
+            if (_spriteStopTimers[sp.el]) {
+                clearTimeout(_spriteStopTimers[sp.el]);
+                _spriteStopTimers[sp.el] = null;
+            }
+            el.currentTime = sp.start;
+            el.play().catch(()=>{});
+            const durMs = (sp.end - sp.start) * 1000;
+            _spriteStopTimers[sp.el] = setTimeout(() => {
+                _spriteStopTimers[sp.el] = null;
+                try { el.pause(); el.currentTime = 0; } catch(e) {}
+            }, durMs);
+        } catch(e) {}
+        return;
+    }
+    // 単独ファイル (get等)
     const el = SE[name];
     if (!el) return;
     try { el.currentTime = 0; el.play().catch(()=>{}); } catch(e) {}
@@ -1033,6 +1068,13 @@ function playSE(name) {
    音声が残って再生可能になるのを防ぐ目的。
    pagehide はiOS Safariで確実に発火するイベント。beforeunloadは保険。 */
 function stopAllSEs() {
+    // 保留中のスプライト停止タイマーをクリア
+    Object.keys(_spriteStopTimers).forEach(k => {
+        if (_spriteStopTimers[k]) {
+            clearTimeout(_spriteStopTimers[k]);
+            _spriteStopTimers[k] = null;
+        }
+    });
     Object.values(SE).forEach(el => {
         if (!el) return;
         try {
@@ -1061,8 +1103,9 @@ function unlockSEsIfIOS() {
     _seUnlocked = true;
     /* muted=trueでplay()→即pause()するとiOS Safariの音声ロックは解除されるが、
        実際の音は1サンプルも出ない。setTimeoutの遅延に依存しないため、
-       メインスレッドが混雑していても誤って長く鳴ってしまうことがない。 */
-    const targets = ['gameover', 'point', 'get'];
+       メインスレッドが混雑していても誤って長く鳴ってしまうことがない。
+       c1は冒頭3秒が無音バッファのため、万一muted反映が遅れても音が漏れない。 */
+    const targets = ['c1', 'get'];
     targets.forEach(name => {
         const el = SE[name];
         if (!el) return;
@@ -1089,6 +1132,13 @@ function unlockSEsIfIOS() {
 }
 /* 全SEを即停止 (Androidの音声マーク残り対策) */
 function stopAllSE() {
+    // 保留中のスプライト停止タイマーをクリア
+    Object.keys(_spriteStopTimers).forEach(k => {
+        if (_spriteStopTimers[k]) {
+            clearTimeout(_spriteStopTimers[k]);
+            _spriteStopTimers[k] = null;
+        }
+    });
     Object.values(SE).forEach(el => {
         if (!el) return;
         try {
@@ -1827,12 +1877,12 @@ function gameOver() {
     game.over = true;
     // 置けなくなった瞬間にドラッグ中なら即中止 (ピースを抱えたまま固まらないように)
     forceCancelDrag();
-    // 音声は置けなくなった瞬間に再生
+    // 音声は置けなくなった瞬間に再生 (se_c1.mp3 の11.0s〜16.5s区間)
     playSE('gameover');
     // iOSのロック画面/コントロールセンターのメディアプレーヤーに
-    // se_gameover が残って再生可能になるのを防ぐため、再生完了時に
+    // se_c1 が残って再生可能になるのを防ぐため、再生完了時に
     // pause + 先頭巻き戻しで明示的に停止状態にする。
-    const seGO = SE.gameover;
+    const seGO = SE.c1;
     if (seGO) {
         seGO.addEventListener('ended', () => {
             try {
