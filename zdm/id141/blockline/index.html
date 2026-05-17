@@ -478,6 +478,13 @@ html, body {
     aspect-ratio: 1 / 1;
     padding: 0;
 }
+/* iPhone SE 等の小型端末 (≤375px) では縦高さクランプを外して横幅90%基準にする。
+   そうしないと `100dvh - 320px` が小さすぎてマスが極端に縮む。 */
+@media (max-width: 375px) {
+    #board {
+        width: 90%;
+    }
+}
 .cell {
     /* 白マスは常時表示 (ブロック画像は上に重ねる) */
     background: #f3f5fa;
@@ -798,7 +805,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.12</div>
+        <div class="copyright">©ねとみむや ver.1.13</div>
     </div>
 
     <!-- ============================================
