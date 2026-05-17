@@ -65,8 +65,14 @@ html, body {
 #app {
     position: relative;
     width: 100%;
+    /* fallback: 100vh (iOS 15.3以前) */
     min-height: 100vh;
     height: 100vh;
+    /* dvh (dynamic viewport height): Safari の動的UIバー(下部ツールバー)を
+       考慮した実視認領域。対応ブラウザでは上の行を上書き。これがないと
+       Safari UIバー裏に中身が回り込み、最下段ピースが半分隠れる。 */
+    min-height: 100dvh;
+    height: 100dvh;
     max-width: 1024px;
     margin: 0 auto;
     overflow: hidden;
@@ -792,7 +798,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.09</div>
+        <div class="copyright">©ねとみむや ver.1.10</div>
     </div>
 
     <!-- ============================================
