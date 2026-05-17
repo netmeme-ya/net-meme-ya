@@ -798,7 +798,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.11</div>
+        <div class="copyright">©ねとみむや ver.1.12</div>
     </div>
 
     <!-- ============================================
@@ -1037,10 +1037,8 @@ function stopAllSEs() {
 window.addEventListener('pagehide', stopAllSEs);
 window.addEventListener('beforeunload', stopAllSEs);
 /* iOS Safari対策: スワイプ起点で発火するSEは鳴らせないため、
-   ゲームスタートボタンの"タップ"を起点に対象SEを一瞬play→即stopして解禁する。
-   se_get だけは冒頭無音を入れていない (入れると配置時の体感が遅くなる) ため
-   一瞬鳴らすと"ピッ"と聞こえてしまう。そこでgetはunlock対象から外し、
-   スタートボタンタップ時に最後まで通常再生して解禁する (呼び出し側で対応)。
+   ゲームスタートボタンの"タップ"を起点に対象SEを muted=true で play→即pause して解禁する。
+   muted経由なので音は1サンプルも出ず、冒頭無音区間の有無やSEごとの音色に依存しない。
    iOS以外 (Windows / Android) では何もしない。 */
 function isIOS() {
     const ua = navigator.userAgent || '';
@@ -1057,7 +1055,7 @@ function unlockSEsIfIOS() {
     /* muted=trueでplay()→即pause()するとiOS Safariの音声ロックは解除されるが、
        実際の音は1サンプルも出ない。setTimeoutの遅延に依存しないため、
        メインスレッドが混雑していても誤って長く鳴ってしまうことがない。 */
-    const targets = ['gameover', 'point'];
+    const targets = ['gameover', 'point', 'get'];
     targets.forEach(name => {
         const el = SE[name];
         if (!el) return;
@@ -2033,11 +2031,7 @@ document.addEventListener('click', (e) => {
         renderNormaList();
         showScreen('screen-norma');
     } else if (a === 'start-game') {
-        unlockSEsIfIOS(); // iOS Safari対策: タップで3つのSEを一瞬鳴らして解禁
-        // se_get はunlock対象外 (冒頭無音なしのため100ms再生だと"ピッ"と聞こえる)。
-        // スタートボタンタップで最後まで通常再生する。
-        // iOSでは解禁を兼ね、Windows/Androidでは心地よいSEとして全プラットフォームで鳴らす。
-        playSE('get');
+        unlockSEsIfIOS(); // iOS Safari対策: muted経由で全SE解禁 (音は鳴らない)
         playSE('start');
         startGame();
     } else if (a === 'goto-rule') {
