@@ -619,30 +619,15 @@ function playClearSound() {
 
 // 面クリア音を停止
 function playClearSoundEnd() {
-    snd_clear.pause();
     snd_clear.currentTime = 0;
 }
 
 // 全面クリア音を再生
 function playAllclearSound() {
-    // iOS18以下ではallclear1.mp3が再生されない不具合があるためclear.mp3で代用
-    const ua = navigator.userAgent;
-    const iosMatch = ua.match(/OS (\d+)_/);
-    const iosVersion = iosMatch ? parseInt(iosMatch[1], 10) : null;
-    const isIPad = /iPad/.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document);
-    const isIOSDevice = /iPhone|iPod/.test(ua) || isIPad;
-    if (isIOSDevice && iosVersion !== null && iosVersion <= 18) {
-        snd_clear.currentTime = 0;
-        if (isOto) {
-            snd_clear.play().catch(() => {});
-        }
-    }else{
-        //iOS19以上ではallclear1.mp3を再生
-        snd_allclear.currentTime = 0;
-        if (isOto) {
-            snd_allclear.play().catch(() => {});
-        }
-    }
+    snd_allclear.currentTime = 0;
+    if(isOto){
+    	snd_allclear.play().catch(() => {});        
+	}    
 }
 
 //画像１枚目のプリロード
