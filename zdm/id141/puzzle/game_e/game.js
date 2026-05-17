@@ -607,27 +607,43 @@ function playClearSound() {
         snd_clear.play().catch(err => {
             fc_debugLog('clear音失敗:' + err);
         });
-        //1.5秒後に確実に停止＆リセット（iOS Safariの内部状態リセット用）
+        //1.6秒後に確実に停止＆リセット（iOS Safariの内部状態リセット用）
         _clearSoundStopTimer = setTimeout(function(){
             snd_clear.pause();
             snd_clear.currentTime = 0;
             _clearSoundStopTimer = null;
             fc_debugLog('clear音 自動停止');
-        }, 1500);
+        }, 1600);
     }
 }
 
 // 面クリア音を停止
 function playClearSoundEnd() {
+    snd_clear.pause();
     snd_clear.currentTime = 0;
 }
 
 // 全面クリア音を再生
 function playAllclearSound() {
-    snd_allclear.currentTime = 0;
-    if(isOto){
-    	snd_allclear.play().catch(() => {});        
-	}    
+    // iOS18以下ではallclear1.mp3が再生されない不具合があるためclear.mp3で代用
+    const ua = navigator.userAgent;
+    const iosMatch = ua.match(/OS (\d+)_/);
+    const iosVersion = iosMatch ? parseInt(iosMatch[1], 10) : null;
+    const isIPad = /iPad/.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document);
+    const isIOSDevice = /iPhone|iPod/.test(ua) || isIPad;
+
+    if (isIOSDevice && iosVersion !== null && iosVersion <= 17) {
+        snd_clear.currentTime = 0;
+        if (isOto) {
+            snd_clear.play().catch(() => {});
+        }
+        return;
+    }else{
+        snd_allclear.currentTime = 0;
+        if (isOto) {
+            snd_allclear.play().catch(() => {});
+        }
+    }
 }
 
 //画像１枚目のプリロード
