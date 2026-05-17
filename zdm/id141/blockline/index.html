@@ -464,10 +464,10 @@ html, body {
     grid-template-rows: repeat(8, 1fr);
     gap: 4px;
     /* fallback: 100vh (iOS 15.3以前) */
-    width: min(94vw, 100%, 720px, calc(100vh - 280px));
+    width: min(94vw, 100%, 720px, calc(100vh - 300px));
     /* dvh (dynamic viewport height) で iOS standalone のホームインジケータ領域を
        除いた実表示エリアに基づきボードサイズを決定。対応ブラウザでは上の行を上書き。 */
-    width: min(94vw, 100%, 720px, calc(100dvh - 280px));
+    width: min(94vw, 100%, 720px, calc(100dvh - 300px));
     aspect-ratio: 1 / 1;
     padding: 0;
 }
@@ -1255,9 +1255,10 @@ function renderTray() {
         const { rows, cols } = shapeBounds(game.current.cells);
         const fitByW = (aw * 0.9 - (cols - 1) * 4) / cols;
         const fitByH = (ah * 0.9 - (rows - 1) * 4) / rows;
-        // 基準は盤面同サイズ。エリアに収まらないなら縮小。ただし最低 30px は守る。
+        // 基準は盤面同サイズ。エリアに収まらないなら縮小。下限は守りたいが、
+        // エリア(縦横)を超えると画面下にはみ出すので fitByH / fitByW でキャップ。
         let cellPx = Math.min(boardCellPx, fitByW, fitByH);
-        cellPx = Math.max(MIN_CELL_PX_CURRENT, cellPx);
+        cellPx = Math.max(Math.min(MIN_CELL_PX_CURRENT, fitByH, fitByW), cellPx);
 
         const pieceEl = buildPieceElement(game.current, cellPx);
         currentSlot.appendChild(pieceEl);
