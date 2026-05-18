@@ -526,7 +526,13 @@ document.addEventListener('touchstart', function(e) {
   for (let i = 0; i < t.length; i++) {
     fc_hanabi_burst(t[i].clientX, t[i].clientY);
   }
-  e.preventDefault();
+  // 左端30px以内のタッチのみpreventDefault(iOSのスワイプ戻る抑制)
+  for (let i = 0; i < t.length; i++) {
+    if (t[i].clientX <= 30) {
+      e.preventDefault();
+      break;
+    }
+  }
 }, { passive: false });
 
 document.addEventListener('click', function(e) {
