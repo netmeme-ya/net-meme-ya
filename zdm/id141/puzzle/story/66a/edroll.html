@@ -356,7 +356,7 @@ let finflg=false;
   	  	setTimeout(() => {
   	  	  chara_sankaku.classList.remove('is-hidden');
           is_tapOK =true;
-        }, 2500);
+        }, 3500);
   	}else if(tapCount == 1 && is_tapOK && erflg==false){
   		chara_m.classList.add('is-show');
   		chara_z.classList.add('is-hidden');
@@ -379,7 +379,7 @@ let finflg=false;
   		is_tapOK = false;
       voice_z=null;
       voice_m=null;
-      setTimeout(fc_roll,1.2*1000);      
+      fc_roll();      
   	}
   });
 //EDロールアクション
@@ -506,10 +506,11 @@ function fc_hanabi(x, y) {
 
 let hanabiTouching = false;
 
-// タップ位置を中心に半径50px内のランダム座標で3発同時に出す
+// タップ位置に1発、残り2発は半径100px以内のランダム座標、合計3発同時
 function fc_hanabi_burst(cx, cy) {
   const R = 100;
-  for (let i = 0; i < 3; i++) {
+  fc_hanabi(cx, cy);
+  for (let i = 0; i < 2; i++) {
     let r = Math.sqrt(Math.random()) * R;
     let a = Math.random() * Math.PI * 2;
     let x = cx + r * Math.cos(a);
@@ -525,7 +526,8 @@ document.addEventListener('touchstart', function(e) {
   for (let i = 0; i < t.length; i++) {
     fc_hanabi_burst(t[i].clientX, t[i].clientY);
   }
-}, { passive: true });
+  e.preventDefault();
+}, { passive: false });
 
 document.addEventListener('click', function(e) {
   if (finflg) return;
