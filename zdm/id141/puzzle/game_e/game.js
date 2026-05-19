@@ -467,9 +467,9 @@ function fc_giveUp() {
     giveUpButton.style.display = "none";
     document.getElementById('giveup_div').style.display = "none";
     document.getElementById('gameover_div').style.display = "block";
-    window.setTimeout(function () {
+    /*window.setTimeout(function () {
         location.href = "../index.html"
-    }, 2000);    
+    }, 2000);*/ 
 }
 //
 //■■■画面上部の表示■■■
