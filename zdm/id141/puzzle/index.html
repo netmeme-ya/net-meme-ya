@@ -103,7 +103,7 @@ let clearareaKey  = localStorage.getItem("cleararea");
 let allclearNum  = localStorage.getItem("allclear");
 
 localStorage.removeItem("nowarea");
-if(clearareaKey>=1){
+if(clearareaKey != null){
 	s2nd_id.style.display = "block";
 	f1st_id.style.display = "none";
 	f1st_id_B.style.display = "block";

@@ -28,9 +28,9 @@ if (ippenNum < 2 || ippenNum > 6 || !Number.isInteger(ippenNum) || isNaN(ippenNu
 //エリア情報の取得（無いときには0=チュートリアルが入る）
 let nowAreaNum = Number(localStorage.getItem('nowarea') ?? "0");
 if(nowAreaNum == 0){localStorage.setItem('nowarea', "0");}
-//クリア済エリア情報の取得（無いときには0=チュートリアルが入る）
-let clearareaNum = Number(localStorage.getItem('cleararea') ?? "0");
-if(clearareaNum == 0){localStorage.setItem('cleararea', "0");}
+//クリア済エリア情報の取得
+let clearareaNum = Number(localStorage.getItem('cleararea'));
+//if(clearareaNum == 0){localStorage.setItem('cleararea', "0");}
 //このゲームがリプレイかどうか?1がリプレイ
 let replayNum = Number((localStorage.getItem('replay') ?? "0"));
 if(replayNum == 0){localStorage.setItem('replay', "0");}
