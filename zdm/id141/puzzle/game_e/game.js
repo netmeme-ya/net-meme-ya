@@ -152,7 +152,6 @@ function fc_start() {
         //GameStartのパネル除去
         document.getElementById('start_anime').style.display = "none";
         giveUpButton.style.display = "block";
-        //reloadButton.style.display = "none";
         //★●スタート音声を鳴らす
         playAudio();
         playBGM();
@@ -551,7 +550,6 @@ snd_allclear.preload = "auto";
 
 // isBufferComp：スタートボタン解放フラグ（HTML5 Audioはロード待ち不要なので即true）
 let isBufferComp = true;
-document.getElementById('start_anime').style.filter = "none";
 
 // SEを再生（スタート音）
 function playAudio() {
@@ -650,7 +648,10 @@ function playAllclearSound() {
 let isImg1Loaded = false;
 const preloadImg1 = new Image();
 preloadImg1.src = imgSrc;
-preloadImg1.onload = function() { isImg1Loaded = true; };
+preloadImg1.onload = function() {
+     isImg1Loaded = true;
+     document.getElementById('start_anime').style.filter = "none";
+};
 
 // ■■■音のONOFFトグルボタン■■■
 bt_oto = document.getElementById("bt_oto");
