@@ -753,6 +753,7 @@ function fc_oto() {
         localStorage.setItem('otoflg', "1");
     }
 }
+//すべて読み込んだ後
 window.onload = function () {    
     // ■■■音のONOFFトグルボタン■■■
     bt_oto = document.getElementById("bt_oto");
