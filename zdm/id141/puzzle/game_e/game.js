@@ -5,7 +5,7 @@
 let _debugLogList = [];
 function fc_debugLog(msg) {
     const t = new Date();
-    const ts = t.getMinutes() + ':' + String(t.getSeconds()).padStart(2,'0') + '.' + String(t.getMilliseconds()).padStart(3,'0');
+    const ts = t.getMinutes() + ':' + String(t.getSeconds()).padStart(2, '0') + '.' + String(t.getMilliseconds()).padStart(3, '0');
     _debugLogList.unshift(ts + ' ' + msg);
     if (_debugLogList.length > 8) _debugLogList.pop();
     const el = document.getElementById('debug_log');
@@ -27,18 +27,18 @@ if (ippenNum < 2 || ippenNum > 6 || !Number.isInteger(ippenNum) || isNaN(ippenNu
 }
 //エリア情報の取得（無いときには0=チュートリアルが入る）
 let nowAreaNum = Number(localStorage.getItem('nowarea') ?? "0");
-if(nowAreaNum == 0){localStorage.setItem('nowarea', "0");}
+if (nowAreaNum == 0) { localStorage.setItem('nowarea', "0"); }
 //クリア済エリア情報の取得
 let clearareaNum = Number(localStorage.getItem('cleararea'));
 //if(clearareaNum == 0){localStorage.setItem('cleararea', "0");}
 //このゲームがリプレイかどうか?1がリプレイ
 let replayNum = Number((localStorage.getItem('replay') ?? "0"));
-if(replayNum == 0){localStorage.setItem('replay', "0");}
+if (replayNum == 0) { localStorage.setItem('replay', "0"); }
 let nextAreaNum = clearareaNum + 1;
 //エリアクリア後の次へボタン。基本はarea.html。fc_areaClear()で指定
 let nextURL = "../story/area.html";
-if(nowAreaNum >= 4){
-	nextURL = "../story/area.html#next";
+if (nowAreaNum >= 4) {
+    nextURL = "../story/area.html#next";
 }
 //難易度設定
 //1ステージのクリア”面”数・3f=18、3n=16、4f=10、4n=6、5f=5、5n=4、6f=3、6n=1(3分で攻略できる目安)
@@ -54,17 +54,17 @@ if (nowAreaNum == 64) {
     clearAreaMenMax = 7;
 }
 //ラストステージは5マスの3面
-if(nowAreaNum == 65){
-	ippenNum = 5;
-	clearAreaMenMax = 3;
+if (nowAreaNum == 65) {
+    ippenNum = 5;
+    clearAreaMenMax = 3;
 }
 //アフターノベル対応
 if (nowAreaNum == 24) {
     nextURL = "../story/24a/index.html";
-}else if(nowAreaNum == 40){
-	nextURL = "../story/40a/index.html";
-}else if(nowAreaNum == 65){	
-	nextURL = "../story/66a/index.html";
+} else if (nowAreaNum == 40) {
+    nextURL = "../story/40a/index.html";
+} else if (nowAreaNum == 65) {
+    nextURL = "../story/66a/index.html";
 }
 //ステージ数の例外
 //〇TEST用対応
@@ -105,7 +105,7 @@ if (nowMode == "story") {
 //タイマーナシなら数字消す
 if (isTimer) {
     document.getElementById('timer_p').style.display = "block";
-} else{
+} else {
     document.getElementById('timer_p').style.display = "none";
 }
 //イラスト番号
@@ -146,7 +146,7 @@ let isHttp = window.location.href.startsWith("http");
 //このステージをクリアしたかどうかフラグ
 let allclearflg = false;
 //一番最初のスタートボタン●
-function fc_start() { 
+function fc_start() {
     //オーディオファイル・画像1枚目がDLされないとスタートボタンが聞かない
     if (isBufferComp && isImg1Loaded) {
         //GameStartのパネル除去
@@ -178,7 +178,7 @@ function shuffle(array) {
             // i番目とj番目の要素を入れ替える（分割代入による swap）
             [array[i], array[j]] = [array[j], array[i]];
         }
-    // every()で「全要素が正位置(val===idx)」かチェック。trueなら揃っているので再ループ
+        // every()で「全要素が正位置(val===idx)」かチェック。trueなら揃っているので再ループ
     } while (array.every((val, idx) => val === idx));
 }
 //タイル配置
@@ -391,39 +391,39 @@ function checkWin() {
             } else {
                 //リプレイのときはreplayを0に戻しておく
                 localStorage.setItem('replay', "0");
-                replayNum = 0;                                               
+                replayNum = 0;
             }
             //AllCrear1のSEを流す
             playAllclearSound();
             allclearflg = true;
-            setTimeout(function(){
-    			allnext_div.style.display = "block";
-			}, 1000);  
+            setTimeout(function () {
+                allnext_div.style.display = "block";
+            }, 1000);
             giveUpButton.style.display = "none";
         } else {
             //全面クリアじゃないときは次の面へ
-           for (let i = 1; i <= clearAreaMenMax; i++) {
-    			document.getElementById('baffer_img' + i).src = picName + picMode + picArea + i + picWebp;
-			}
+            for (let i = 1; i <= clearAreaMenMax; i++) {
+                document.getElementById('baffer_img' + i).src = picName + picMode + picArea + i + picWebp;
+            }
             //ただのClearのSEを流す          
             playClearSound();
             //NEXTゲーム・クリア画面とNEXTボタン
-            setTimeout(function(){
-    			next_div.style.display = "block";
-			}, 1000);           
+            setTimeout(function () {
+                next_div.style.display = "block";
+            }, 1000);
         }
     }
 }
 //■■■AreaClear NEXTボタン■■■
 function fc_areaClear() {
-	document.getElementById('bt_oto').style.display="none";
+    document.getElementById('bt_oto').style.display = "none";
     location.href = nextURL;
 }
 
 //■■■NEXTボタン（ネクストボタン）■■■
 function fc_next() {
     // 画像番号を更新（ここでは 1 から 2 に変更）
-    picNum++;   
+    picNum++;
     // 黒枠線を復活させる
     gameContainer.style.borderColor = '#000';
     tiles.forEach(tile => tile.style.borderColor = '#000');
@@ -469,7 +469,7 @@ function fc_giveUp() {
     document.getElementById('gameover_div').style.display = "block";
     /*window.setTimeout(function () {
         location.href = "../index.html"
-    }, 2000);*/ 
+    }, 2000);*/
 }
 //
 //■■■画面上部の表示■■■
@@ -479,8 +479,8 @@ let clear_count_span = document.getElementById('clear_count_span');
 clear_count_span.textContent = 0 + " / " + clearAreaMenMax;
 //上部エリアカウンター
 document.getElementById('area_count_p').textContent = "AREA：" + nowAreaNum;
-if(replayNum==1){
-document.getElementById('area_count_p').textContent = "RETRY・AREA：" + nowAreaNum;    
+if (replayNum == 1) {
+    document.getElementById('area_count_p').textContent = "RETRY・AREA：" + nowAreaNum;
 }
 //■■■タイマー関連（fc_start();にもアリ）■■■
 //タイマー停止
@@ -512,21 +512,18 @@ function fc_tKeshi() {
 //★★音声周り★★
 //■■■音のON・OFF(fc_start()にもあり)■■■
 let isOto = true;//音は基本的に最初からアリ
-/*
+
 //音は最初はある。自分でOFFにしたら無しになる。(nullのときは1である)
 let otoNum = Number(localStorage.getItem('otoflg') ?? "1");
 //音無しににした場合、最初から音声OFFボタン画像になる
-if(otoNum == 0){
-    isOto = false;
-    fc_oto();
-}*/
+// →window.onload=function後(最下部)に対応
 //ミュージック番号
 let mmNumBefore = Number(localStorage.getItem('mmNum') ?? "0");
 let mmNum = mmNumBefore + 1;
-if(mmNum >= 3){ mmNum = 0; }
+if (mmNum >= 3) { mmNum = 0; }
 localStorage.setItem('mmNum', String(mmNum));
 //ラスボスパート以降は独自音声
-if(nowAreaNum >= 63){ mmNum = nowAreaNum; }
+if (nowAreaNum >= 63) { mmNum = nowAreaNum; }
 
 // ■■■音声システム（HTML5 Audio統一）■■■
 
@@ -537,7 +534,7 @@ snd_start.preload = "auto";
 // BGM（ループ）
 const snd_bgm = new Audio("bgm/mm" + mmNum + ".mp3");
 snd_bgm.preload = "auto";
-snd_bgm.loop    = true;
+snd_bgm.loop = true;
 
 // 面クリア音
 const snd_clear = new Audio("bgm/clear.mp3");
@@ -554,7 +551,7 @@ let isBufferComp = true;
 // SEを再生（スタート音）
 function playAudio() {
     snd_start.currentTime = 0;
-    snd_start.play().catch(() => {});
+    snd_start.play().catch(() => { });
     //■■■iOS Audio アンロック対策（iPhone/iPadのみ）■■■
     //fc_start()のユーザー直接タップの文脈でsnd_clearを一瞬だけ再生してアンロック
     //（これをやらないと初回スワイプクリア時にNotAllowedErrorが出ることがある）
@@ -566,12 +563,12 @@ function playAudio() {
         }
         snd_clear.muted = true;
         snd_clear.volume = 0;
-        snd_clear.currentTime = 0;        
+        snd_clear.currentTime = 0;
         snd_clear.play().catch(err => {
             fc_debugLog('アンロック失敗:' + err);
         });
         //100ms後に確実に停止＆リセット（アンロックだけ済ませて即停止）
-        _clearSoundStopTimer = setTimeout(function(){
+        _clearSoundStopTimer = setTimeout(function () {
             snd_clear.pause();
             snd_clear.volume = 1;
             snd_clear.currentTime = 0;
@@ -585,7 +582,7 @@ function playAudio() {
 // BGMを再生
 function playBGM() {
     snd_bgm.currentTime = 0;
-    snd_bgm.play().catch(() => {});
+    snd_bgm.play().catch(() => { });
 }
 
 // BGMを停止
@@ -597,7 +594,7 @@ function stopBGM() {
 // 面クリア音を再生
 function playClearSound() {
     fc_debugLog('playClearSound');
-    if(isOto){
+    if (isOto) {
         //前回の停止タイマーが残っていたらクリア
         if (_clearSoundStopTimer) {
             clearTimeout(_clearSoundStopTimer);
@@ -609,7 +606,7 @@ function playClearSound() {
             fc_debugLog('clear音失敗:' + err);
         });
         //1.6秒後に確実に停止＆リセット（iOS Safariの内部状態リセット用）
-        _clearSoundStopTimer = setTimeout(function(){
+        _clearSoundStopTimer = setTimeout(function () {
             snd_clear.pause();
             snd_clear.currentTime = 0;
             _clearSoundStopTimer = null;
@@ -636,13 +633,13 @@ function playAllclearSound() {
     if (isIOSDevice && iosVersion !== null && iosVersion <= 17) {
         snd_clear.currentTime = 0;
         if (isOto) {
-            snd_clear.play().catch(() => {});
+            snd_clear.play().catch(() => { });
         }
         return;
-    }else{
+    } else {
         snd_allclear.currentTime = 0;
         if (isOto) {
-            snd_allclear.play().catch(() => {});
+            snd_allclear.play().catch(() => { });
         }
     }
 }
@@ -651,40 +648,17 @@ function playAllclearSound() {
 let isImg1Loaded = false;
 const preloadImg1 = new Image();
 preloadImg1.src = imgSrc;
-preloadImg1.onload = function() {
-     isImg1Loaded = true;
-     document.getElementById('start_anime').style.filter = "none";
+preloadImg1.onload = function () {
+    isImg1Loaded = true;
+    document.getElementById('start_anime').style.filter = "none";
 };
 
-// ■■■音のONOFFトグルボタン■■■
-bt_oto = document.getElementById("bt_oto");
-function fc_oto() {       
-    if (isOto) {
-        // ミュートする
-        isOto = false;
-        localStorage.setItem('otoflg', "0");
-        bt_oto.src = "gazo/otonasi.png";
-        snd_start.muted = true;
-        snd_bgm.muted = true;
-        snd_clear.muted = true;
-        snd_allclear.muted = true;
-    } else {
-        // 音を戻す
-        isOto = true;
-        localStorage.setItem('otoflg', "1");
-        bt_oto.src = "gazo/otoari.png";
-        snd_start.muted = false;
-        snd_bgm.muted = false;
-        snd_clear.muted = false;
-        snd_allclear.muted = false;
-    }
-}
 //
 //■■■途中で画面を切り替えたときの対策■■■
 // ミュート専用の関数
 
 function muteAudio() {
-    isOto = false;    
+    isOto = false;
     if (bt_oto) { bt_oto.src = "gazo/otonasi.png"; }
     snd_start.muted = true;
     snd_bgm.muted = true;
@@ -694,7 +668,7 @@ function muteAudio() {
 
 // アンミュート専用の関数
 function unmuteAudio() {
-    isOto = true;    
+    isOto = true;
     if (bt_oto) { bt_oto.src = "gazo/otoari.png"; }
     snd_start.muted = false;
     snd_bgm.muted = false;
@@ -710,7 +684,7 @@ document.addEventListener("visibilitychange", function () {
         // ページが非表示になる前に、音がオンならその状態を記憶してミュート
         wasAudioOn = isOto;
         muteAudio();
-        if(Androidflg && allclearflg == false && isGameover == false){
+        if (Androidflg && allclearflg == false && isGameover == false) {
             location.href = "wait.html";
         }
     } else if (document.visibilityState === "visible") {
@@ -724,7 +698,7 @@ document.addEventListener("visibilitychange", function () {
 // ブラウザが閉じられる際もミュートする
 window.addEventListener("beforeunload", function (event) {
     muteAudio();
-    if(Androidflg && allclearflg == false && isGameover == false){
+    if (Androidflg && allclearflg == false && isGameover == false) {
         location.href = "wait.html";
     }
 });
@@ -755,3 +729,55 @@ document.addEventListener('touchstart', function (e) {
         e.preventDefault();
     }
 }, { passive: false });
+//全部読み込んだ後の設定
+function fc_oto() {
+    if (isOto) {
+        // ミュートする
+        isOto = false;
+        localStorage.setItem('otoflg', "0");
+        bt_oto.src = "gazo/otonasi.png";
+        snd_start.muted = true;
+        snd_bgm.muted = true;
+        snd_clear.muted = true;
+        snd_allclear.muted = true;
+        localStorage.setItem('otoflg', "0");
+    } else {
+        // 音を戻す
+        isOto = true;
+        localStorage.setItem('otoflg', "1");
+        bt_oto.src = "gazo/otoari.png";
+        snd_start.muted = false;
+        snd_bgm.muted = false;
+        snd_clear.muted = false;
+        snd_allclear.muted = false;
+        localStorage.setItem('otoflg', "1");
+    }
+}
+window.onload = function () {    
+    // ■■■音のONOFFトグルボタン■■■
+    bt_oto = document.getElementById("bt_oto");
+    //音無しににした場合、最初から音声OFFボタン画像になる
+    if (otoNum == 0) {
+        // ミュートする
+        isOto = false;
+        localStorage.setItem('otoflg', "0");
+        bt_oto.src = "gazo/otonasi.png";
+        snd_start.muted = true;
+        snd_bgm.muted = true;
+        snd_clear.muted = true;
+        snd_allclear.muted = true;
+        localStorage.setItem('otoflg', "0");
+    }else{
+        isOto = true;
+        // 音を戻す
+        isOto = true;
+        localStorage.setItem('otoflg', "1");
+        bt_oto.src = "gazo/otoari.png";
+        snd_start.muted = false;
+        snd_bgm.muted = false;
+        snd_clear.muted = false;
+        snd_allclear.muted = false;
+        localStorage.setItem('otoflg', "1");
+    }
+    console.log("isOto："+isOto);
+}

@@ -448,4 +448,9 @@ a {
     }
 }
 
-@media (orientation: portrait) {}
+/*iPhone/iPadだけ音声ボタンを右に30pxずらす（スワイプ戻る対策の操作不能ゾーン回避）*/
+@supports (-webkit-touch-callout: none) {
+    .bt_oto {
+        padding-left: 38px;
+    }
+}
