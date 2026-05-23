@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ずんだブロック並べの遊び方</title>
+<!--favicon-->
+<link rel="icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/i180.png">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+* {
+    margin: 0; padding: 0; box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+html, body {
+    width: 100%;
+    min-height: 100%;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500;
+    background: #5f72e8;
+    color: #fff;
+    overscroll-behavior-y: contain;
+    -webkit-text-size-adjust: 100%;
+}
+@media (min-width:1025px){
+    html, body { background: #000; }
+}
+
+/* ページ全体コンテナ */
+#page {
+    max-width: 1024px;
+    margin: 0 auto;
+    background: #5f72e8;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0 0 env(safe-area-inset-bottom);
+    position: relative;
+}
+
+/* ヘッダ */
+.page-header {
+    text-align: center;
+    padding: 28px 20px 16px;
+}
+.page-header h1 {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-size: clamp(24px, 6.4vw, 38px);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 2px;
+    line-height: 1.4;
+    text-shadow: 0 2px 4px rgba(0,0,0,.15);
+}
+.page-header .lead {
+    margin-top: 8px;
+    font-size: clamp(13px, 3.4vw, 16px);
+    font-weight: 700;
+    opacity: 0.95;
+    line-height: 1.6;
+}
+
+/* TOP画像 */
+.rule-top-img {
+    display: block;
+    width: 92%;
+    max-width: 440px;
+    margin: 12px auto 24px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.18);
+}
+
+/* セクションカード */
+.section {
+    width: 92%;
+    max-width: 560px;
+    margin: 0 auto 20px;
+    background: #fff;
+    color: #2b3b66;
+    border-radius: 16px;
+    padding: 18px 20px 20px;
+    box-shadow: 0 3px 8px rgba(0,0,0,.12);
+}
+.section h2 {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-size: clamp(18px, 4.6vw, 22px);
+    font-weight: 900;
+    color: #fff;
+    background: #0e3fc8;
+    padding: 8px 14px;
+    border-radius: 10px;
+    letter-spacing: 1px;
+    margin: -8px -8px 14px;
+    line-height: 1.4;
+}
+.section p {
+    font-size: clamp(14px, 3.6vw, 16px);
+    line-height: 1.75;
+    margin: 0 0 10px;
+    font-weight: 500;
+}
+.section p:last-child { margin-bottom: 0; }
+.section .em {
+    color: #e64690;
+    font-weight: 900;
+}
+.section .em-orange {
+    color: #f08020;
+    font-weight: 900;
+}
+
+/* リスト */
+.section ul, .section ol {
+    margin: 4px 0 10px 1.3em;
+    line-height: 1.75;
+    font-size: clamp(14px, 3.6vw, 16px);
+    font-weight: 500;
+}
+.section li { margin-bottom: 4px; }
+
+/* スコアテーブル */
+.score-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 12px;
+    font-size: clamp(14px, 3.6vw, 16px);
+}
+.score-table th, .score-table td {
+    border: 1px solid #c5d2eb;
+    padding: 8px 10px;
+    text-align: center;
+    font-weight: 700;
+}
+.score-table thead th {
+    background: #0e3fc8;
+    color: #fff;
+    font-weight: 900;
+}
+.score-table tbody td.score-val {
+    color: #e64690;
+    font-weight: 900;
+    font-family: "M PLUS Rounded 1c", sans-serif;
+}
+
+/* 注意ボックス */
+.tip {
+    background: #fff7e8;
+    border-left: 4px solid #f08020;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-size: clamp(13px, 3.4vw, 15px);
+    color: #5a3a10;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+/* TOPへボタン (index.html のスタイルに揃える) */
+.bottom-actions {
+    width: 92%;
+    max-width: 420px;
+    margin: 8px auto 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+}
+.btn-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    width: 100%;
+    border-radius: 999px;
+    background: #e64690;
+    color: #fff;
+    font-weight: 900;
+    font-size: clamp(20px, 5vw, 26px);
+    letter-spacing: 2px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,.18);
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: transform .08s ease, filter .15s ease;
+}
+.btn-top:active { transform: scale(0.97); filter: brightness(0.92); }
+
+/* コピーライト */
+.copyright {
+    font-family: sans-serif;
+    text-align: center;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 400;
+    margin-top: 2em;
+    padding: 8px 0 20px;
+}
+
+/* ページ左上の戻るボタン (追随しない・ページTOPに固定配置) */
+.page-back-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #fff;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    text-decoration: none;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+}
+.page-back-btn svg { width: 28px; height: 28px; }
+.page-back-btn:active { transform: scale(0.92); }
+.u-pc12sp10_p{
+    font-size: 12px !important;
+    line-height: 1.5;
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+@media (min-width:767px){
+    .section h2{
+        transform: rotateZ(0.03deg);
+    }
+}
+@media (max-width:440px){
+    .u-pc12sp10_p{
+        font-size: 10px !important;
+    }
+}
+</style>
+</head>
+<body>
+<div id="page">
+
+    <!-- 左上の戻るボタン (ページTOPに固定配置・追随なし) -->
+    <a href="index.html" class="page-back-btn" aria-label="戻る">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </a>
+
+    <!-- ヘッダ -->
+    <header class="page-header">
+        <h1>あそびかた</h1>
+        <div class="lead">ずんだブロック並べのルール説明なのだ！</div>
+    </header> 
+
+    <!-- 1. ゲームの目的 -->
+    <section class="section">
+        <h2>１．ゲームの目的</h2>
+        <p>
+            <span class="em">8×8マス</span>の盤面に、下のトレイから<span class="em">キャラのピース</span>をドラッグして置いていくのだ！
+        </p>
+        <img src="pic/rule_top.png" alt="ゲーム画面の説明" class="rule-top-img">
+        <p>
+            キャラを<span class="em">縦か横に１列ぴったり並べる</span>と、その列が消えて<span class="em-orange">スコアGET！</span>
+        </p>
+        <p>
+            ピースが置けなくなったらGAMEOVER。できるだけ長く続けて、ハイスコアを目指すのだ！
+        </p>
+    </section>
+
+    <!-- 2. 操作方法 -->
+    <section class="section">
+        <h2>２．操作方法</h2>
+        <ul>
+            <li>画面下の<span class="em">ピースを指でドラッグ</span>して、盤面の好きな場所に離すと配置できるのだ。</li>
+            <li>右下の<span class="em">「NEXT」</span>には次に出てくるピースが表示されるのだ。先読みして戦略を立てるのだ！</li>
+            <li>置けない場所には配置できないのだ。</li>
+            <li>左上の<span class="em">← ボタン</span>でいつでもゲームを終了できるのだ。</li>
+            <li>右上の<span class="em">スピーカーボタン</span>で効果音のON / OFFを切替できるのだ。</li>
+        </ul>
+    </section>
+
+    <!-- 3. 消す＆スコア -->
+    <section class="section">
+        <h2>３．ライン消去とスコア</h2>
+        <p>
+            ピースを置いた結果、<span class="em">縦または横の１列が全部埋まる</span>と、その列のキャラが消えて得点が入るのだ！
+        </p>
+
+        <p style="margin-top:12px; font-weight:900;">▼ 基本スコア（同時消し）</p>
+        <table class="score-table">
+            <thead>
+                <tr><th>同時に消した列数</th><th>スコア</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>１列</td><td class="score-val">8 pt</td></tr>
+                <tr><td>２列同時</td><td class="score-val">32 pt</td></tr>
+                <tr><td>３列同時</td><td class="score-val">72 pt</td></tr>
+                <tr><td>４列同時</td><td class="score-val">128 pt</td></tr>
+            </tbody>
+        </table>
+
+        <p style="margin-top:10px;">
+            <span class="em-orange">★ COMBOボーナス</span><br>
+            ピースを置くたびに連続でラインを消すと、<span class="em">×２、×３…</span>とコンボ倍率がかかってスコアがどんどん増えるのだ！
+        </p>
+        <p style="margin-top:8px;">
+            <span class="em-orange">★ 同じキャラボーナス（×10 Chara!）</span><br>
+            <span class="em">同じ絵柄のキャラだけで１列揃える</span>と、なんとスコアが<span class="em">１０倍</span>になるのだ！高得点の最大のカギなのだ。
+        </p>
+
+        <div class="tip">
+            💡 コツ：COMBO ×10 Chara! を同時に決めると、一気に何百ポイントも稼げるのだ！
+        </div>
+    </section>
+
+    <!-- 4. ノルマモード -->
+    <section class="section">
+        <h2>４．ノルマモード</h2>
+        <p>
+            メニューの<span class="em">「ノルマ一覧」</span>では、全<span class="em">２７種類のお題</span>に挑戦できるのだ！
+        </p>
+        <p>達成しやすいお題から、超ハードなお題まであるのだ：</p>
+        <ul>
+            <li><span class="em">１列揃えろ！</span> / ２列同時に揃えろ！ / ３列・４列同時！</li>
+            <li><span class="em">縦１列・横１列同時に揃えろ！</span></li>
+            <li><span class="em">２・３・４連続コンボをキメろ！</span></li>
+            <li>同じキャラで１列揃えろ！</li>
+            <li><span class="em">全部消せ！</span>（盤面を空っぽにする）</li>
+            <li>サンドイッチ消し！（１列空けて２列同時消し）</li>
+            <li>ゾロ目得点を狙え！（11、22、111… など）</li>
+            <li>50点〜1000点を超えろ！シリーズ</li>
+            <li>1GAMEでピースを10回・50回・100回置け！</li>
+            <li>累計10回・50回・100回プレイ などなど…</li>
+        </ul>
+        <p style="margin-top:8px;">
+            達成状況は自動で保存されるのだ。全制覇したら<span class="em-orange">ALL CLEAR!!</span>ご褒美イラストが見れるのだ！
+        </p>
+    </section>
+
+    <!-- 5. GAMEOVER -->
+    <section class="section">
+        <h2>５．GAMEOVERについて</h2>
+        <p>
+            次に出てきたピースが<span class="em">盤面のどこにも置けなくなった</span>瞬間にGAMEOVERなのだ。
+        </p>
+        <p>
+            高得点を狙うなら、同時消しを狙うより消せるときにどんどん消してなるべく長くゲームした方が良いのだ。<br>
+            それと、高得点を狙うゲームとノルマ達成を狙うゲームを分けてプレイすると良いのだ。
+        </p>
+    </section>
+
+    <!-- 6. ハイスコア＆セーブ -->
+    <section class="section">
+        <h2>６．データの保存について</h2>
+        <p>
+            ハイスコア・ノルマ達成状況・プレイ回数・音声ON/OFFは、すべて<span class="em">この端末内に自動保存</span>されるのだ。
+        </p>
+        <p class="u-pc12sp10_p">
+            自動保存機能について、iOSでは7日間「ずんだもんスマホ専用デジタルおまけ」ページにアクセスしていないとセーブデータが消去される場合がございますのだ。(なお、7日の間に1度でも再アクセスすると延長されますのだ)。さらにiOS・Android双方でOS初期化・OSアップデートなどでも同様に消える場合がございますのだ。予めご了承くださいのだ。
+        </p>
+        <p>
+            ノルマ一覧画面の一番下の<span class="em-orange">「ノルマリセット」</span>から、達成状況だけリセットすることもできるのだ。
+        </p>
+
+    </section>
+
+    <!-- ７. CHARA説明 -->
+    <section class="section">
+        <h2>７．キャラ説明</h2>
+        <style>
+            .chara_tr{
+                display: flex;
+                align-items: center;
+                margin: 0px auto;
+                width: 100%;
+                max-width: 300px;
+            }
+            .chara_tr img{
+                width: 50px;
+                height: 50px;
+                margin-right: 16px;
+            }
+            .chara_tr p{
+                font-size: 15px;
+                text-align: left;
+                line-height: 1.5;                
+            }
+            .chara_tr p b{
+                font-size: 16px;
+            }
+            .chara_hr{
+                margin: 8px auto;
+                width: 90%;
+                max-width: 100px;
+                border-bottom: 3px dotted #ccc;
+            }
+        </style>
+        <div class="chara_tr">
+            <img src="pic/b0.gif">
+            <p><b>ずんだもん</b><br>ずんだの妖精。人気爆発中！</p>    
+        </div>
+        <div class="chara_hr"></div>
+        <div class="chara_tr">
+            <img src="pic/b1.gif">
+            <p><b>東北ずん子</b><br>東北三姉妹の二女。実は主人公</p>    
+        </div>
+        <div class="chara_hr"></div>
+        <div class="chara_tr">
+            <img src="pic/b2.gif">
+            <p><b>東北きりたん</b><br>東北三姉妹の三女。山形担当</p>    
+        </div>
+        <div class="chara_hr"></div>
+        <div class="chara_tr">
+            <img src="pic/b3.gif">
+            <p><b>東北イタコ</b><br>東北三姉妹の長女。青森担当</p>    
+        </div>
+        <div class="chara_hr"></div>
+        <div class="chara_tr">
+            <img src="pic/b4.gif">
+            <p><b>四国めたん</b><br>ずんだもんの相方</p>    
+        </div>
+        <div class="chara_hr"></div>
+        <div class="chara_tr">
+            <img src="pic/b5.gif">
+            <p><b>あんこもん</b><br>あんこの妖精。暗黒属性</p>    
+        </div>
+        <div class="chara_hr"></div>
+        <p class="u-pc12sp10_p">※ドット絵は東北ずん子・ずんだもんPJ公式サイト掲載の「でんち（@D_DryCell）」様のイラストを許諾を受けた上で利用しています。</p>
+    </section>
+
+    <!-- TOPへ ボタン -->
+    <div class="bottom-actions">
+        <a href="index.html" class="btn-top">TOPへ</a>
+    </div>
+
+    <div class="copyright">©ねとみむや</div>
+
+</div>
+</body>
+</html>
