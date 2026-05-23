@@ -457,19 +457,9 @@ function fc_giveup_no() {
     isgiveupwindow = false;
     document.getElementById('giveup_div').style.display = "none";
 }
-function fc_giveUp() {
-    isGameover = true;
-    isgiveupwindow = false;
+function fc_giveUp() {    
     fc_tKeshi();
-    //音声消す
-    isOto = true;
-    fc_oto();
-    giveUpButton.style.display = "none";
-    document.getElementById('giveup_div').style.display = "none";
-    document.getElementById('gameover_div').style.display = "block";
-    /*window.setTimeout(function () {
-        location.href = "../index.html"
-    }, 2000);*/
+    location.href = "../index.html";
 }
 //
 //■■■画面上部の表示■■■
