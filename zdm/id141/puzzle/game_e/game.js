@@ -770,5 +770,5 @@ window.onload = function () {
         snd_allclear.muted = false;
         localStorage.setItem('otoflg', "1");
     }
-    console.log("isOto："+isOto);
+
 }
