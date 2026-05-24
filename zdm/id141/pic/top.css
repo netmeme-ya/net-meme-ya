@@ -1,12 +1,17 @@
 *{
 	margin: 0;padding: 0;
 }
+
+html,body{
+	margin: 0;
+	scroll-behavior: smooth;
+	scroll-padding-top:20px;
+}
 body{
 	background-color: #FFF;
 	text-align: center;
 	font-size: 100%;
-	font-family:"Noto Sans JP", sans-serif;
-	min-height: 100vh;
+	font-family:"Noto Sans JP", sans-serif;	
 }
 img{
 	width: 100%;
@@ -22,11 +27,47 @@ img{
 p{
 	line-height: 1.5;
 }
+.top_div{
+	width: 100%;
+	padding-bottom: 8px;
+	background: #ecffec;
+}
+nav{
+	display: flex;
+	justify-content:space-around;
+	align-items: center;
+	border-top: 1px solid #FFF;
+}
+nav div{
+	width: 33.3%;
+	border-right: 1px solid #FFF;
+	background-color: #009143;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+nav div a{
+	width: 100%;
+	text-decoration: none;
+	color: #FFF;
+}
+nav div p{
+	text-align: center;
+	font-weight: 700;
+	color: #FFF;
+	padding: 6px 0;
+}
+
+
 main{
 	width: 100%;
+	min-height: 100vh;
 	max-width: 1024px;
 	margin: 0 auto;
 	background-color: #FFF;
+	border: 1px solid #00c332;
+	border-top: none;
+	border-bottom: none;
 }
 header{
 	background-color: #009143;
@@ -40,7 +81,6 @@ header p{
 header p a{
 	color: #00ffff;
 }
-.top_img{}
 .top_p{
 	margin: 1em auto;
 }
@@ -52,6 +92,8 @@ header p a{
 	margin: 0 auto;
 	padding: 4px 0;
 	padding-top: 1em;	
+	opacity: 0.8;
+	color: #003d00;
 }
 .btn_div{
 	width: 90%;
@@ -131,10 +173,32 @@ header p a{
 .news_kakolog_div{
 	display: none;
 }
+.kiyaku_div a p{
+	font-size: 14px;
+}
+.totop_div{
+	width: fit-content;
+	padding-top: 30px;
+	margin: 0 auto;
+}
+.totop_div a{
+	text-decoration: none;
+	color: #009143;
+}
+.totop_div p{
+	margin: 1em auto;
+	border:1px solid #009143;
+	background-color: #FFF;
+	color: #009143;
+	font-size: 14px;
+	font-weight: bold;
+	max-width: 90%;
+	padding: 10px;
+}
 footer{
 	border-top: 1px solid #ccc;
 	padding:4px 0; 
-	margin-top: 50px;
+	margin-top: 20px;
 	background-color: #009143;
 }
 footer p{
@@ -146,6 +210,9 @@ footer p{
 	.alldiv{
 		background-color: #FFF;
 	}
+}
+@media (max-width: 1024px){
+	main{border: none;}
 }
 @media (max-width: 440px){
 	.btn_div a p{
@@ -164,5 +231,11 @@ footer p{
 @media (max-width: 375px){
 	header p,footer p{
 		font-size: 10px;
+	}
+	.nav_center_p{
+		letter-spacing: -0.5px;
+	}
+	nav div p{
+		font-size: 14px;
 	}
 }

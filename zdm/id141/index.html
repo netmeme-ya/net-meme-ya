@@ -20,6 +20,8 @@
 <!--APP-->
 <meta name="apple-mobile-web-app-title" content="ずんだもんスマホ">
 <!---->
+<!--preload-->
+<link rel="preload" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/pic/top.webp" as="image" fetchpriority="high">
 <!--css-->
 <link rel="stylesheet" href="pic/top.css">
 <!--fonts-->
@@ -29,19 +31,26 @@
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;900&display=swap" rel="stylesheet">
 </head>
 
-<body>
+<body id="top">
 	<noscript><p style="text-align: center;margin-top:10px;margin-bottom:999px;">本サービスはJavaScript機能をOFFにしていると利用できません。</p></noscript>
 	<div class="alldiv">
 		<main>
 			<header>
 				<p>ずんだもん スマホ専用デジタルおまけ</p>
 			</header>
-			<img src="pic/top.webp" class="top_img" alt="TOP画像">
+			<div class="top_div">
+				<img src="pic/top.webp" class="top_img" alt="TOP画像">
+			</div>
+			<nav class="nav">
+				<div><a href="#game"><p>ゲーム</p></a></div>
+				<div><a href="#utility"><p class="nav_center_p">ユーティリティ</p></a></div>
+				<div style="border-right: none;"><a href="#miru"><p>見る</p></a></div>
+			</nav>
 
-			<p class="top_p">お買い上げありがとうございますなのだ。<br>下記のボタンからコンテンツをお楽しみ下さいなのだ！</p>
+			<!--<p class="top_p">お買い上げありがとうございますなのだ。<br>下記のボタンからコンテンツをお楽しみ下さいなのだ！</p>-->
 
 			<div class="btn_div">
-				<p class="title_p">★ ゲーム系 ★</p>
+				<p class="title_p" id="game">★ ゲーム系 ★</p>
 				<a href="puzzle/index.html">
 					<p>入れ替えパズル</p>
 				</a>
@@ -77,7 +86,7 @@
 				</a>
 				<p class="btn_sub_p">爽快！ずんだシューティング</p>
 
-				<p class="title_p">★ ユーティリティ系 ★</p>
+				<p class="title_p" id="utility">★ ユーティリティ系 ★</p>
 				<a href="photoframe/index.html">
 					<p>フォトフレーム</p>
 				</a>
@@ -88,7 +97,7 @@
 				</a>
 				<p class="btn_sub_p">ずんだもんの壁紙なのだ！</p>
 
-				<p class="title_p">★ 見る系 ★</p>
+				<p class="title_p" id="miru">★ 見る系 ★</p>
 				<a href="ss/index.html">
 					<p>小説(ショートストーリー)</p>
 				</a>
@@ -117,7 +126,7 @@
 				</div>
 			</div>
 
-			<div class="btn_div">
+			<div class="kiyaku_div">
 				<a href="kiyaku.html">
 					<p>注意事項・利用規約</p>
 				</a>
@@ -126,6 +135,8 @@
 			<p class="copy_p">
 				こちらの「スマホ専用デジタルおまけ」は東北ずん子・ずんだもんプロジェクト公式許諾の有償コンテンツです。２次元コードの画像やURLをX(Twitter)などのSNSに公開しないでください。そうした事象を発見した場合、運営に削除依頼をすると共に、日本国の著作権法に基づいた対応を検討します。
 			</p>
+
+			<div class="totop_div"><a href="#top"><p>TOP</p></a></div>
 
 			<footer>
 				<p>©ねとみむや</p>
