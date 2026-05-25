@@ -209,10 +209,10 @@ html, body {
 /* ページ左上の戻るボタン (追随しない・ページTOPに固定配置) */
 .page-back-btn {
     position: absolute;
-    top: 16px;
-    left: 16px;
-    width: 56px;
-    height: 56px;
+    top: 8px;
+    left: 8px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     background: #fff;
     color: #333;
@@ -226,6 +226,8 @@ html, body {
 }
 .page-back-btn svg { width: 28px; height: 28px; }
 .page-back-btn:active { transform: scale(0.92); }
+.u-12px{text-align: 12px; word-break: break-all;
+    overflow-wrap: break-word;}
 .u-pc12sp10_p{
     font-size: 12px !important;
     line-height: 1.5;
@@ -258,38 +260,24 @@ html, body {
         <div class="lead">ずんだブロック並べのルール説明なのだ！</div>
     </header> 
 
-    <!-- 1. ゲームの目的 -->
+    <!-- ゲームの目的 -->
     <section class="section">
         <h2>１．ゲームの目的</h2>
         <p>
-            <span class="em">8×8マス</span>の盤面に、下のトレイから<span class="em">キャラのピース</span>をドラッグして置いていくのだ！
+            <span class="em">8×8マス</span>の盤面に、下のトレイから<span class="em">キャラクターのピース</span>をスワイプして置いていくのだ！
         </p>
         <img src="pic/rule_top.png" alt="ゲーム画面の説明" class="rule-top-img">
         <p>
             キャラを<span class="em">縦か横に１列ぴったり並べる</span>と、その列が消えて<span class="em-orange">スコアGET！</span>
         </p>
-        <p>
-            ピースが置けなくなったらGAMEOVER。できるだけ長く続けて、ハイスコアを目指すのだ！
-        </p>
+        <p>ピースが置けなくなったら<b>GAMEOVER</b>なのだ。</p>
     </section>
 
-    <!-- 2. 操作方法 -->
+    <!-- 消す＆スコア -->
     <section class="section">
-        <h2>２．操作方法</h2>
-        <ul>
-            <li>画面下の<span class="em">ピースを指でドラッグ</span>して、盤面の好きな場所に離すと配置できるのだ。</li>
-            <li>右下の<span class="em">「NEXT」</span>には次に出てくるピースが表示されるのだ。先読みして戦略を立てるのだ！</li>
-            <li>置けない場所には配置できないのだ。</li>
-            <li>左上の<span class="em">← ボタン</span>でいつでもゲームを終了できるのだ。</li>
-            <li>右上の<span class="em">スピーカーボタン</span>で効果音のON / OFFを切替できるのだ。</li>
-        </ul>
-    </section>
-
-    <!-- 3. 消す＆スコア -->
-    <section class="section">
-        <h2>３．ライン消去とスコア</h2>
+        <h2>２．ライン消去とスコア</h2>
         <p>
-            ピースを置いた結果、<span class="em">縦または横の１列が全部埋まる</span>と、その列のキャラが消えて得点が入るのだ！
+            ピースを置いて<span class="em">縦または横の１列が全部埋まる</span>と、その列のキャラが消えて得点が入るのだ！
         </p>
 
         <p style="margin-top:12px; font-weight:900;">▼ 基本スコア（同時消し）</p>
@@ -307,16 +295,12 @@ html, body {
 
         <p style="margin-top:10px;">
             <span class="em-orange">★ COMBOボーナス</span><br>
-            ピースを置くたびに連続でラインを消すと、<span class="em">×２、×３…</span>とコンボ倍率がかかってスコアがどんどん増えるのだ！
+            ピースを置くたびに連続でラインを消すと<br><span class="em">×２、×３、×４…</span><br>とコンボ倍率がかかってスコアがどんどん増えるのだ！
         </p>
         <p style="margin-top:8px;">
-            <span class="em-orange">★ 同じキャラボーナス（×10 Chara!）</span><br>
-            <span class="em">同じ絵柄のキャラだけで１列揃える</span>と、なんとスコアが<span class="em">１０倍</span>になるのだ！高得点の最大のカギなのだ。
+            <span class="em-orange">★ 同キャラボーナス（×10 Chara!）</span><br>
+            <span class="em">同じキャラだけで１列揃える</span>と、なんとスコアが<span class="em">×１０</span>になるのだ！
         </p>
-
-        <div class="tip">
-            💡 コツ：COMBO ×10 Chara! を同時に決めると、一気に何百ポイントも稼げるのだ！
-        </div>
     </section>
 
     <!-- 4. ノルマモード -->
@@ -327,7 +311,7 @@ html, body {
         </p>
         <p>達成しやすいお題から、超ハードなお題まであるのだ：</p>
         <ul>
-            <li><span class="em">１列揃えろ！</span> / ２列同時に揃えろ！ / ３列・４列同時！</li>
+            <li><span class="em">４列同時に揃えろ！</span></li>
             <li><span class="em">縦１列・横１列同時に揃えろ！</span></li>
             <li><span class="em">２・３・４連続コンボをキメろ！</span></li>
             <li>同じキャラで１列揃えろ！</li>
@@ -339,34 +323,25 @@ html, body {
             <li>累計10回・50回・100回プレイ などなど…</li>
         </ul>
         <p style="margin-top:8px;">
-            達成状況は自動で保存されるのだ。全制覇したら<span class="em-orange">ALL CLEAR!!</span>ご褒美イラストが見れるのだ！
+            達成状況は自動で保存されるのだ。<br>全部制覇したら<span class="em-orange">ALL CLEAR!!</span>で、ご褒美イラストが見れるのだ！
         </p>
-    </section>
-
-    <!-- 5. GAMEOVER -->
-    <section class="section">
-        <h2>５．GAMEOVERについて</h2>
-        <p>
-            次に出てきたピースが<span class="em">盤面のどこにも置けなくなった</span>瞬間にGAMEOVERなのだ。
-        </p>
-        <p>
-            高得点を狙うなら、同時消しを狙うより消せるときにどんどん消してなるべく長くゲームした方が良いのだ。<br>
-            それと、高得点を狙うゲームとノルマ達成を狙うゲームを分けてプレイすると良いのだ。
-        </p>
+        <div class="tip">
+            💡 コツ：高得点を狙うゲームとノルマ達成を狙うゲームを分けてプレイすると捗（はかど）るのだ！
+        </div>
     </section>
 
     <!-- 6. ハイスコア＆セーブ -->
     <section class="section">
         <h2>６．データの保存について</h2>
         <p>
-            ハイスコア・ノルマ達成状況・プレイ回数・音声ON/OFFは、すべて<span class="em">この端末内に自動保存</span>されるのだ。
+            ハイスコア・ノルマ達成状況・プレイ回数は、このスマホ端末内に<span class="em">自動保存</span>されるのだ。
         </p>
-        <p class="u-pc12sp10_p">
-            自動保存機能について、iOSでは7日間「ずんだもんスマホ専用デジタルおまけ」ページにアクセスしていないとセーブデータが消去される場合がございますのだ。(なお、7日の間に1度でも再アクセスすると延長されますのだ)。さらにiOS・Android双方でOS初期化・OSアップデートなどでも同様に消える場合がございますのだ。予めご了承くださいのだ。
+        <p class="u-12px">
+            自動保存機能について、iOSでは<b style="color: red;">7日間</b><span style="color: red;">「ずんだもんスマホ専用デジタルおまけ」ページにアクセスしていないとセーブデータが消去される</span>場合があるのだ。(なお、7日の間に1度でも再アクセスすると延長されるのだ)。さらにiOS・Android双方でOS初期化・OSアップデートなどでも同様に消える場合があるのだ。<br>予めご了承くださいなのだ。
         </p>
         <p>
-            ノルマ一覧画面の一番下の<span class="em-orange">「ノルマリセット」</span>から、達成状況だけリセットすることもできるのだ。
-        </p>
+            ノルマ一覧画面の一番下の<span class="em-orange">「ノルマリセット」</span>から、最高得点と達成状況をリセットすることもできるのだ。
+        </p>        
 
     </section>
 
@@ -413,12 +388,12 @@ html, body {
         <div class="chara_hr"></div>
         <div class="chara_tr">
             <img src="pic/b2.gif">
-            <p><b>東北きりたん</b><br>東北三姉妹の三女。山形担当</p>    
+            <p><b>東北きりたん</b><br>東北三姉妹の三女。ゲーマー</p>    
         </div>
         <div class="chara_hr"></div>
         <div class="chara_tr">
             <img src="pic/b3.gif">
-            <p><b>東北イタコ</b><br>東北三姉妹の長女。青森担当</p>    
+            <p><b>東北イタコ</b><br>東北三姉妹の長女。恐山勤務</p>    
         </div>
         <div class="chara_hr"></div>
         <div class="chara_tr">
