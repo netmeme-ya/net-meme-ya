@@ -815,7 +815,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.17</div>
+        <div class="copyright">©ねとみむや ver.1.18</div>
     </div>
 
     <!-- ============================================
@@ -1096,6 +1096,28 @@ function stopAllSEs() {
 }
 window.addEventListener('pagehide', stopAllSEs);
 window.addEventListener('beforeunload', stopAllSEs);
+
+/* ==========================================================
+   GAMEOVER中のバックグラウンド遷移対策
+   GAMEOVER表示中(game.over === true)に
+   タブ切替/ホームボタン/画面ロック等でページが非表示になったら、
+   wait.html へ遷移する。
+   理由: se_c1.mp3 のメディア通知バーが画面上部に残るのが鬱陶しいため。
+   GAMEOVER以外の状態(プレイ中・タイトル等)では絶対に遷移しない。
+   長時間プレイ中に休憩で画面を閉じても安全。
+   ========================================================== */
+document.addEventListener('visibilitychange', () => {
+    // 非表示になった瞬間のみ判定
+    if (!document.hidden) return;
+    // GAMEOVER中でなければ何もしない (プレイ中の休憩を妨げないため)
+    if (typeof game === 'undefined' || !game || !game.over) return;
+    // メディア通知バーを確実に消すため遷移前にSE停止
+    try { stopAllSE(); } catch(e) {}
+    try { stopAllSEs(); } catch(e) {}
+    // 履歴を残さず wait.html へ (戻るボタンでGAMEOVER画面に戻らないように)
+    location.replace('wait.html');
+});
+
 /* iOS Safari対策: スワイプ起点で発火するSEは鳴らせないため、
    ゲームスタートボタンの"タップ"を起点に対象SEを muted=true で play→即pause して解禁する。
    muted経由なので音は1サンプルも出ず、冒頭無音区間の有無やSEごとの音色に依存しない。
