@@ -46,12 +46,15 @@ mmNumは音楽番号
 <audio preload="auto" src="game_e/bgm/mm1.mp3" type="audio/mp3"></audio>
 <audio preload="auto" src="game_e/bgm/mm2.mp3" type="audio/mp3"></audio>
 <audio preload="auto" src="game_e/bgm/mm63.mp3" type="audio/mp3"></audio>
-<audio preload="auto" src="game_e/bgm/mm64.mp3" type="audio/mp3"></audio>
 <audio preload="auto" src="game_e/bgm/mm65.mp3" type="audio/mp3"></audio>
 <audio preload="auto" src="game_e/bgm/clear.mp3" type="audio/mp3"></audio>
 <audio preload="auto" src="game_e/bgm/allclear1.mp3" type="audio/mp3"></audio>
 <audio preload="auto" src="game_e/bgm/zdm_start.mp3" type="audio/mp3"></audio>
 <link rel="preload" href="game_e/pic/story/a0/1.webp" as="image">
+<style>
+body.fade-in{animation:fadeIn 1.2s ease-in;}
+@keyframes fadeIns{0%{opacity:0;}20%{opacity: 0;}100%{opacity:1;}}
+</style>
 </head>
 
 <body oncontextmenu="return false;">
@@ -136,12 +139,17 @@ function confirmReset(){
   }	
 }
 function fc_clearLocalStrage(){
+	localStorage.removeItem("visited");
 	localStorage.removeItem("nowarea");
     localStorage.removeItem("cleararea");
     localStorage.removeItem("replay");
     localStorage.removeItem("mmNum");
     localStorage.removeItem("allclear");
     localStorage.removeItem("otoflg");
+}
+if(!localStorage.getItem("visited")){
+	document.body.classList.add("fade-in");
+	localStorage.setItem("visited","1");
 }
 </script>
 </body>

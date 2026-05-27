@@ -513,8 +513,12 @@ let mmNum = mmNumBefore + 1;
 if (mmNum >= 3) { mmNum = 0; }
 localStorage.setItem('mmNum', String(mmNum));
 //ラスボスパート以降は独自音声
-if (nowAreaNum >= 63) { mmNum = nowAreaNum; }
-
+if (nowAreaNum >= 63) { 
+    mmNum = 63; 
+}
+if (nowAreaNum == 65) { 
+    mmNum = 65; 
+}
 // ■■■音声システム（HTML5 Audio統一）■■■
 
 // スタートSE
