@@ -815,7 +815,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.18</div>
+        <div class="copyright">©ねとみむや ver.1.19</div>
     </div>
 
     <!-- ============================================
@@ -1964,9 +1964,9 @@ function gameOver() {
         });
         document.getElementById('btn-back-over').addEventListener('click', () => {
             stopAllSE();
-            cleanupOverlay();
-            refreshHiScoreLabel();
-            showScreen('screen-start');
+            // GAMEOVER後はメディア再生バーがブラウザ上部に残り続けるため、
+            // ページごとリロードして確実に消す (showScreenでは消えない)
+            location.reload();
         });
     }, 2000);
 }
@@ -2152,6 +2152,12 @@ document.addEventListener('click', (e) => {
         refreshHiScoreLabel();
         showScreen('screen-start');
     } else if (a === 'back-from-game') {
+        // GAMEOVER中はメディア再生バーが残り続けるため、ページごとリロードして確実に消す
+        if (game && game.over) {
+            stopAllSE();
+            location.reload();
+            return;
+        }
         stopAllSE();
         // ドラッグ中なら強制終了 (フローター非表示・状態クリア)
         if (drag) {
