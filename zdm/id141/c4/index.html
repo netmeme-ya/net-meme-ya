@@ -24,6 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;900&display=swap" rel="stylesheet">
+<link rel="preload" href="pic/bgm0.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="pic/start_easy.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="pic/start_medium.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="pic/start_pro.mp3" as="audio" type="audio/mpeg">
@@ -709,6 +710,7 @@
 </style>
 </head>
 <body oncontextmenu="return false;">
+<audio id="bgm" src="pic/bgm0.mp3" preload="auto" loop></audio>
 <audio id="se-start-easy" src="pic/start_easy.mp3" preload="auto"></audio>
 <audio id="se-start-medium" src="pic/start_medium.mp3" preload="auto"></audio>
 <audio id="se-start-pro" src="pic/start_pro.mp3" preload="auto"></audio>
@@ -747,7 +749,7 @@
         <!-- <button class="difficulty-btn" id="benchmark-btn" data-level="pro">Pro CPU同士</button> -->
         <button class="difficulty-btn" id="watch-btn" data-level="pro" style="opacity:0;position:fixed;right:0;bottom:0;width:20px;height:20px;overflow:hidden;padding:0;">Pro後攻観戦</button>
       </div>
-      <p class="start_footer_p">©ねとみむや v1.00</p>
+      <p class="start_footer_p">©ねとみむや v1.01</p>
     </div>
   </div>
 
@@ -949,6 +951,42 @@ function goToTop(){
     });
   }
 
+  // --- ゲーム中BGM (bgm0) ---
+  const BGM_SRC = 'pic/bgm0.mp3';
+  const bgm = document.getElementById('bgm');
+  if (bgm) bgm.volume = 0.5;
+  // ゲーム画面にいる間「BGMを鳴らすべき状態」かどうかのフラグ
+  // true の時にタップで再開する
+  let bgmShouldPlay = false;
+
+  function playBGM(){
+    if (!bgm) return;
+    if (!soundEnabled) return;
+    // src が外されていたら戻す（ホーム画面のメディアバー対策で外している場合）
+    if (!bgm.getAttribute('src')){
+      bgm.setAttribute('src', BGM_SRC);
+      try { bgm.load(); } catch(e) {}
+    }
+    try {
+      const p = bgm.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch(e) { /* 自動再生ブロック等は無視 */ }
+  }
+
+  // BGMを完全停止 + メディアセッション情報を消す
+  // （iOSロック画面・コントロールセンターの再生バーを出さないため src を外す）
+  function stopBGM(){
+    if (!bgm) return;
+    try {
+      bgm.pause();
+      bgm.currentTime = 0;
+    } catch(e) {}
+    try {
+      bgm.removeAttribute('src');
+      bgm.load(); // メディアセッション情報をクリア
+    } catch(e) {}
+  }
+
   const state = {
     board: [],
     current: PLAYER,
@@ -1099,6 +1137,9 @@ function goToTop(){
 
       const winLine = checkWin(state.board, row, col, player);
       if (winLine){
+        // 4つ揃った瞬間にBGM停止
+        bgmShouldPlay = false;
+        stopBGM();
         // 勝敗音（光り始めと同時）
         playResultSE(player);
         // 4つ揃ってから1秒後に難易度別BGMを再生
@@ -1121,6 +1162,9 @@ function goToTop(){
         const totalDelay = 500 + sorted.length * 90;
         setTimeout(() => showResult(player === PLAYER ? 'win' : 'lose'), totalDelay);
       } else if (isBoardFull(state.board)){
+        // ドロー確定の瞬間にBGM停止
+        bgmShouldPlay = false;
+        stopBGM();
         state.gameOver = true;
         setTimeout(() => playDrawBGM(), 1000);
         setTimeout(() => showResult('draw'), 400);
@@ -1719,6 +1763,8 @@ function goToTop(){
   }
 
   function goHome(){
+    bgmShouldPlay = false;
+    stopBGM();
     stopAllResultBGM();
     gameScreen.classList.add('hidden');
     startScreen.classList.remove('hidden');
@@ -1744,12 +1790,17 @@ function goToTop(){
       // 通常プレイ時は観戦モード解除
       state.watchMode = false;
       playStartSE(btn.dataset.level);
+      bgmShouldPlay = true;
+      playBGM();
       startGame(btn.dataset.level, btn.dataset.first);
     });
   });
 
   document.getElementById('reset-btn').addEventListener('click', () => {
     if (state.locked) return;
+    stopAllResultBGM();
+    bgmShouldPlay = true;
+    playBGM();
     startGame(state.difficulty, state.firstMover);
   });
 
@@ -1757,7 +1808,12 @@ function goToTop(){
     location.reload();
   });
 
-  document.getElementById('again-btn').addEventListener('click', () => startGame(state.difficulty, state.firstMover));
+  document.getElementById('again-btn').addEventListener('click', () => {
+    stopAllResultBGM();
+    bgmShouldPlay = true;
+    playBGM();
+    startGame(state.difficulty, state.firstMover);
+  });
   document.getElementById('home-btn').addEventListener('click', goHome);
   document.getElementById('ed-home-btn').addEventListener('click', goHome);
   document.getElementById('bench-home-btn').addEventListener('click', () => {
@@ -1781,6 +1837,12 @@ function goToTop(){
     // OFFに切り替えたら現在鳴っている結果BGMを止める
     if (!soundEnabled){
       stopAllResultBGM();
+      stopBGM();
+    } else {
+      // ONに戻したとき、ゲーム中であればBGM再開
+      if (bgmShouldPlay){
+        playBGM();
+      }
     }
   }
   updateSoundButtons();
@@ -1791,6 +1853,25 @@ function goToTop(){
 
   window.addEventListener('resize', updateCellSize);
   window.addEventListener('orientationchange', () => setTimeout(updateCellSize, 300));
+
+  // --- タブ切替/ホーム遷移時にBGMを止める（再生バー表示を消す） ---
+  // ※ visible に戻っても自動再開はしない。ゲーム画面のタップで再開する。
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden){
+      stopBGM();
+    }
+  });
+  window.addEventListener('pagehide', () => {
+    stopBGM();
+  });
+
+  // --- ゲーム画面のどこかをタップしたらBGMを再開（iOS対策） ---
+  // bgmShouldPlay が true（=ゲーム中で本来鳴っているべき状態）の時だけ再開する
+  gameScreen.addEventListener('click', () => {
+    if (bgmShouldPlay && bgm && bgm.paused){
+      playBGM();
+    }
+  });
 
 })();
 
