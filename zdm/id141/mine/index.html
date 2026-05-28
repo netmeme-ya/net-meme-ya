@@ -533,7 +533,7 @@ body {
   <a href="?level=5" class="btn-level">12 × 12</a>
   <a href="../index.html" class="btn-top">TOPへ</a>
   <button type="button" class="btn-top" id="howToPlayBtn">遊び方</button>
-  <p class="start_footer_p">©ねとみむや v1.02</p>
+  <p class="start_footer_p">©ねとみむや v1.03</p>
 </div>
 
 <!-- ===== Rule Overlay ===== -->
@@ -682,12 +682,37 @@ body {
   }
 
   // ========== 効果音再生ヘルパー ==========
+  // 効果音ID一覧と元のsrc（停止時にsrcを外すため、再生時に復元できるよう保持）
+  const SE_IDS = ['seStart', 'seBomb', 'seClear', 'seMax', 'seIllust'];
+  const SE_SRC = {};
+  SE_IDS.forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) SE_SRC[id] = el.getAttribute('src');
+  });
+
+  // 再生中の効果音をすべて停止（Androidのメディア通知も残さないようsrcを解放）
+  function stopAllSE() {
+    SE_IDS.forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      try {
+        el.pause();
+        el.removeAttribute('src');
+        el.load();
+      } catch (e) {}
+    });
+  }
+
   // 同じ音を連続で鳴らせるよう、毎回 currentTime を 0 に戻してから再生
   function playSE(id) {
     if (!isSoundOn()) return;
     const el = document.getElementById(id);
     if (!el) return;
     try {
+      if (!el.getAttribute('src') && SE_SRC[id]) {
+        el.setAttribute('src', SE_SRC[id]);   // 停止時に外したsrcを復元
+        el.load();
+      }
       el.currentTime = 0;
       const p = el.play();
       if (p && typeof p.catch === 'function') p.catch(function () {});
@@ -734,6 +759,7 @@ body {
 
   function goToStart() {
     stopBgm();
+    stopAllSE();   // ゲームオーバーの爆弾音などを引きずらない
     inGame = false;
     currentGame = null;
     gameScreen.style.display = 'none';
@@ -804,6 +830,7 @@ body {
     if (document.hidden) {
       // pause だけでなく src を解放して、Android のメディア通知（再生バー）を残さない
       stopBgm();
+      stopAllSE();   // 鳴っている効果音（se_bomb 等）も止める
     }
     // 復帰時は自動再開しない（次の1タップで0秒から再開）
   });
