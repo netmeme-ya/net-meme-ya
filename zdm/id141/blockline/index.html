@@ -820,7 +820,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.24</div>
+        <div class="copyright">©ねとみむや ver.1.25</div>
     </div>
 
     <!-- ============================================
@@ -1316,14 +1316,23 @@ function updateSoundIcons() {
 function toggleSound() {
     setSound(!getSound());
     updateSoundIcons();
-    // サウンドOFFにしたらBGMも止める。ONに戻した場合、ゲーム中なら次のドロップで再開される。
     if (!getSound()) {
+        // OFFにしたらBGM停止 + フラグも落とす
         const bgm = document.getElementById('bgm1');
         if (bgm) {
             try { bgm.pause(); bgm.currentTime = 0; } catch(e) {}
         }
-        // bgmShouldPlay フラグは維持しない (OFF切替=ユーザー意思でBGM不要)
         bgmShouldPlay = false;
+    } else {
+        // ONに戻した: ゲーム画面アクティブかつGAMEOVER中でなければBGMを即時再開
+        // (タイトル/ノルマ画面では鳴らさない。GAMEOVER中も鳴らさない)
+        const gameScreen = document.getElementById('screen-game');
+        const inGame = gameScreen && gameScreen.classList.contains('active');
+        const notOver = (typeof game !== 'undefined' && game && !game.over);
+        if (inGame && notOver) {
+            // ボタンタップ起点なので iOS でも play() 可能
+            startBGM();
+        }
     }
 }
 
