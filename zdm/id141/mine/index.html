@@ -533,7 +533,7 @@ body {
   <a href="?level=5" class="btn-level">12 × 12</a>
   <a href="../index.html" class="btn-top">TOPへ</a>
   <button type="button" class="btn-top" id="howToPlayBtn">遊び方</button>
-  <p class="start_footer_p">©ねとみむや v1.01</p>
+  <p class="start_footer_p">©ねとみむや v1.02</p>
 </div>
 
 <!-- ===== Rule Overlay ===== -->
@@ -630,14 +630,19 @@ body {
 
   // ========== BGM・状態管理用のモジュール変数 ==========
   const bgm = document.getElementById('bgm');
+  const BGM_SRC = (bgm && bgm.getAttribute('src')) || 'dat/bgm2.mp3';
   let inGame = false;       // ゲーム画面を表示中か
   let currentGame = null;   // 現在のゲームのハンドラ束（initGame が差し替える）
 
-  // BGM再生（音声ONのときのみ・必ず0秒から）
+  // BGM再生（音声ONのときのみ・必ず0秒から）。停止時にsrcを外しているため、必要なら復元する。
   function startBgm() {
     if (!isSoundOn()) return;
     if (!bgm) return;
     try {
+      if (!bgm.getAttribute('src')) {
+        bgm.setAttribute('src', BGM_SRC);
+        bgm.load();
+      }
       bgm.currentTime = 0;
       const p = bgm.play();
       if (p && typeof p.catch === 'function') p.catch(function () {});
@@ -645,9 +650,14 @@ body {
   }
 
   // BGM停止（再生バー＝OSのメディア通知も残さない）
+  // Android Chrome は pause() だけだとメディア通知が残るため、src を外して load() で要素を解放する。
   function stopBgm() {
     if (!bgm) return;
-    try { bgm.pause(); bgm.currentTime = 0; } catch (e) {}
+    try {
+      bgm.pause();
+      bgm.removeAttribute('src');   // ソースを切り離す
+      bgm.load();                   // 要素を解放 → メディア通知（再生バー）が消える
+    } catch (e) {}
     try {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = null;
@@ -792,10 +802,8 @@ body {
   // ========== BGM：タブ切替・アプリ退避・端末ホームで停止（再生バーも消す） ==========
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) {
-      try { bgm.pause(); } catch (e) {}
-      try {
-        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
-      } catch (e) {}
+      // pause だけでなく src を解放して、Android のメディア通知（再生バー）を残さない
+      stopBgm();
     }
     // 復帰時は自動再開しない（次の1タップで0秒から再開）
   });
