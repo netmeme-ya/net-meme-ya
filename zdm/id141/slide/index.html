@@ -28,6 +28,7 @@
 <audio id="se_start" src="se/se_start.mp3" preload="auto"></audio>
 <audio id="se_clear" src="se/se_clear.mp3" preload="auto"></audio>
 <audio id="se_gohobi" src="se/se_gohobi.mp3" preload="auto"></audio>
+<audio id="bgm" src="se/bgm3.mp3" loop preload="auto"></audio>
 <style>
   :root {
     --bg: #d39410;       /* mustard / yellow-ochre to match screenshots */
@@ -307,7 +308,7 @@
       <button class="menu-btn top" id="goTop">TOPへ</button>
     </div>
 
-    <div class="copyright">©ねとみむや v1.00</div>
+    <div class="copyright">©ねとみむや v1.01</div>
   </section>
 
   <!-- ============== GAME SCREEN ============== -->
@@ -379,6 +380,29 @@
     try { a.currentTime = 0; a.play().catch(()=>{}); } catch(e){}
   }
 
+  // ========= BGM (loop) =========
+  const BGM = document.getElementById('bgm');
+  function startBgm() {
+    if (!getSound()) return;
+    if (!BGM) return;
+    try {
+      BGM.loop = true;
+      const p = BGM.play();
+      if (p && typeof p.then === 'function') p.catch(()=>{});
+    } catch(e){}
+  }
+  function stopBgm() {
+    if (!BGM) return;
+    try { BGM.pause(); BGM.currentTime = 0; } catch(e){}
+    // ホーム画面/バックグラウンドで OS の再生バー(メディアセッション)を残さない
+    try {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'none';
+        navigator.mediaSession.metadata = null;
+      }
+    } catch(e){}
+  }
+
   // iOS判定(iPhone/iPod/iPad、iPadOS13+も含む)
   const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -419,6 +443,7 @@
   function toggleSound() {
     setSound(!getSound());
     refreshSoundIcons();
+    if (!getSound()) stopBgm();
   }
   document.getElementById('startSound').addEventListener('click', toggleSound);
   document.getElementById('gameSound').addEventListener('click', toggleSound);
@@ -428,6 +453,7 @@
   const gameScreen  = document.getElementById('gameScreen');
 
   function showStart() {
+    stopBgm();
     gameScreen.style.display = 'none';
     startScreen.style.display = 'flex';
   }
@@ -452,6 +478,7 @@
     btn.addEventListener('click', () => {
       primeClearForIOS();
       playSe('start');
+      startBgm();
       const mode = btn.getAttribute('data-mode'); // "3-num" / "3-frame" / "3-no"
       const [sizeStr, kind] = mode.split('-');
       const size = parseInt(sizeStr, 10);   // currently always 3 (9-piece)
@@ -910,6 +937,7 @@
     if (!G) return;
     if (!isSolved(G.arrangement)) return;
     G.cleared = true;
+    stopBgm();
     playSe('clear');
 
     // fade in final piece + 背景フラッシュ(#fff -> #d39410 を1秒かけて)を同タイミングで開始
@@ -979,7 +1007,7 @@
   function unlockAudio() {
     if (audioUnlocked) return;
     audioUnlocked = true;
-    [SE.start, SE.clear, SE.gohobi].forEach(a => {
+    [SE.start, SE.clear, SE.gohobi, BGM].forEach(a => {
       if (!a) return;
       try {
         // Synchronous play() inside the user gesture. We don't mute, but we
@@ -1004,6 +1032,15 @@
   document.addEventListener('pointerdown', unlockAudio, true);
   document.addEventListener('mousedown', unlockAudio, true);
   document.addEventListener('keydown', unlockAudio, true);
+
+  // -------- BGM stop on background --------
+  // ホームボタンや別タブへの切替などでページが裏に回ったら BGM を止める。
+  // 併せて再生バー(メディアセッション)も消す。
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') stopBgm();
+  });
+  window.addEventListener('pagehide', stopBgm);
+  window.addEventListener('blur', stopBgm);
 
   // Prevent pinch zoom & double-tap zoom
   document.addEventListener('gesturestart', e => e.preventDefault());
