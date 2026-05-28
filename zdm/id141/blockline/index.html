@@ -182,6 +182,8 @@ html, body {
 .menu-btn.orange { background: #f08020; }
 .menu-btn.pink   { background: #e64690; }
 .menu-btn.green  { background: #0a6c2e; }
+/* blue と green の両方を付けたボタンは緑を優先 (詳細度勝ち) */
+.menu-btn.blue.green { background: #0a6c2e; }
 .menu-btn.blue   {
     background: #0e3fc8;
     height: 50px;
@@ -806,7 +808,7 @@ html, body {
             <button class="btn menu-btn pink"   data-action="goto-norma">ノルマ一覧</button>
             <div class="menu_flex">
                 <button class="btn menu-btn blue" data-action="goto-top">TOPへ</button>
-                <button class="btn menu-btn blue" data-action="goto-rule">説明</button>
+                <button class="btn menu-btn blue green" data-action="goto-rule">説明</button>
             </div>
         </div>
         <div class="start-pieces" aria-hidden="true">
@@ -818,7 +820,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.23</div>
+        <div class="copyright">©ねとみむや ver.1.24</div>
     </div>
 
     <!-- ============================================
