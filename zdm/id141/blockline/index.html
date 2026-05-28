@@ -31,6 +31,9 @@
 <audio id="se_start" src="pic/se_start.mp3" preload="auto"></audio>
 <audio id="se_c1" src="pic/se_c1.mp3" preload="auto"></audio>
 
+<!-- BGM (ループ再生) -->
+<audio id="bgm1" src="pic/bgm1.mp3" preload="auto" loop></audio>
+
 <!--画像のプリロード-->
 <link rel="preload" href="pic/b0.gif" as="image" fetchpriority="high">
 <link rel="preload" href="pic/b1.gif" as="image" fetchpriority="high">
@@ -815,7 +818,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.20</div>
+        <div class="copyright">©ねとみむや ver.1.21</div>
     </div>
 
     <!-- ============================================
@@ -1093,6 +1096,8 @@ function stopAllSEs() {
             el.currentTime = 0;
         } catch(e) {}
     });
+    // BGMも停止 (ページ離脱時にメディアバーに残らないように)
+    try { stopBGM(); } catch(e) {}
 }
 window.addEventListener('pagehide', stopAllSEs);
 window.addEventListener('beforeunload', stopAllSEs);
@@ -1116,6 +1121,18 @@ document.addEventListener('visibilitychange', () => {
     try { stopAllSE(); } catch(e) {}
     try { stopAllSEs(); } catch(e) {}
     location.reload();
+});
+
+/* バックグラウンド遷移時にBGMを停止する (Android対策)。
+   bgmShouldPlay フラグは維持し、復帰後のユーザー操作で resumeBGMIfNeeded()
+   が呼ばれた時に0秒目から再開できるようにする。
+   上の visibilitychange リスナー (GAMEOVER時リロード) より前に登録されないと
+   リロード前に止められないので、別リスナーとして追加する。
+   なお hidden 時にしか動かないので、復帰時に勝手に鳴ることはない。 */
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        try { pauseBGMForHidden(); } catch(e) {}
+    }
 });
 
 /* iOS Safari対策: スワイプ起点で発火するSEは鳴らせないため、
@@ -1179,7 +1196,63 @@ function stopAllSE() {
             el.currentTime = 0;
         } catch(e) {}
     });
+    // BGMも停止
+    try { stopBGM(); } catch(e) {}
 }
+/* ==========================================================
+   BGM管理 (pic/bgm1.mp3 をループ再生)
+   ・iOS Safariはユーザータップ起点でないと再生できないため、
+     startBGM() は必ずタップハンドラ内から呼ぶこと。
+   ・バックグラウンド遷移時 (visibilitychange→hidden) は即停止し、
+     復帰後はユーザー操作 (ピースドロップ等) を契機に再開する。
+   ・GAMEOVER時、戻る時、ページ離脱時にも停止する。
+   ・bgmShouldPlay は「今、BGMが鳴っているべき状態か」を示すフラグ。
+     復帰時に「再開してよいか」を判定するために使う。
+   ========================================================== */
+let bgmShouldPlay = false;  // ゲームプレイ中でBGMが鳴るべき状態か
+function startBGM() {
+    if (!getSound()) return;
+    const bgm = document.getElementById('bgm1');
+    if (!bgm) return;
+    bgmShouldPlay = true;
+    try {
+        bgm.currentTime = 0;
+        bgm.play().catch(()=>{});
+    } catch(e) {}
+}
+function stopBGM() {
+    bgmShouldPlay = false;
+    const bgm = document.getElementById('bgm1');
+    if (!bgm) return;
+    try {
+        bgm.pause();
+        bgm.currentTime = 0;
+    } catch(e) {}
+}
+/* バックグラウンド遷移時に一時停止のみ行う (フラグは維持して復帰時の再開を許可) */
+function pauseBGMForHidden() {
+    const bgm = document.getElementById('bgm1');
+    if (!bgm) return;
+    try {
+        bgm.pause();
+        bgm.currentTime = 0;  // 復帰時に0秒目から再開する仕様のため
+    } catch(e) {}
+}
+/* ユーザー操作 (ピース配置等) を契機にBGM再開を試みる。
+   既に再生中なら何もしない (毎操作で play() を呼ばないため)。 */
+function resumeBGMIfNeeded() {
+    if (!bgmShouldPlay) return;
+    if (!getSound()) return;
+    if (typeof game === 'undefined' || !game || game.over) return;
+    const bgm = document.getElementById('bgm1');
+    if (!bgm) return;
+    if (!bgm.paused) return;  // 既に鳴っているなら何もしない
+    try {
+        bgm.currentTime = 0;
+        bgm.play().catch(()=>{});
+    } catch(e) {}
+}
+
 function updateSoundIcons() {
     const on = getSound();
     ['snd-icon-start','snd-icon-norma','snd-icon-game'].forEach(id => {
@@ -1193,6 +1266,15 @@ function updateSoundIcons() {
 function toggleSound() {
     setSound(!getSound());
     updateSoundIcons();
+    // サウンドOFFにしたらBGMも止める。ONに戻した場合、ゲーム中なら次のドロップで再開される。
+    if (!getSound()) {
+        const bgm = document.getElementById('bgm1');
+        if (bgm) {
+            try { bgm.pause(); bgm.currentTime = 0; } catch(e) {}
+        }
+        // bgmShouldPlay フラグは維持しない (OFF切替=ユーザー意思でBGM不要)
+        bgmShouldPlay = false;
+    }
 }
 
 /* ==========================================================
@@ -1636,6 +1718,8 @@ function tryDrop() {
     // 配置予定ピースを消費 → next を current に昇格 → 新 next 生成
     advancePieces();
     renderBoard();
+    // バックグラウンド復帰後の最初のドロップでBGM再開 (ユーザータップ起点)
+    resumeBGMIfNeeded();
     return true;
 }
 
@@ -1910,6 +1994,8 @@ function gameOver() {
     game.over = true;
     // 置けなくなった瞬間にドラッグ中なら即中止 (ピースを抱えたまま固まらないように)
     forceCancelDrag();
+    // BGMを停止 (GAMEOVER SEは鳴らす)
+    stopBGM();
     // 音声は置けなくなった瞬間に再生 (se_c1.mp3 の10.0s〜17.0s区間)
     playSE('gameover');
     // iOSのロック画面/コントロールセンターのメディアプレーヤーに
@@ -1957,10 +2043,11 @@ function gameOver() {
         `;
         overlay.appendChild(actions);
         document.getElementById('btn-retry').addEventListener('click', () => {
-            stopAllSE(); // 鳴っているGAMEOVER SEを止めてからスタートSEを再生
+            stopAllSE(); // 鳴っているGAMEOVER SEを止めてからスタートSEを再生 (BGMも止まる)
             cleanupOverlay();
             playSE('start');
             startGame();
+            startBGM();  // リトライ時にもBGMを再開 (iOSタップ起点)
         });
         document.getElementById('btn-back-over').addEventListener('click', () => {
             stopAllSE();
@@ -2144,6 +2231,7 @@ document.addEventListener('click', (e) => {
             } catch(e) {}
         }
         startGame();
+        startBGM();  // タイトルからゲーム開始時にBGMをループ再生開始 (iOSタップ起点)
     } else if (a === 'goto-rule') {
         location.href = 'rule.html';
     } else if (a === 'goto-top') {
