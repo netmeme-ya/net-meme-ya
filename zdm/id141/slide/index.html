@@ -308,7 +308,7 @@
       <button class="menu-btn top" id="goTop">TOPへ</button>
     </div>
 
-    <div class="copyright">©ねとみむや v1.01</div>
+    <div class="copyright">©ねとみむや v1.02</div>
   </section>
 
   <!-- ============== GAME SCREEN ============== -->
@@ -382,10 +382,16 @@
 
   // ========= BGM (loop) =========
   const BGM = document.getElementById('bgm');
+  const BGM_SRC = 'se/bgm3.mp3';
   function startBgm() {
     if (!getSound()) return;
     if (!BGM) return;
     try {
+      // stopBgm で src を解放している場合は復元してから再生
+      if (!BGM.getAttribute('src')) {
+        BGM.setAttribute('src', BGM_SRC);
+        BGM.load();
+      }
       BGM.loop = true;
       const p = BGM.play();
       if (p && typeof p.then === 'function') p.catch(()=>{});
@@ -394,7 +400,12 @@
   function stopBgm() {
     if (!BGM) return;
     try { BGM.pause(); BGM.currentTime = 0; } catch(e){}
-    // ホーム画面/バックグラウンドで OS の再生バー(メディアセッション)を残さない
+    // 音源(src)を解放してメディア要素を切り離し、
+    // ホーム画面/バックグラウンドに残る OS の再生バーを完全に消す
+    try {
+      BGM.removeAttribute('src');
+      BGM.load();
+    } catch(e){}
     try {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = 'none';
@@ -443,7 +454,12 @@
   function toggleSound() {
     setSound(!getSound());
     refreshSoundIcons();
-    if (!getSound()) stopBgm();
+    if (getSound()) {
+      // ゲーム進行中（クリア前）に音をONへ戻したら BGM を鳴らし直す
+      if (G && !G.cleared) startBgm();
+    } else {
+      stopBgm();
+    }
   }
   document.getElementById('startSound').addEventListener('click', toggleSound);
   document.getElementById('gameSound').addEventListener('click', toggleSound);
