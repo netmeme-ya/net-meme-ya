@@ -818,7 +818,7 @@ html, body {
             <img src="pic/b5.gif" alt="">
         </div>
         <div class="highscore">HI-SCORE:<span class="score-num" id="hs-num">0</span></div>
-        <div class="copyright">©ねとみむや ver.1.22</div>
+        <div class="copyright">©ねとみむや ver.1.23</div>
     </div>
 
     <!-- ============================================
@@ -1161,8 +1161,12 @@ window.addEventListener('DOMContentLoaded', snapshotAudioOriginalSrc);
 
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        // BGMフラグを止める (復帰後にユーザー操作で再開しようとしても src が無いと鳴らないため)
-        try { stopBGM(); } catch(e) {}
+        // 注意: ここで stopBGM() は呼ばない。
+        // stopBGM() は bgmShouldPlay フラグを false にしてしまい、
+        // 復帰後の resumeBGMIfNeeded() が即returnして再開できなくなる。
+        // BGMの一時停止 (フラグ維持) は下の pauseBGMForHidden() で行う。
+        // detachAllAudioForHidden() 内で BGM要素も pause + src空化されるが、
+        // bgmShouldPlay フラグには触れないので問題ない。
         detachAllAudioForHidden();
     } else {
         // 復帰: src を元に戻す
@@ -1172,9 +1176,7 @@ document.addEventListener('visibilitychange', () => {
 
 /* バックグラウンド遷移時にBGMを停止する (Android対策)。
    bgmShouldPlay フラグは維持し、復帰後のユーザー操作で resumeBGMIfNeeded()
-   が呼ばれた時に0秒目から再開できるようにする。
-   ※ 上の detachAllAudioForHidden 内で stopBGM() を呼ぶため、
-     こちらは念のため pauseBGMForHidden() を残しておく (二重停止でも害なし)。 */
+   が呼ばれた時に0秒目から再開できるようにする。 */
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         try { pauseBGMForHidden(); } catch(e) {}
