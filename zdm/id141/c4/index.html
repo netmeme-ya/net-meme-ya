@@ -749,7 +749,7 @@
         <!-- <button class="difficulty-btn" id="benchmark-btn" data-level="pro">Pro CPU同士</button> -->
         <button class="difficulty-btn" id="watch-btn" data-level="pro" style="opacity:0;position:fixed;right:0;bottom:0;width:20px;height:20px;overflow:hidden;padding:0;">Pro後攻観戦</button>
       </div>
-      <p class="start_footer_p">©ねとみむや v1.01</p>
+      <p class="start_footer_p">©ねとみむや v1.02</p>
     </div>
   </div>
 
@@ -1854,15 +1854,29 @@ function goToTop(){
   window.addEventListener('resize', updateCellSize);
   window.addEventListener('orientationchange', () => setTimeout(updateCellSize, 300));
 
-  // --- タブ切替/ホーム遷移時にBGMを止める（再生バー表示を消す） ---
-  // ※ visible に戻っても自動再開はしない。ゲーム画面のタップで再開する。
+  // --- タブ切替/ホーム遷移時に全ての音を止める（再生バー表示も消す） ---
+  // ※ visible に戻っても自動再開はしない。
+  //   bgm0 のみゲーム画面のタップで再開する（iOS対策）。
+  const startSEs = [seStartEasy, seStartMedium, seStartPro];
+  function stopAllSE(){
+    // start系SE（短いが念のため止める）
+    startSEs.forEach(a => {
+      if (!a) return;
+      try { a.pause(); a.currentTime = 0; } catch(e) {}
+    });
+    // win/lose/draw 結果BGM
+    stopAllResultBGM();
+    // ゲーム中BGM
+    stopBGM();
+  }
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden){
-      stopBGM();
+      stopAllSE();
     }
   });
   window.addEventListener('pagehide', () => {
-    stopBGM();
+    stopAllSE();
   });
 
   // --- ゲーム画面のどこかをタップしたらBGMを再開（iOS対策） ---
