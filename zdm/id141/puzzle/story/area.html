@@ -19,6 +19,9 @@
 <link href="../css/all.css" type="text/css" rel="stylesheet">
 <!--個別css-->
 <link href="area.css?v7" type="text/css" rel="stylesheet">
+<style>
+body{overscroll-behavior-x: none;background: #000;}
+</style>
 </head>
 
 <body oncontextmenu="return false;">
@@ -106,5 +109,13 @@
 </div>
 <script type="text/javascript" src="../js/all.js" defer></script>
 <script type="text/javascript" src="area.js" defer></script>
+<script>
+// 画面左端からのスワイプバックを抑制（iOS Safari対策）
+document.addEventListener('touchstart', function(e) {
+	if (e.touches[0].clientX < 20) {
+		e.preventDefault();
+	}
+}, { passive: false });
+</script>
 </body>
 </html>

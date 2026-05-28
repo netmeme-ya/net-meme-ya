@@ -141,7 +141,7 @@ p {
 .footer_totop_div {
 	opacity: 0;
 	position: fixed;
-	left: 2px;
+	right: 3px;
 	bottom: 4px;
 	z-index: 4;
 	border: 1px solid #FFF;

@@ -10,7 +10,7 @@ mmNumは音楽番号
 <title>入替パズル</title>
 <!--共通css-->
 <style>
-	body{margin: 0;background-color: #000;min-height:100vh;font-family: sans-serif;}
+	body{margin: 0;background-color: #000;min-height:100vh;font-family: sans-serif;overscroll-behavior-x: none;}
 	a,p{opacity: 0;}
 </style>
 <!--favicon-->
@@ -151,6 +151,12 @@ if(!localStorage.getItem("visited")){
 	document.body.classList.add("fade-in");
 	localStorage.setItem("visited","1");
 }
+// 画面左端からのスワイプバックを抑制（iOS Safari対策）
+document.addEventListener('touchstart', function(e) {
+	if (e.touches[0].clientX < 20) {
+		e.preventDefault();
+	}
+}, { passive: false });
 </script>
 </body>
 </html>
