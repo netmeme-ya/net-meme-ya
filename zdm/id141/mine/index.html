@@ -512,6 +512,8 @@ body {
 <audio id="seClear" src="dat/se_clear.mp3" preload="auto"></audio>
 <audio id="seMax"   src="dat/se_max.mp3"   preload="auto"></audio>
 <audio id="seIllust" src="dat/se_illust.mp3" preload="auto"></audio>
+<!-- BGM（ゲーム中ループ再生） -->
+<audio id="bgm" src="dat/bgm2.mp3" loop preload="auto"></audio>
 
 <!-- ===== Start Screen ===== -->
 <div id="startScreen" class="screen">
@@ -531,7 +533,7 @@ body {
   <a href="?level=5" class="btn-level">12 × 12</a>
   <a href="../index.html" class="btn-top">TOPへ</a>
   <button type="button" class="btn-top" id="howToPlayBtn">遊び方</button>
-  <p class="start_footer_p">©ねとみむや v1.00</p>
+  <p class="start_footer_p">©ねとみむや v1.01</p>
 </div>
 
 <!-- ===== Rule Overlay ===== -->
@@ -626,10 +628,47 @@ body {
     });
   }
 
+  // ========== BGM・状態管理用のモジュール変数 ==========
+  const bgm = document.getElementById('bgm');
+  let inGame = false;       // ゲーム画面を表示中か
+  let currentGame = null;   // 現在のゲームのハンドラ束（initGame が差し替える）
+
+  // BGM再生（音声ONのときのみ・必ず0秒から）
+  function startBgm() {
+    if (!isSoundOn()) return;
+    if (!bgm) return;
+    try {
+      bgm.currentTime = 0;
+      const p = bgm.play();
+      if (p && typeof p.catch === 'function') p.catch(function () {});
+    } catch (e) {}
+  }
+
+  // BGM停止（再生バー＝OSのメディア通知も残さない）
+  function stopBgm() {
+    if (!bgm) return;
+    try { bgm.pause(); bgm.currentTime = 0; } catch (e) {}
+    try {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = null;
+        navigator.mediaSession.playbackState = 'none';
+      }
+    } catch (e) {}
+  }
+
   function toggleSound() {
     const next = !isSoundOn();
     setSoundOn(next);
     refreshSoundButtons();
+    if (!next) {
+      // OFF：BGMを止める
+      stopBgm();
+    } else {
+      // ON：ゲーム中かつ未終了なら（このタップ操作内で）0秒からBGM再開
+      if (inGame && currentGame && !currentGame.isOver()) {
+        startBgm();
+      }
+    }
   }
 
   // ========== 効果音再生ヘルパー ==========
@@ -659,33 +698,52 @@ body {
   const level = urlParams.get('level');
 
   let panel1Side, bombNum;
-  if (level === '1')      { panel1Side = 4;  bombNum = 3;  }  //  4 × 4
-  else if (level === '2') { panel1Side = 6;  bombNum = 6;  }  //  6 × 6
-  else if (level === '3') { panel1Side = 8;  bombNum = 9; }  //  8 × 8
-  else if (level === '4') { panel1Side = 10; bombNum = 16; }  // 10 × 10
-  else if (level === '5') { panel1Side = 12; bombNum = 24; }  // 12 × 12
+  function setLevelParams(lv) {
+    if (lv === '1')      { panel1Side = 4;  bombNum = 3;  }   //  4 × 4
+    else if (lv === '2') { panel1Side = 6;  bombNum = 6;  }   //  6 × 6
+    else if (lv === '3') { panel1Side = 8;  bombNum = 9;  }   //  8 × 8
+    else if (lv === '4') { panel1Side = 10; bombNum = 16; }   // 10 × 10
+    else if (lv === '5') { panel1Side = 12; bombNum = 24; }   // 12 × 12
+    else { panel1Side = undefined; bombNum = undefined; }
+  }
 
-  // ========== スタート画面：レベルボタン押下時に効果音を鳴らしてから遷移 ==========
-  if (!level) {
-    const levelLinks = document.querySelectorAll('#startScreen a.btn-level');
-    levelLinks.forEach(function (a) {
-      a.addEventListener('click', function (e) {
-        e.preventDefault();
-        const href = a.getAttribute('href');
-        if (isSoundOn()) {
-          playSE('seStart');
-          // 音の頭が鳴るのを待ってから遷移（短めでOK）
-          setTimeout(function () {
-            window.location.href = href;
-          }, 180);
-        } else {
-          // 音声OFF時は即座に遷移
-          window.location.href = href;
-        }
-      });
+  // ========== 画面要素 ==========
+  const startScreen = document.getElementById('startScreen');
+  const gameScreen  = document.getElementById('gameScreen');
+
+  // ========== ゲーム開始／スタート画面へ戻る（ページ遷移なしの画面切替） ==========
+  function startLevel(lv) {
+    setLevelParams(lv);
+    if (!panel1Side) return;
+    startScreen.style.display = 'none';
+    gameScreen.style.display  = 'flex';
+    inGame = true;
+    initGame();      // 背景画像のセットも initGame 内で実施
+    startBgm();      // クリック操作内なので再生成立（直リンク?level=N時は初回タップで開始）
+  }
+
+  function goToStart() {
+    stopBgm();
+    inGame = false;
+    currentGame = null;
+    gameScreen.style.display = 'none';
+    startScreen.style.display = 'flex';
+  }
+
+  // ========== スタート画面：レベルボタン（効果音＋BGM開始してゲーム画面へ） ==========
+  document.querySelectorAll('#startScreen a.btn-level').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      const href = a.getAttribute('href');   // 例: "?level=2"
+      const m = href.match(/level=(\d+)/);
+      const lv = m ? m[1] : null;
+      playSE('seStart');                      // 効果音（内部で音声ON/OFFを判定）
+      startLevel(lv);                         // 同一ページで画面切替＋BGM開始
     });
+  });
 
-    // ========== 遊び方（ルール画像）の表示／非表示 ==========
+  // ========== 遊び方（ルール画像）の表示／非表示 ==========
+  (function () {
     const howToPlayBtn = document.getElementById('howToPlayBtn');
     const ruleOverlay  = document.getElementById('ruleOverlay');
     if (howToPlayBtn && ruleOverlay) {
@@ -693,20 +751,15 @@ body {
         e.preventDefault();
         e.stopPropagation();
         ruleOverlay.style.display = 'flex';
-        // 表示直後のクリック誤爆防止：次のフレームから閉じるハンドラを有効化
       });
-      // オーバーレイのどこをタップしても閉じる（画像下部のｘ印含め、画像のどこを押しても可）
+      // オーバーレイのどこをタップしても閉じる
       ruleOverlay.addEventListener('click', function () {
         ruleOverlay.style.display = 'none';
       });
     }
-  }
+  })();
 
-  // ========== 画面表示切替 ==========
-  const startScreen = document.getElementById('startScreen');
-  const gameScreen  = document.getElementById('gameScreen');
-
-  // スタート画面の隠しリセットボタン（画像番号を 0 に戻す）
+  // ========== スタート画面の隠しリセットボタン（画像番号を 0 に戻す） ==========
   const lsclear = document.getElementById('lsclear_id');
   if (lsclear) {
     lsclear.addEventListener('click', function () {
@@ -715,11 +768,49 @@ body {
     });
   }
 
+  // ========== 永続ボタンのリスナーは一度だけ登録し、現在のゲームへ委譲 ==========
+  const digBtn      = document.getElementById('digBtn');
+  const flagBtn     = document.getElementById('flagBtn');
+  const hintBtn     = document.getElementById('hintBtn');
+  const nextBtn     = document.getElementById('nextBtn');
+  const homeBackBtn = document.getElementById('home-back-btn');
+
+  digBtn.addEventListener('click',  function () { if (currentGame) currentGame.setMode('dig'); });
+  flagBtn.addEventListener('click', function () { if (currentGame) currentGame.setMode('flag'); });
+  hintBtn.addEventListener('click', function () { if (currentGame) currentGame.useHint(); });
+  nextBtn.addEventListener('click', function () { if (currentGame) currentGame.onNext(); });
+  if (homeBackBtn) {
+    homeBackBtn.addEventListener('click', function () { goToStart(); });  // BGM停止＋スタート画面へ
+  }
+
+  // リサイズ／向き変更も一度だけ登録し、現在のゲームへ委譲
+  window.addEventListener('resize', function () { if (currentGame) currentGame.resize(); });
+  window.addEventListener('orientationchange', function () {
+    setTimeout(function () { if (currentGame) currentGame.resize(); }, 100);
+  });
+
+  // ========== BGM：タブ切替・アプリ退避・端末ホームで停止（再生バーも消す） ==========
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      try { bgm.pause(); } catch (e) {}
+      try {
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+      } catch (e) {}
+    }
+    // 復帰時は自動再開しない（次の1タップで0秒から再開）
+  });
+
+  // ========== BGM：自動再生がブロックされた場合の保険＋復帰後の再開（最初の1タップで0秒から） ==========
+  document.addEventListener('pointerdown', function () {
+    if (inGame && currentGame && !currentGame.isOver() && isSoundOn() && bgm.paused) {
+      startBgm();
+    }
+  }, true);
+
+  // ========== 初期表示 ==========
   if (level) {
-    startScreen.style.display = 'none';
-    gameScreen.style.display  = 'flex';
-    setupBackgroundImage();
-    initGame();
+    // ?level=N で直接開かれた場合（更新・共有リンク）。BGMは初回タップで開始。
+    startLevel(level);
   }
 
   // ========== 背景画像の切替（localStorage で管理） ==========
@@ -758,6 +849,21 @@ body {
   // ========== ゲーム初期化 ==========
   function initGame() {
     const grid = document.getElementById('grid');
+
+    // 前回ゲームの表示状態をリセット（reload を使わないため明示的に初期化）
+    grid.classList.remove('clean', 'flag-mode');
+    gameScreen.classList.remove('clear-flash');
+    const footerEl = document.querySelector('.game-footer');
+    if (footerEl) footerEl.classList.remove('game-over');
+    nextBtn.classList.remove('state-clear', 'state-retry', 'state-start');
+    nextBtn.textContent = 'NEXT';
+    digBtn.classList.add('active');
+    flagBtn.classList.remove('active');
+    hintBtn.disabled = false;
+
+    // 背景画像をセット（クリア時のみ番号が進む）
+    setupBackgroundImage();
+
     grid.style.gridTemplateColumns = 'repeat(' + panel1Side + ', 1fr)';
     grid.style.gridTemplateRows    = 'repeat(' + panel1Side + ', 1fr)';
     grid.innerHTML = '';
@@ -773,8 +879,7 @@ body {
       const cellSize = size / panel1Side;
       document.documentElement.style.setProperty('--cell-size', cellSize + 'px');
     }
-    window.addEventListener('resize', resizeGrid);
-    window.addEventListener('orientationchange', () => setTimeout(resizeGrid, 100));
+    // resize / orientationchange のリスナーはモジュール側で一度だけ登録し、currentGame.resize へ委譲
     requestAnimationFrame(resizeGrid);
 
     // ========== ゲーム状態 ==========
@@ -1000,6 +1105,7 @@ body {
     function endGame(won) {
       gameOver = true;
       isAnimating = false;
+      stopBgm();   // クリア／ゲームオーバーでBGM停止
       for (let i = 0; i < total; i++) {
         if (!revealed.has(i)) {
           revealed.add(i);
@@ -1053,36 +1159,22 @@ body {
       document.querySelector('.game-footer').classList.add('game-over');
     }
 
-    // ========== モード切替ボタン ==========
-    const digBtn  = document.getElementById('digBtn');
-    const flagBtn = document.getElementById('flagBtn');
-    digBtn.addEventListener('click', function () {
-      mode = 'dig';
-      digBtn.classList.add('active');
-      flagBtn.classList.remove('active');
-      grid.classList.remove('flag-mode');
-    });
-    flagBtn.addEventListener('click', function () {
-      mode = 'flag';
-      flagBtn.classList.add('active');
-      digBtn.classList.remove('active');
-      grid.classList.add('flag-mode');
-    });
-
-    // ========== リセットボタンは廃止（音声ON/OFFボタンに置き換え） ==========
-
-    // ========== スタート画面に戻るボタン（URL末尾の「?」を残さずリロード遷移） ==========
-    const homeBackBtn = document.getElementById('home-back-btn');
-    if (homeBackBtn) {
-      homeBackBtn.addEventListener('click', function () {
-        // 現在のパスだけに遷移 = クエリ無しでページ再読み込み → スタート画面が表示される
-        window.location.href = window.location.pathname;
-      });
+    // ========== モード切替（ボタンのリスナーはモジュール側で一度だけ登録済み） ==========
+    function setMode(m) {
+      mode = m;
+      if (m === 'flag') {
+        flagBtn.classList.add('active');
+        digBtn.classList.remove('active');
+        grid.classList.add('flag-mode');
+      } else {
+        digBtn.classList.add('active');
+        flagBtn.classList.remove('active');
+        grid.classList.remove('flag-mode');
+      }
     }
-    
-    // ========== ヒントボタン ==========
-    const hintBtn = document.getElementById('hintBtn');
-    hintBtn.addEventListener('click', function () {
+
+    // ========== ヒント（ボタンのリスナーはモジュール側で一度だけ登録済み） ==========
+    function useHint() {
       if (gameOver || hintUsed) return;
       const ok = window.confirm('1度だけ使えるヒント機能！使いますか？');
       if (!ok) return;
@@ -1130,15 +1222,15 @@ body {
         cells[bidx].innerHTML = HINT_FLAG_HTML;
       });
       updateBombCounter();
-    });
+    }
 
-    // ========== NEXT / RETRY ボタン（ゲーム終了時に表示） ==========
-    const nextBtn = document.getElementById('nextBtn');
+    // ========== NEXT / RETRY（ボタンのリスナーはモジュール側で一度だけ登録済み） ==========
     // nextState: 'next' (クリア後1回目) → 'start' (クリア後2回目) / 'retry' (ミス時)
-    nextBtn.addEventListener('click', function () {
+    function onNext() {
       if (nextState === 'retry') {
-        // ミス時：ページをリロード
-        location.reload();
+        // ミス時：同レベルで再スタート（ページ遷移なし）
+        initGame();
+        startBgm();   // このタップで0秒からBGM再開
         return;
       }
       if (nextState === 'next') {
@@ -1152,10 +1244,19 @@ body {
         return;
       }
       if (nextState === 'start') {
-        // クリア時2回目：スタート画面へ（URL末尾の「?」を残さず遷移）
-        window.location.href = window.location.pathname;
+        // クリア時2回目：スタート画面へ（ページ遷移なし＝BGM停止）
+        goToStart();
       }
-    });
+    }
+
+    // 現在のゲームのハンドラを公開（永続ボタン・リサイズから委譲される）
+    currentGame = {
+      setMode: setMode,
+      useHint: useHint,
+      onNext: onNext,
+      resize: resizeGrid,
+      isOver: function () { return gameOver; }
+    };
   }
 
   // ========== ピンチズーム・ダブルタップズーム防止 ==========
