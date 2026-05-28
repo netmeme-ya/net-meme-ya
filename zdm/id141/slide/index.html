@@ -308,7 +308,7 @@
       <button class="menu-btn top" id="goTop">TOPへ</button>
     </div>
 
-    <div class="copyright">©ねとみむや v1.02</div>
+    <div class="copyright">©ねとみむや v1.03</div>
   </section>
 
   <!-- ============== GAME SCREEN ============== -->
@@ -1057,6 +1057,20 @@
   });
   window.addEventListener('pagehide', stopBgm);
   window.addEventListener('blur', stopBgm);
+
+  // -------- BGM resume on screen touch --------
+  // バックグラウンドから復帰後、画面に触れたら BGM を 0 秒から再開する。
+  // ゲーム進行中(クリア前)・音ON・かつ BGM が停止中のときだけ再開（再生中の
+  // タッチでは鳴り直さない）。タッチはユーザー操作なので iOS でも再生できる。
+  function resumeBgmOnTouch() {
+    if (!getSound()) return;
+    if (!(G && !G.cleared)) return;
+    if (!BGM) return;
+    if (!BGM.paused) return;
+    startBgm();
+  }
+  document.addEventListener('touchstart', resumeBgmOnTouch, { passive: true });
+  document.addEventListener('mousedown', resumeBgmOnTouch, { passive: true });
 
   // Prevent pinch zoom & double-tap zoom
   document.addEventListener('gesturestart', e => e.preventDefault());
