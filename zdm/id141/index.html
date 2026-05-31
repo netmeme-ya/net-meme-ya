@@ -103,6 +103,13 @@
 				</a>
 				<p class="btn_sub_p">ちょっとしたSSなのだ！</p>
 
+
+				<p class="title_p" id="miru">★ その他系 ★</p>
+				<a href="https://www.amazon.co.jp/dp/B0H2ZLPRVW" target="_blank">
+					<p>アマゾンレビュー</p>
+				</a>
+				<p class="btn_sub_p amazon_sub_p">ゲームやアクリルフィギュアの感想をアマゾンレビューで書いてくれたら嬉しいのだ！</p>
+				
 			</div>
 
 			<div class="news_div" id="news">
@@ -111,7 +118,7 @@
 				</div>
 				<div class="news_main_div">
 					<div class="news_main_in_div">
-						<p>2026/05/01 正式オープン！</p>
+						<p>2026/06/01 正式オープン！</p>
 						<!--
 			<p>2026/01/10 正式リリース</p>
 			<p class="news_kako_log_p" id="log_id">[過去ログ] <span id="plus_id">＋</span></p>
@@ -131,7 +138,11 @@
 					<p>注意事項・利用規約</p>
 				</a>
 			</div>
-
+			<div class="kiyaku_div">
+				<a href="https://netomimuya.web.fc2.com/contact.html" target="_blank">
+					<p>お問い合わせ</p>
+				</a>
+			</div>
 			<p class="copy_p">
 				こちらの「スマホ専用デジタルおまけ」は東北ずん子・ずんだもんプロジェクト公式許諾の有償コンテンツです。２次元コードの画像やURLをX(Twitter)などのSNSに公開しないでください。そうした事象を発見した場合、運営に削除依頼をすると共に、日本国の著作権法に基づいた対応を検討します。
 			</p>
@@ -162,7 +173,30 @@
 			});
 		});
 	</script>
-	<script type="text/javascript" src="puzzle/js/swf2js.js"></script>
+	<script>
+(function(){
+  var startX = 0;
+  var startY = 0;
+  document.addEventListener('touchstart', function(e){
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, {passive: false});
+  document.addEventListener('touchmove', function(e){
+    var dx = e.touches[0].clientX - startX;
+    var dy = e.touches[0].clientY - startY;
+    // 左端30px以内から右方向へのスワイプを止める
+    if(startX < 30 && dx > 0 && Math.abs(dx) > Math.abs(dy)){
+      e.preventDefault();
+    }
+  }, {passive: false});
+})();
+</script>
+<style>
+	html,body{
+		overscroll-behavior-x: none;
+	}
+</style>
+<script type="text/javascript" src="puzzle/js/swf2js.js" defer></script>
 </body>
 
 </html>
