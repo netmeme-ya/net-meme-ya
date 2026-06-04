@@ -296,7 +296,7 @@ html,body{
   </div>
   <div class="s-hs"  id="s-hs">HIGHSCORE：0</div>
   <div id="s-bar"></div>
-  <div class="s-copy">©ねとみむや ver.1.03</div>
+  <div class="s-copy">©ねとみむや ver.1.04</div>
 </div>
 
 <!-- GAME -->
@@ -870,18 +870,30 @@ function setupEvents(){
   canvas.addEventListener('mousemove', e=>{curX=evX(e);});
   canvas.addEventListener('click',     e=>{audioUnlock();drop(evX(e));});
 
-  // タッチ操作はg-area全体（画面最下部まで）に拡張
-  const gArea=document.getElementById('g-area');
-  gArea.addEventListener('touchmove', e=>{e.preventDefault();curX=evX(e);},{passive:false});
-  gArea.addEventListener('touchend',  e=>{e.preventDefault();e.stopPropagation();audioUnlock();drop(evX(e));},{passive:false});
+  // タッチ操作はscr-game全体（g-nextや余白含む画面最下部まで）に拡張
+  // ヘッダー(#g-hdr)のボタン操作は除外する
+  const scrGame=document.getElementById('scr-game');
+  const gHdr=document.getElementById('g-hdr');
+  scrGame.addEventListener('touchmove', e=>{
+    if(gHdr.contains(e.target)) return; // ヘッダーは除外
+    e.preventDefault();
+    curX=evX(e);
+  },{passive:false});
+  scrGame.addEventListener('touchend', e=>{
+    if(gHdr.contains(e.target)) return; // ヘッダーは除外
+    e.preventDefault();
+    e.stopPropagation();
+    audioUnlock();
+    drop(evX(e));
+  },{passive:false});
 
   document.addEventListener('touchstart', e=>{
     // 左端30px以内のスワイプバックのみ禁止
     if(e.touches[0].clientX<30) e.preventDefault();
   },{passive:false});
-  // documentレベルのtouchmoveはゲームエリア上のみpreventDefault（ボタン等を妨害しない）
+  // documentレベルのtouchmoveはゲーム画面上のみpreventDefault
   document.addEventListener('touchmove', e=>{
-    if(e.target===canvas||gArea.contains(e.target)) e.preventDefault();
+    if(e.target===canvas||scrGame.contains(e.target)) e.preventDefault();
   },{passive:false});
   document.addEventListener('gesturestart', e=>e.preventDefault(),{passive:false});
 
