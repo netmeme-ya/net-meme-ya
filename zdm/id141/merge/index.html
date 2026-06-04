@@ -296,7 +296,7 @@ html,body{
   </div>
   <div class="s-hs"  id="s-hs">HIGHSCORE：0</div>
   <div id="s-bar"></div>
-  <div class="s-copy">©ねとみむや ver.1.02</div>
+  <div class="s-copy">©ねとみむや ver.1.03</div>
 </div>
 
 <!-- GAME -->
@@ -472,10 +472,27 @@ function updScore(){
 }
 const SND_ON  = '<path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
 const SND_OFF = '<path d="M3 9v6h4l5 4V5L7 9H3z"/><path fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" d="M15 9l5 6M20 9l-5 6"/>';
+const SE_SRCS = {
+  se_drop:  'pic/se_drop.mp3',
+  se_merge: 'pic/se_merge.mp3',
+  se_c1:    'pic/se_c1.mp3',
+};
 function updSnd(){
   const ico=soundOn?SND_ON:SND_OFF;
   document.getElementById('s-snd-icon').innerHTML=ico;
   document.getElementById('g-snd-icon').innerHTML=ico;
+  // 音声OFF時はSE audioのsrcを空にしてAndroidの意図しない再生を防ぐ
+  Object.keys(SE_SRCS).forEach(id=>{
+    try{
+      const el=document.getElementById(id);
+      if(!el) return;
+      if(!soundOn){
+        el.pause(); el.removeAttribute('src'); el.load();
+      } else {
+        if(!el.getAttribute('src')){ el.src=SE_SRCS[id]; el.load(); }
+      }
+    }catch(e){}
+  });
 }
 function updHs(){
   document.getElementById('s-hs').textContent='HIGHSCORE：'+highScore.toLocaleString();
@@ -931,14 +948,15 @@ function setupEvents(){
   document.addEventListener('touchstart',()=>{
     if(bgmPausedByVisibility && !document.hidden){
       bgmPausedByVisibility = false;
-      // srcを元に戻す
+      // srcを元に戻す（SE はsoundOnのときのみ）
       Object.keys(AUDIO_SRCS).forEach(id=>{
         try{
           const el=document.getElementById(id);
-          if(el && !el.getAttribute('src')){
-            el.src = AUDIO_SRCS[id];
-            el.load();
-          }
+          if(!el || el.getAttribute('src')) return;
+          // SEはsoundOFFなら復元しない
+          if(id !== 'bgm' && !soundOn) return;
+          el.src = AUDIO_SRCS[id];
+          el.load();
         }catch(e){}
       });
       // ゲーム中かつ未ゲームオーバーならBGM再開
