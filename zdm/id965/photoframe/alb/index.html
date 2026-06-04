@@ -1,0 +1,67 @@
+<!--©ねとみむや 閲覧状況監視中。ソースコードは日本国の著作権法で守られています。-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta name="robots" content="noindex">
+	<meta charset="UTF-8">
+	<meta name="date" content="2024-01-01T00:00:00+09:00">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>アルバムDEフォトフレーム</title>
+<!--favicon-->
+<link rel="icon" href="../../icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="../../icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="../../icon/i180.png">
+	<!--CSS-->
+	<link rel="stylesheet" href="alb.css">
+	<link rel="stylesheet" href="../pic/no_yoko.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<!--font-family: 'Noto Sans JP', sans-serif;-->
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+	<!--JSはBODYの最後・ua.jsはSP判定-->
+	<script src="../pic/ua.js"></script>
+</head>
+
+<body>
+<a id="a_top"></a>
+<div id="errormoji" style="display: none;">
+    <h2 style="color: red;">アルバム エラー(Album Error)<h2>
+    <p><b>ストレージにアクセスできません。</b></p>       
+    <a href="../index.html"><p><u style="color: blue;">【BACK】</u></p></a>
+</div>
+<div id="wrap">
+   	<input type="file" id="imageInput" accept="image/*" style="display: none;">
+	<div id="pic_con_div">
+		<img id="photoframe" src="../frame/kihon.webp" width="1080" height="1080" alt="フォトフレーム">
+		<img id="sentakuPic" src="../pic/load_alb.webp" width="1080" height="1080" alt="画像を選択してください">
+	</div>
+    <canvas id="imageCanvas" style="display: none;" width="1080" height="1080"></canvas>
+	<div id="uploadButton"><div class="btn_up"><img src="../pic/i_up.svg" width="20" height="20" alt="↑"><p>画像を選択</p></div></div>
+	<div class="btn_ma"></div>
+	<div id="downloadBtn" style="display: none;"><div class="btn_dl"><p>保存(DOWNLOAD)</p></div></div>
+    <div class="dl_keikoku">
+        <p id="dl_iphone" style="display: none;">フォトフレームはアルバムではなく<br><b>「ファイル」</b>に保存されています。</p>
+        <p id="dl_android" style="display: none;">フォトフレームはアルバムではなく<br><b>「ダウンロード」</b>に保存されています。</p>
+    </div>
+    
+    <div class="btn_ma"></div>
+	<a id="back_a" href="#pageend"><div class="btn_dl"><p>BACK</p></div></a>
+    <div id="back_keikoku" style="display: none;">
+        <p>画像を合成しましたが、まだ「保存」していません。それでも良ければもう一度「BACK」ボタンを押して下さい。</p>
+        <p>You have not yet saved this image.</p>
+    </div>
+	<div id="kahen_ma"></div>
+<footer>
+    <p>©ねとみむや</p>
+</footer>
+</div>
+
+<div id="no_yoko">
+    <p>このWEBアプリは「縦向き」でのみ動作します。</p>
+    <p>This web-appli works only in portrait orientation.</p>
+    <img src="../pic/noyoko_icon.svg" class="noyokoimg" width="100" height="100" alt="縦向きのみ">
+</div>
+<script src="alb.js"></script>
+<a id="pageend"></a>
+</body>
+</html>

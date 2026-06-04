@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>うまく動かない方へ</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px 16px 40px;
+    font-family: -apple-system, "Helvetica Neue", "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: #fafafa;
+    color: #000;
+    line-height: 1.7;
+  }
+  main{
+    margin: 0 auto;
+    width: fit-content;
+    max-width: 1024px;
+  }
+  h1 {
+    font-size: 18px;
+    text-align: center;
+    margin: 8px 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+  }
+  h2 {
+    font-size: 16px;
+    margin: 28px 0 10px;
+    padding: 4px;
+    padding-left: 8px;
+    border-left: 3px solid #6aa84f;
+    background-color: #f2f2f2;
+  }
+  h3 {
+    margin: 20px 0 8px;
+    font-size: 16px;
+  }
+  .hr{
+    border-bottom: 1px solid #ccc;
+    margin: 1em auto;
+  }
+  ol {
+    padding-left: 22px;
+    margin: 8px 0;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+  .note {
+    margin: 6px 0 0;
+  }
+  .top-link {
+    display: block;
+    margin: 36px auto 0;
+    width: 160px;
+    padding: 12px;
+    text-align: center;
+    background: #6aa84f;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+  }
+  .top-link:active {
+    background: #588a40;
+  }
+  @media(max-width: 375px) {
+    body{font-size: 15px;}
+  }
+</style>
+</head>
+<body>
+<main>
+<h1>・うまく動かない方へ・</h1>
+<h2>ブラウザのカメラ使用許可を拒否にしてしまった</h2>
+<div id="android">
+<p><b>【Android】</b></p>
+<p class="note">Chromeを利用している前提にてお話します。</p>
+
+<h3>● まず試す方法</h3>
+<ol>
+  <li>アドレスバー左側の 🔒（鍵マーク） または ⓘ をタップ</li>
+  <li>「権限」または「サイトの設定」をタップ</li>
+  <li>「カメラ」を「許可」に変更</li>
+  <li>ページを再読み込み（更新）</li>
+</ol>
+
+<h3>● 上記で見つからない場合</h3>
+<ol>
+  <li>Chrome 右上の ︙（メニュー） をタップ</li>
+  <li>「設定」→「サイトの設定」→「カメラ」</li>
+  <li>「ブロック中」の一覧からこのサイトを選び、「許可」に変更</li>
+  <li>ページを再読み込み</li>
+</ol>
+
+<h3>● それでも使えない場合（端末の設定から）</h3>
+<ol>
+  <li>スマートフォンの「設定」アプリを開く</li>
+  <li>「アプリ」→「Chrome」</li>
+  <li>「権限」→「カメラ」を「許可」に変更</li>
+  <li>ブラウザに戻り、ページを再読み込み</li>
+</ol>
+
+<div class="hr"></div>
+</div>
+<div id="iphone">
+<p><b>【iPhone】</b></p>
+<p class="note"><b>iPhone Safari</b>の場合</p>
+
+<h3>● まず試す方法</h3>
+<ol>
+  <li>アドレスバーの「ぁあ」または「AA」をタップ</li>
+  <li>「Webサイトの設定」をタップ</li>
+  <li>「カメラ」を「許可」または「確認」に変更</li>
+  <li>ページを再読み込み</li>
+</ol>
+
+<h3>● 上記で見つからない場合（Safariの設定から）</h3>
+<ol>
+  <li>「設定」アプリを開く</li>
+  <li>「アプリ」→「Safari」をタップ</li>
+  <li>下の方の「カメラ」を「確認」または「許可」に変更</li>
+  <li>Safariに戻り、ページを再読み込み</li>
+</ol>
+
+<h3>● それでも使えない場合（端末の設定から）</h3>
+<ol>
+  <li>「設定」アプリを開く</li>
+  <li>「アプリ」→「Safari」をタップ</li>
+  <li>「カメラ」の項目をオンに変更</li>
+  <li>Safariに戻り、ページを再読み込み</li>
+</ol>
+<p class="note">※ スクリーンタイムで制限がかかっている場合は「設定」→「スクリーンタイム」→「コンテンツとプライバシーの制限」→「カメラ」も併せてご確認ください。</p>
+
+
+<div class="hr"></div>
+<p class="note"><b>iPhone Chrome</b>の場合</p>
+
+<h3>● まず試す方法</h3>
+<ol>
+  <li>アドレスバー左側の鍵マークをタップ</li>
+  <li>「カメラ」を「許可」に変更</li>
+  <li>ページを再読み込み</li>
+</ol>
+
+<h3>● 上記で見つからない場合（Chromeアプリの権限を確認）</h3>
+<ol>
+  <li>「設定」アプリを開く</li>
+  <li>「アプリ」→「Chrome」をタップ</li>
+  <li>「カメラ」の項目をオンに変更</li>
+  <li>Chromeに戻り、ページを再読み込み</li>
+</ol>
+
+<h3>● それでも使えない場合（Safariの設定も確認）</h3>
+<ol>
+  <li>「設定」アプリを開く</li>
+  <li>「アプリ」→「Safari」をタップ</li>
+  <li>下の方の「カメラ」を「確認」または「許可」に変更</li>
+  <li>Chromeに戻り、ページを再読み込み</li>
+</ol>
+<p class="note">※ iPhone版Chromeは内部的にSafariと同じ仕組みで動いているため、Safari側の設定も影響することがあります。</p>
+
+<h3>● スクリーンタイムで制限されている場合</h3>
+<ol>
+  <li>「設定」アプリを開く</li>
+  <li>「スクリーンタイム」をタップ</li>
+  <li>「コンテンツとプライバシーの制限」→「カメラ」を「許可」に変更</li>
+  <li>Chromeに戻り、ページを再読み込み</li>
+</ol>
+<div class="hr"></div>
+</div>
+
+<p><b>【それ以外のブラウザ】</b></p>
+<p><small>申し訳ありませんが、本webアプリの対応ブラウザがスマートフォンのSafari・Chromeだけとなります。それ以外のブラウザの対応策は個別にお探しください。</small></p>
+
+
+<a href="index.html" class="top-link">TOPへ戻る</a>
+</main>
+<script>
+(function() {
+  var ua = navigator.userAgent;
+  var isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  var isAndroid = /Android/.test(ua);
+
+  if (isIOS) {
+    var androidEl = document.getElementById('android');
+    if (androidEl) androidEl.remove();
+  } else if (isAndroid) {
+    var iphoneEl = document.getElementById('iphone');
+    if (iphoneEl) iphoneEl.remove();
+  }
+})();
+</script>
+</body>
+</html>
