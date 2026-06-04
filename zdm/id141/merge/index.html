@@ -856,6 +856,7 @@ function evX(e){
   const r=canvas.getBoundingClientRect();
   // touchend は touches が空になるので changedTouches を使う
   const src=e.changedTouches?e.changedTouches[0]:e.touches?e.touches[0]:e;
+  // canvas座標に変換（canvas外のタッチも対応）
   const cx=src.clientX-r.left;
   return cx*(W/r.width);
 }
@@ -868,16 +869,19 @@ function setupEvents(){
 
   canvas.addEventListener('mousemove', e=>{curX=evX(e);});
   canvas.addEventListener('click',     e=>{audioUnlock();drop(evX(e));});
-  canvas.addEventListener('touchmove', e=>{e.preventDefault();curX=evX(e);},{passive:false});
-  canvas.addEventListener('touchend',  e=>{e.preventDefault();e.stopPropagation();audioUnlock();drop(evX(e));},{passive:false});
+
+  // タッチ操作はg-area全体（画面最下部まで）に拡張
+  const gArea=document.getElementById('g-area');
+  gArea.addEventListener('touchmove', e=>{e.preventDefault();curX=evX(e);},{passive:false});
+  gArea.addEventListener('touchend',  e=>{e.preventDefault();e.stopPropagation();audioUnlock();drop(evX(e));},{passive:false});
 
   document.addEventListener('touchstart', e=>{
     // 左端30px以内のスワイプバックのみ禁止
     if(e.touches[0].clientX<30) e.preventDefault();
   },{passive:false});
-  // documentレベルのtouchmoveはcanvas上のみpreventDefault（ボタン等を妨害しない）
+  // documentレベルのtouchmoveはゲームエリア上のみpreventDefault（ボタン等を妨害しない）
   document.addEventListener('touchmove', e=>{
-    if(e.target===canvas) e.preventDefault();
+    if(e.target===canvas||gArea.contains(e.target)) e.preventDefault();
   },{passive:false});
   document.addEventListener('gesturestart', e=>e.preventDefault(),{passive:false});
 
