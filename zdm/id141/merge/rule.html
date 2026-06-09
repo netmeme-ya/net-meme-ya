@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ずんだゲーム・ボイボ大合成の遊び方</title>
+<!--favicon-->
+<link rel="icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/favicon.ico" type="image/x-icon">
+<link rel="icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/i180.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="https://netmeme-ya.github.io/net-meme-ya/zdm/id141/icon/i180.png">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+* {
+    margin: 0; padding: 0; box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+html, body {
+    width: 100%;
+    min-height: 100%;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500;
+    background: #b04cb0;
+    color: #fff;
+    overscroll-behavior-y: contain;
+    -webkit-text-size-adjust: 100%;
+}
+@media (min-width:1025px){
+    html, body { background: #000; }
+}
+
+/* ページ全体コンテナ */
+#page {
+    max-width: 1024px;
+    margin: 0 auto;
+    background: #b04cb0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0 0 env(safe-area-inset-bottom);
+    position: relative;
+}
+
+/* ヘッダ */
+.page-header {
+    text-align: center;
+    padding: 28px 20px 16px;
+}
+.page-header h1 {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-size: clamp(24px, 6.4vw, 38px);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 2px;
+    line-height: 1.4;
+    text-shadow: 0 2px 4px rgba(0,0,0,.2);
+}
+.page-header .lead {
+    margin-top: 8px;
+    font-size: clamp(13px, 3.4vw, 16px);
+    font-weight: 700;
+    opacity: 0.95;
+    line-height: 1.6;
+}
+
+/* セクションカード */
+.section {
+    width: 92%;
+    max-width: 560px;
+    margin: 0 auto 20px;
+    background: #fff;
+    color: #2b1a4a;
+    border-radius: 16px;
+    padding: 18px 20px 20px;
+    box-shadow: 0 3px 8px rgba(0,0,0,.15);
+}
+.section h2 {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-size: clamp(18px, 4.6vw, 22px);
+    font-weight: 900;
+    color: #fff;
+    background: #7a1a9a;
+    padding: 8px 14px;
+    border-radius: 10px;
+    letter-spacing: 1px;
+    margin: -8px -8px 14px;
+    line-height: 1.4;
+}
+.section p {
+    font-size: clamp(14px, 3.6vw, 16px);
+    line-height: 1.75;
+    margin: 0 0 10px;
+    font-weight: 500;
+}
+.section p:last-child { margin-bottom: 0; }
+.section .em {
+    color: #e8257a;
+    font-weight: 900;
+}
+.section .em-green {
+    color: #228822;
+    font-weight: 900;
+}
+.section .em-orange {
+    color: #cc6600;
+    font-weight: 900;
+}
+
+/* リスト */
+.section ul, .section ol {
+    margin: 4px 0 10px 1.3em;
+    line-height: 1.75;
+    font-size: clamp(14px, 3.6vw, 16px);
+    font-weight: 500;
+}
+.section li { margin-bottom: 4px; }
+
+/* ボール進化テーブル */
+.ball-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 12px;
+    font-size: clamp(13px, 3.4vw, 15px);
+}
+.ball-table th, .ball-table td {
+    border: 1px solid #ddd0ee;
+    padding: 7px 8px;
+    text-align: center;
+    font-weight: 700;
+}
+.ball-table thead th {
+    background: #7a1a9a;
+    color: #fff;
+    font-weight: 900;
+}
+.ball-table tbody tr:nth-child(even) td {
+    background: #f8f0ff;
+}
+.ball-table td.score-val {
+    color: #e8257a;
+    font-weight: 900;
+    font-family: "M PLUS Rounded 1c", sans-serif;
+}
+.ball-table td.ball-name {
+    text-align: left;
+    padding-left: 12px;
+}
+
+/* ボールバー（サイズイメージ） */
+.ball-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 12px 8px;
+    background: #110820;
+    border-radius: 14px;
+    margin: 12px 0 8px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+}
+.ball-circle {
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 注意ボックス */
+.tip {
+    background: #fff7e8;
+    border-left: 4px solid #cc6600;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-size: clamp(13px, 3.4vw, 15px);
+    color: #5a3a10;
+    font-weight: 700;
+    line-height: 1.6;
+}
+.tip-green {
+    background: #eefff0;
+    border-left: 4px solid #228822;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-size: clamp(13px, 3.4vw, 15px);
+    color: #1a4a1a;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+/* デンジャーライン図解 */
+.danger-img {
+    background: #110820;
+    border-radius: 14px;
+    padding: 14px 20px;
+    margin: 12px 0;
+    text-align: center;
+    color: #fff;
+    font-size: clamp(12px, 3.2vw, 14px);
+    font-weight: 700;
+    line-height: 1.6;
+}
+.danger-line {
+    border-top: 2px dashed rgba(255,80,80,.8);
+    color: rgba(255,80,80,.9);
+    margin: 6px 0 4px;
+    padding-top: 4px;
+    font-size: clamp(11px, 3vw, 13px);
+}
+
+/* ずんだバナーサンプル */
+.zunda-sample {
+    display: inline-block;
+    background: linear-gradient(135deg, #1a6e1a, #44cc44, #1a6e1a);
+    border: 3px solid #aaff44;
+    border-radius: 14px;
+    padding: 10px 20px;
+    color: #fff;
+    font-weight: 900;
+    font-size: clamp(18px, 5vw, 24px);
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px #aaffaa, 2px 2px 0 #004400;
+    box-shadow: 0 0 16px rgba(80,255,80,.5);
+    margin: 10px 0;
+}
+
+/* TOPへボタン */
+.bottom-actions {
+    width: 92%;
+    max-width: 420px;
+    margin: 8px auto 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+}
+.btn-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    width: 100%;
+    border-radius: 999px;
+    background: #e8257a;
+    color: #fff;
+    font-weight: 900;
+    font-size: clamp(20px, 5vw, 26px);
+    letter-spacing: 2px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,.18);
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: transform .08s ease, filter .15s ease;
+}
+.btn-top:active { transform: scale(0.97); filter: brightness(0.92); }
+
+/* コピーライト */
+.copyright {
+    font-family: sans-serif;
+    text-align: center;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 400;
+    margin-top: 2em;
+    padding: 8px 0 20px;
+}
+
+/* 戻るボタン */
+.page-back-btn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #fff;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    text-decoration: none;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+}
+.page-back-btn svg { width: 28px; height: 28px; }
+.page-back-btn:active { transform: scale(0.92); }
+
+@media (min-width:767px){
+    .section h2 { transform: rotateZ(0.03deg); }
+}
+
+/* ネクスト表示イメージ */
+.next-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #1e1e2e;
+    border-radius: 28px;
+    padding: 10px 20px;
+    margin: 10px auto;
+    max-width: 240px;
+    border: 2px solid #3a3a50;
+}
+.next-lbl {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,.5);
+    letter-spacing: 1px;
+}
+</style>
+</head>
+<body>
+<div id="page">
+
+    <!-- 左上の戻るボタン -->
+    <a href="index.html" class="page-back-btn" aria-label="戻る">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </a>
+
+    <!-- ヘッダ -->
+    <header class="page-header">
+        <h1>あそびかた</h1>
+        <div class="lead">ずんだゲーム・ボイボ大合成</div>
+    </header>
+
+    <!-- 1. ゲームの目的 -->
+    <section class="section">
+        <h2>１．ゲームの目的</h2>
+        <p>
+            画面をタップ（またはスワイプ）して<span class="em">ボイボキャラのボール</span>を落とすのだ！
+        </p>
+        <p>
+            <span class="em">同じキャラのボールがぶつかる</span>と合体して<span class="em">ひとつ上のキャラ</span>に進化するのだ！<br>
+            どんどん合体させて<span class="em-green">ずんだもん</span>を目指すのだ！
+        </p>
+        <p>ボールが積み上がって<span class="em">デンジャーラインを超え続ける</span>と<b>GAME OVER</b>なのだ。</p>
+    </section>
+
+    <!-- 2. 操作方法 -->
+    <section class="section">
+        <h2>２．操作方法</h2>
+        <p>
+            画面の<span class="em">好きな場所をタップ</span>するとその真下にボールが落下するのだ！
+        </p>
+        <p>
+            <span class="em-orange">指でスライド</span>しながらタップ位置を調整して、ねらった場所に落とすのだ！
+        </p>
+        <p style="margin-top:8px;">
+            <span class="em-orange">★ NEXTキュー</span><br>
+            画面下部のバーに<span class="em">次に落ちてくるボール</span>が2個先まで表示されるのだ。
+        </p>
+        <div class="next-demo">
+            <span class="next-lbl">NEXT</span>
+            <div class="ball-circle" style="width:44px;height:44px;background:#4488ff;"></div>
+            <div class="ball-circle" style="width:36px;height:36px;background:#ff6666;"></div>
+        </div>
+        <p>予告を見て合体しやすい場所を考えるのだ！</p>
+        <div class="tip">
+            💡 落下位置は<b>縦の破線のガイドライン</b>で確認できるのだ。慎重に狙いを定めるのだ！
+        </div>
+    </section>
+
+    <!-- 3. ボール進化とスコア -->
+    <section class="section">
+        <h2>３．ボール進化とスコア</h2>
+        <p>
+            同じキャラのボール同士がぶつかると<span class="em">合体＆進化</span>！<br>進化したときに<span class="em-orange">スコア</span>が入るのだ！
+        </p>
+
+        <!-- ボールサイズイメージ（小→大） -->
+        <div class="ball-bar">
+            <div class="ball-circle" style="width:12px;height:12px;background:#4488ff;"></div>
+            <div class="ball-circle" style="width:15px;height:15px;background:#ff6666;"></div>
+            <div class="ball-circle" style="width:18px;height:18px;background:#ff99bb;"></div>
+            <div class="ball-circle" style="width:21px;height:21px;background:#ffcc00;"></div>
+            <div class="ball-circle" style="width:25px;height:25px;background:#bb44cc;"></div>
+            <div class="ball-circle" style="width:30px;height:30px;background:#ff8800;"></div>
+            <div class="ball-circle" style="width:36px;height:36px;background:#dd2222;"></div>
+            <div class="ball-circle" style="width:44px;height:44px;background:#ffee00;"></div>
+            <div class="ball-circle" style="width:52px;height:52px;background:#228822;"></div>
+            <div class="ball-circle" style="width:62px;height:62px;background:#00aaff;"></div>
+            <div class="ball-circle" style="width:75px;height:75px;background:#66bb22;"></div>
+        </div>
+        <p style="text-align:center; font-size:clamp(11px,3vw,13px); color:#888; margin-bottom:12px;">小さいボールから大きいボールへ進化！</p>
+
+        <p style="font-weight:900;">▼ 進化ステップとスコア一覧</p>
+        <table class="ball-table">
+            <thead>
+                <tr><th>ステップ</th><th>進化後のキャラ</th><th>獲得スコア</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td class="ball-name">豆</td><td class="score-val">1 pt</td></tr>
+                <tr><td>2</td><td class="ball-name">枝豆</td><td class="score-val">3 pt</td></tr>
+                <tr><td>3</td><td class="ball-name">ずんだもち</td><td class="score-val">6 pt</td></tr>
+                <tr><td>4</td><td class="ball-name">あんこもん</td><td class="score-val">10 pt</td></tr>
+                <tr><td>5</td><td class="ball-name">中国うさぎ</td><td class="score-val">15 pt</td></tr>
+                <tr><td>6</td><td class="ball-name">九州そら</td><td class="score-val">21 pt</td></tr>
+                <tr><td>7</td><td class="ball-name">東北イタコ</td><td class="score-val">28 pt</td></tr>
+                <tr><td>8</td><td class="ball-name">東北きりたん</td><td class="score-val">36 pt</td></tr>
+                <tr><td>9</td><td class="ball-name">東北ずん子</td><td class="score-val">45 pt</td></tr>
+                <tr><td>10</td><td class="ball-name">四国めたん</td><td class="score-val">55 pt</td></tr>
+                <tr><td>11</td><td class="ball-name" style="color:#228822;font-weight:900;">ずんだもん</td><td class="score-val" style="font-size:1.1em;">66 pt</td></tr>
+            </tbody>
+        </table>
+        <p>合体を重ねるほど<span class="em">高スコア</span>が狙えるのだ！</p>
+    </section>
+
+    <!-- 4. デンジャーライン -->
+    <section class="section">
+        <h2>４．デンジャーライン</h2>
+        <p>
+            フィールドの上部には<span class="em">赤い点線のデンジャーライン</span>があるのだ。
+        </p>
+        <div class="danger-img">
+            <div style="color:rgba(255,255,255,.45);font-size:clamp(11px,3vw,12px);">▲ ボールを落とす位置</div>
+            <div class="danger-line">─ ─ ─ ─ ─ ─ ─ ─ ─  ← デンジャーライン</div>
+            <div style="color:rgba(255,255,255,.6);font-size:clamp(11px,3vw,13px); margin-top:6px;">積み上がったボールたち ↓</div>
+            <div style="margin-top:4px; display:flex; justify-content:center; gap:6px; flex-wrap:wrap;">
+                <div class="ball-circle" style="width:24px;height:24px;background:#ffcc00;"></div>
+                <div class="ball-circle" style="width:20px;height:20px;background:#ff6666;"></div>
+                <div class="ball-circle" style="width:30px;height:30px;background:#bb44cc;"></div>
+                <div class="ball-circle" style="width:22px;height:22px;background:#4488ff;"></div>
+                <div class="ball-circle" style="width:26px;height:26px;background:#ff8800;"></div>
+            </div>
+        </div>
+        <p>
+            ボールが<span class="em">デンジャーラインを超えた状態が続く</span>とゲームオーバーになるのだ！<br>
+            すぐに超えただけでは大丈夫なのだ。<span class="em-orange">静止した状態でラインを超えると</span>カウントが始まるのだ。
+        </p>
+        <div class="tip">
+            ⚠️ 線が<b style="color:#ff5050;">赤く点滅</b>し始めたら危険サインなのだ！合体を急いでスペースを作るのだ！
+        </div>
+    </section>
+
+    <!-- 5. ずんだもん到達！ -->
+    <section class="section">
+        <h2>５．ずんだもん到達！</h2>
+        <p>
+            最大ボールの<span class="em-green">ずんだもん</span>を合成することができたら、特別なバナーが表示されるのだ！
+        </p>
+        <div style="text-align:center;">
+            <div class="zunda-sample">ずんだもん到達！</div>
+        </div>
+        <p>
+            そして、２つ目のずんだもん「<span class="em">Wずんだ</span>」を達成すれば完全クリア！<br>夢のALL CLEAR!!を目指すのだ！            
+        </p>
+
+    </section>
+    <!-- 6.キャラ紹介 -->
+    <section class="section">
+        <h2>６．キャラクター紹介</h2>
+        <style>
+            .ch_table{}
+            .ch_title{
+                font-weight:700 !important;
+                text-align: left;
+                font-size: 14px !important;
+                margin: 0  !important;
+            }
+            .ch_num{width: 30px;}
+            .ch_e{width: 100px;}
+            .ch_e img{max-width: 100px;height: auto;}
+            .ch_p{text-align: left;
+                font-size: 12px !important;}
+        </style>
+        
+            <table class="ball-table ch_table">
+            <tbody>
+                <tr><td class="ch_num">1</td>
+                    <td class="ch_e"><img src="pic/b0.png"></td>
+                    <td class="ball-name2"><p class="ch_title">豆</p>
+                    <p class="ch_p">1粒の豆</p></td>
+                </tr>
+                <tr>
+                    <td class="ch_num">2</td>
+                    <td class="ch_e"><img src="pic/b1.png"></td>
+                    <td class="ball-name2"><p class="ch_title">枝豆</p>
+                    <p class="ch_p">さやの枝豆・うまい</p></td>
+                    
+                </tr>
+                <tr>
+                    <td class="ch_num">3</td>
+                    <td class="ch_e"><img src="pic/b2.png"></td>                    
+                    <td class="ball-name2"><p class="ch_title">ずんだもち</p>
+                    <p class="ch_p">枝豆をすりつぶした餡を乗せた餅</p></td>
+                </tr>
+                <tr>
+                    <td class="ch_num">4</td>
+                    <td class="ch_e"><img src="pic/b3.png"></td>
+                    <td class="ball-name2"><p class="ch_title">あんこもん</p>
+                    <p class="ch_p">ずんだもんのライバル・暗黒面に落ちている</p></td>
+                </tr>
+                <tr>
+                    <td class="ch_num">5</td>
+                    <td class="ch_e"><img src="pic/b4.png"></td>
+                    <td class="ball-name2"><p class="ch_title">中国うさぎ</p>
+                    <p class="ch_p">中国地方のキャラ・巫女さんで無口</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ch_num">6</td>
+                    <td class="ch_e"><img src="pic/b5.png"></td>
+                    <td class="ball-name2"><p class="ch_title">九州そら</p>
+                    <p class="ch_p">九州地方のキャラ・ハイテクアンドロイド</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ch_num">7</td>
+                    <td class="ch_e"><img src="pic/b6.png"></td>
+                    <td class="ball-name2"><p class="ch_title">東北イタコ</p>
+                    <p class="ch_p">東北三姉妹の長女・ちゅわわー</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ch_num">8</td>
+                    <td class="ch_e"><img src="pic/b7.png"></td>
+                    <td class="ball-name2"><p class="ch_title">東北きりたん</p>
+                    <p class="ch_p">東北三姉妹の三女・ゲーマー</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ch_num">9</td>
+                    <td class="ch_e"><img src="pic/b8.png"></td>
+                    <td class="ball-name2"><p class="ch_title">東北ずん子</p>
+                    <p class="ch_p">東北三姉妹の次女・実は主人公</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ch_num">10</td>
+                    <td class="ch_e"><img src="pic/b9.png"></td>
+                    <td class="ball-name2"><p class="ch_title">四国めたん</p>
+                    <p class="ch_p">四国地方のキャラ・ずんだもんの相方</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ch_num">11</td>
+                    <td class="ch_e"><img src="pic/b10.png"></td>
+                    <td class="ball-name2"><p class="ch_title">ずんだもん</p>
+                    <p class="ch_p">ずんだの妖精・人気爆発中！</p>
+                    </td>
+                </tr>
+            </tbody>
+            </table>
+    </section>
+
+    <!-- 7. ハイスコア -->
+    <section class="section">
+        <h2>７．ハイスコア保存</h2>
+        <p class="u-pc12sp10_p" style="font-size:12px;line-height:1.5;word-break:break-all;overflow-wrap:break-word;">
+            ハイスコアの自動保存機能について、iOSでは<b style="color:red;">7日間<span style="color:red;">「ずんだもんスマホ専用デジタルおまけ」ページにアクセスしていないとセーブデータが消去される</span></b>場合があるのだ（7日の間に1度でも再アクセスすると延長されるのだ）。iOS・Android双方でOS初期化・OSアップデートなどでも消える場合があるのだ。予めご了承くださいなのだ。
+        </p>
+    </section>
+
+    <!-- TOPへ ボタン -->
+    <div class="bottom-actions">
+        <a href="index.html" class="btn-top">TOPへ</a>
+    </div>
+
+    <div class="copyright">©ねとみむや</div>
+
+</div>
+</body>
+</html>
