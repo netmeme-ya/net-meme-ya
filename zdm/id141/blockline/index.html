@@ -1318,13 +1318,13 @@ function toggleSound() {
     updateSoundIcons();
     if (!getSound()) {
         // OFFにしたらBGM停止 + フラグも落とす
-        const bgm = document.getElementById('bgm1');
-        if (bgm) {
-            try { bgm.pause(); bgm.currentTime = 0; } catch(e) {}
-        }
         bgmShouldPlay = false;
+        // 全audio要素をsrc空化してAndroidのメディア通知バーを消す
+        detachAllAudioForHidden();
     } else {
-        // ONに戻した: ゲーム画面アクティブかつGAMEOVER中でなければBGMを即時再開
+        // ONに戻した: src を復元してaudioを再使用可能にする
+        reattachAllAudioForVisible();
+        // ゲーム画面アクティブかつGAMEOVER中でなければBGMを即時再開
         // (タイトル/ノルマ画面では鳴らさない。GAMEOVER中も鳴らさない)
         const gameScreen = document.getElementById('screen-game');
         const inGame = gameScreen && gameScreen.classList.contains('active');

@@ -905,7 +905,8 @@ function setupEvents(){
 
   document.getElementById('s-snd').addEventListener('click',()=>{
     soundOn=!soundOn; saveSnd(); updSnd();
-    soundOn ? bgmPlay() : bgmStop();
+    // スタート画面ではBGMは再生しない（BGMはゲーム開始時のみ）
+    if(!soundOn) bgmStop();
   });
   document.getElementById('g-snd').addEventListener('click',()=>{
     soundOn=!soundOn; saveSnd(); updSnd();
