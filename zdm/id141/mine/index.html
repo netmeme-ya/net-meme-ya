@@ -527,13 +527,13 @@ body {
     <!-- SVGはJS側で動的に差し替え -->
   </button>
   <h1 class="title">ずんだスイーパー</h1>
-  <a href="?level=2" class="btn-level">6 × 6</a>
-  <a href="?level=3" class="btn-level">8 × 8</a>
-  <a href="?level=4" class="btn-level">10 × 10</a>
-  <a href="?level=5" class="btn-level">12 × 12</a>
+  <a href="?level=2" class="btn-level">6×6</a>
+  <!--<a href="?level=3" class="btn-level">8 × 8</a>
+  <a href="?level=4" class="btn-level">10 × 10</a>-->
+  <a href="?level=5" class="btn-level">12×12</a>
   <a href="../index.html" class="btn-top">TOPへ</a>
   <button type="button" class="btn-top" id="howToPlayBtn">遊び方</button>
-  <p class="start_footer_p">©ねとみむや v1.03</p>
+  <p class="start_footer_p">©ねとみむや v1.05</p>
 </div>
 
 <!-- ===== Rule Overlay ===== -->
@@ -849,11 +849,17 @@ body {
   }
 
   // ========== 背景画像の切替（localStorage で管理） ==========
+  // 6×6（panel1Side===6）のときは 0〜2 の3枚ローテーション、それ以外は 0〜62 の63枚ローテーション
+  function getBgRange() {
+    return (panel1Side === 6) ? 2 : 62;
+  }
+
   // ゲーム開始時：現在の番号で画像を表示するだけ（加算しない）
   function setupBackgroundImage() {
     const KEY = 'msp_bg';
+    const maxIdx = getBgRange();
     let current = parseInt(localStorage.getItem(KEY), 10);
-    if (isNaN(current) || current < 0 || current > 62) current = 0;
+    if (isNaN(current) || current < 0 || current > maxIdx) current = 0;
 
     // 画像の存在確認：読み込み失敗なら 0.webp にフォールバック
     const testImg = new Image();
@@ -867,13 +873,14 @@ body {
     testImg.src = 'pic/' + current + '.webp';
   }
 
-  // クリア時に次の番号へ加算して保存（63 なら 0 に戻す）
+  // クリア時に次の番号へ加算して保存（上限に達したら 0 に戻す）
   function advanceBackgroundImage() {
     const KEY = 'msp_bg';
+    const maxIdx = getBgRange();
     let current = parseInt(localStorage.getItem(KEY), 10);
-    if (isNaN(current) || current < 0 || current > 62) current = 0;
+    if (isNaN(current) || current < 0 || current > maxIdx) current = 0;
     let next = current + 1;
-    if (next > 62) next = 0;
+    if (next > maxIdx) next = 0;
     try {
       localStorage.setItem(KEY, String(next));
     } catch (e) {
